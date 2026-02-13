@@ -1,0 +1,6 @@
+// Migrations folder
+// Create migrations using: npx sequelize-cli migration:generate --name migration-name
+// Run migrations: npx sequelize-cli db:migrate
+// Undo migrations: npx sequelize-cli db:migrate:undo
+
+// This folder will contain all database migrations
