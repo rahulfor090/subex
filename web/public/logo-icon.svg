@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Left circle (blue) -->
+  <circle cx="72" cy="100" r="62" fill="#2563EB"/>
+  <!-- Right circle (green) -->
+  <circle cx="128" cy="100" r="62" fill="#4A7C59"/>
+  <!-- Overlap blend -->
+  <path d="M100 38.5a62 62 0 0 1 0 123 62 62 0 0 1 0-123z" fill="#3B6B45" opacity="0.85"/>
+  <!-- Left inner cutout -->
+  <circle cx="72" cy="100" r="26" fill="white"/>
+  <!-- Right inner cutout -->
+  <circle cx="128" cy="100" r="26" fill="white"/>
+</svg>

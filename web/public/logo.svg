@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" fill="none">
+  <!-- Left circle (blue) -->
+  <circle cx="72" cy="90" r="62" fill="#2563EB"/>
+  <!-- Right circle (green) -->
+  <circle cx="128" cy="90" r="62" fill="#4A7C59"/>
+  <!-- Overlap area - blend -->
+  <path d="M100 28.5a62 62 0 0 1 0 123 62 62 0 0 1 0-123z" fill="#3B6B45" opacity="0.85"/>
+  <!-- Left inner cutout (white) -->
+  <circle cx="72" cy="90" r="26" fill="white"/>
+  <!-- Right inner cutout (white) -->
+  <circle cx="128" cy="90" r="26" fill="white"/>
+  <!-- Text "SubEx" -->
+  <text x="210" y="118" font-family="'Inter','Segoe UI',system-ui,sans-serif" font-weight="800" font-size="96" fill="#1a3a2a" letter-spacing="-2">SubEx</text>
+</svg>
