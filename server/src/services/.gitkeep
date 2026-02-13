@@ -1,0 +1,17 @@
+// Services folder
+// This folder contains business logic services
+
+// Example service structure:
+// const db = require('../models');
+//
+// class UserService {
+//   async createUser(userData) {
+//     return await db.User.create(userData);
+//   }
+//
+//   async getUserById(id) {
+//     return await db.User.findByPk(id);
+//   }
+// }
+//
+// module.exports = new UserService();
