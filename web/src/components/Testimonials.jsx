@@ -1,90 +1,200 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, Twitter, Linkedin } from 'lucide-react';
 
 const testimonials = [
-  { name: 'Sarah Chen', role: 'Freelance Designer', content: 'SubEx saved me over $200 in forgotten subscriptions. The reminders are a game-changer!', rating: 5, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80' },
-  { name: 'Michael Park', role: 'Software Engineer', content: 'Finally, a privacy-first platform I can trust. Love the anonymous marketplace feature.', rating: 5, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80' },
-  { name: 'Emma Rodriguez', role: 'Marketing Manager', content: 'Clean interface, powerful features. Managing my 15+ subscriptions has never been easier.', rating: 5, avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80' },
-  { name: 'James Wilson', role: 'Entrepreneur', content: "The email alerts are perfectly timed. I haven't missed a renewal date since joining SubEx.", rating: 5, avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80' },
-  { name: 'Olivia Foster', role: 'Content Creator', content: 'Being able to sell unused vouchers anonymously is brilliant. Great side income!', rating: 5, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80' },
-  { name: 'David Kim', role: 'Product Manager', content: 'The spending insights helped me cut my monthly costs by 40%. Highly recommend!', rating: 5, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80' },
+    {
+        name: 'Sarah Chen',
+        username: '@sarah_design',
+        role: 'Product Designer',
+        content: "I used to lose so much money on forgotten subscriptions. SubEx paid for itself in the first week. The UI is just stunning.",
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'twitter'
+    },
+    {
+        name: 'Alex Rivera',
+        username: '@arivera_tech',
+        role: 'Senior Dev',
+        content: "The encryption protocol they use for the marketplace is impressive. Finally, a secure way to offload unused SaaS seats.",
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'linkedin'
+    },
+    {
+        name: 'Emma Watson',
+        username: '@emma_w',
+        role: 'Marketing Lead',
+        content: "Managing 20+ tools for my agency was a nightmare. SubEx Centralized everything. The alerts are a lifesaver.",
+        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'twitter'
+    },
+    {
+        name: 'David Kim',
+        username: '@dkim_pm',
+        role: 'Product Manager',
+        content: "Simple, effective, and beautiful. It's the only subscription tracker that actually feels modern. 10/10 recommend.",
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'linkedin'
+    },
+    {
+        name: 'Lisa Wang',
+        username: '@lisadesigns',
+        role: 'UX Researcher',
+        content: "The marketplace feature is genius. Sold my annual gym membership in 2 hours. Funds transferred instantly.",
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'twitter'
+    },
+    {
+        name: 'James Wilson',
+        username: '@jwilson_vc',
+        role: 'Investor',
+        content: "I've tried every finance app. SubEx is the only one that stuck. It's concise and actionable.",
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'linkedin'
+    },
+    {
+        name: 'Sophie Martin',
+        username: '@sophie_m',
+        role: 'Freelancer',
+        content: "Saved $400 this year just by identifying duplicate cloud storage accounts. This app is essential.",
+        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'twitter'
+    },
+    {
+        name: 'Marcus Johnson',
+        username: '@marcus_j',
+        role: 'Founder',
+        content: "Our startup uses SubEx to track all team software spend. It's saved us thousands in unused seat costs.",
+        avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'linkedin'
+    },
+    {
+        name: 'Elena Rodriguez',
+        username: '@elena_r',
+        role: 'Architect',
+        content: "Visualizing my recurring expenses was a wake-up call. SubEx helped me trim the fat immediately.",
+        avatar: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?auto=format&fit=crop&w=150&h=150&q=80',
+        platform: 'twitter'
+    }
 ];
 
-const brands = ['Netflix', 'Spotify', 'Adobe', 'Microsoft', 'Apple', 'Amazon', 'Disney+', 'Hulu'];
-
-const Testimonials = () => (
-  <section className="py-20 sm:py-28 bg-zinc-50 dark:bg-black relative overflow-hidden transition-colors duration-300">
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zinc-200 dark:via-zinc-800 to-transparent" />
-    <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
-
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div className="text-center mb-16">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-sm font-semibold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-3"
-        >
-          Testimonials
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight transition-colors duration-300"
-        >
-          Loved by users worldwide
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto"
-        >
-          See what people are saying about SubEx
-        </motion.p>
-      </div>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {testimonials.map((t, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            className="flex"
-          >
-            <div className="w-full bg-white dark:bg-zinc-900/50 backdrop-blur rounded-2xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-white/80 dark:hover:bg-zinc-900/80 transition-all duration-300 flex flex-col items-start shadow-sm dark:shadow-none">
-              <div className="flex gap-0.5 mb-4">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-300 mb-6 leading-relaxed flex-1">&ldquo;{t.content}&rdquo;</p>
-              <div className="flex items-center gap-3">
-                <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-800" loading="lazy" />
-                <div>
-                  <div className="text-sm font-semibold text-zinc-900 dark:text-white">{t.name}</div>
-                  <div className="text-xs text-zinc-500">{t.role}</div>
+const TestimonialCard = ({ testimonial }) => (
+    <div className="w-full break-inside-avoid mb-6">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                    <img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-10 h-10 rounded-full object-cover border border-zinc-100 dark:border-zinc-800"
+                    />
+                    <div>
+                        <div className="font-semibold text-sm text-zinc-900 dark:text-white">{testimonial.name}</div>
+                        <div className="text-xs text-zinc-500">{testimonial.username}</div>
+                    </div>
                 </div>
-              </div>
+                {testimonial.platform === 'twitter' ? (
+                    <Twitter size={16} className="text-blue-400 fill-blue-400/10" />
+                ) : (
+                    <Linkedin size={16} className="text-blue-600 fill-blue-600/10" />
+                )}
             </div>
-          </motion.div>
-        ))}
-      </div>
 
-      <div className="mt-24 text-center">
-        <p className="text-sm text-zinc-400 dark:text-zinc-600 mb-10 uppercase tracking-widest font-semibold opacity-75">Trusted by teams at top companies</p>
-        <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-          {brands.map((name) => (
-            <span key={name} className="text-xl sm:text-2xl font-bold text-zinc-800 dark:text-white hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors cursor-default tracking-tight">{name}</span>
-          ))}
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed mb-4">
+                "{testimonial.content}"
+            </p>
+
+            <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
+                ))}
+            </div>
         </div>
-      </div>
     </div>
-  </section>
 );
+
+const Testimonials = () => {
+    // Split testimonials into 3 columns for the masonry layout
+    const col1 = testimonials.slice(0, 3);
+    const col2 = testimonials.slice(3, 6);
+    const col3 = testimonials.slice(6, 9);
+
+    const duplicatedCol1 = [...col1, ...col1, ...col1];
+    const duplicatedCol2 = [...col2, ...col2, ...col2];
+    const duplicatedCol3 = [...col3, ...col3, ...col3];
+
+    return (
+        <section className="relative h-screen max-h-[900px] bg-zinc-50 dark:bg-black overflow-hidden flex flex-col items-center justify-center">
+            {/* Background Ambience */}
+            <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-zinc-50 dark:from-black to-transparent z-20" />
+            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-zinc-50 dark:from-black to-transparent z-20" />
+
+            {/* Header Overlay */}
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-center px-4 max-w-3xl mx-auto backdrop-blur-sm bg-zinc-50/30 dark:bg-black/30 p-8 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 backdrop-blur-md border border-black/10 dark:border-white/10 text-zinc-900 dark:text-white text-xs font-semibold uppercase tracking-wider mb-6"
+                    >
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Community
+                    </motion.div>
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-bold text-zinc-900 dark:text-white mb-6 tracking-tight drop-shadow-sm"
+                    >
+                        Loved by <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500">10,000+</span> creators.
+                    </motion.h2>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-lg md:text-xl text-zinc-600 dark:text-zinc-300 max-w-xl mx-auto"
+                    >
+                        Join the fastest growing community of smart savers and subscription masters.
+                    </motion.p>
+                </div>
+            </div>
+
+            {/* Marquee Columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl mx-auto px-4 opacity-50 hover:opacity-100 transition-opacity duration-700">
+
+                {/* Column 1 - Up */}
+                <div className="relative h-[120vh] overflow-hidden -mt-20">
+                    <motion.div
+                        animate={{ y: ["0%", "-33.33%"] }}
+                        transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                    >
+                        {duplicatedCol1.map((t, i) => <TestimonialCard key={`col1-${i}`} testimonial={t} />)}
+                    </motion.div>
+                </div>
+
+                {/* Column 2 - Down (Slower/Faster) */}
+                <div className="relative h-[120vh] overflow-hidden -mt-20 hidden md:block">
+                    <motion.div
+                        animate={{ y: ["-33.33%", "0%"] }}
+                        transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+                    >
+                        {duplicatedCol2.map((t, i) => <TestimonialCard key={`col2-${i}`} testimonial={t} />)}
+                    </motion.div>
+                </div>
+
+                {/* Column 3 - Up */}
+                <div className="relative h-[120vh] overflow-hidden -mt-20 hidden lg:block">
+                    <motion.div
+                        animate={{ y: ["0%", "-33.33%"] }}
+                        transition={{ repeat: Infinity, duration: 22, ease: "linear" }}
+                    >
+                        {duplicatedCol3.map((t, i) => <TestimonialCard key={`col3-${i}`} testimonial={t} />)}
+                    </motion.div>
+                </div>
+
+            </div>
+        </section>
+    );
+};
 
 export default Testimonials;
