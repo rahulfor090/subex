@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { ModeToggle } from './ModeToggle';
+import { motion } from 'framer-motion';
+import Logo from './Logo';
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -39,13 +41,16 @@ const Header = () => {
         : 'bg-transparent'
         }`}
     >
+      {/* Shimmer Border Effect on Scroll */}
+      {scrolled && (
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
+      )}
+
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <a href="#" className="flex items-center group" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-500">
-              SubEx.
-            </span>
+            <Logo />
           </a>
 
           {/* Desktop Navigation */}
@@ -55,9 +60,10 @@ const Header = () => {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg"
+                className="relative px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg group"
               >
                 {link.label}
+                <span className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-emerald-500/0 via-emerald-500/70 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
             ))}
           </nav>
@@ -71,7 +77,7 @@ const Header = () => {
             >
               Log in
             </Button>
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-5 text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all border-none">
+            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-5 text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all border-none hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] hover:-translate-y-0.5">
               Start free trial
             </Button>
           </div>

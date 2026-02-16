@@ -1,6 +1,8 @@
 ﻿import React from 'react';
 import { Mail, Twitter, Github, Linkedin, Heart } from 'lucide-react';
 
+import Logo from './Logo';
+
 const footerLinks = {
   Product: ['Features', 'Pricing', 'Security', 'Roadmap', 'Changelog'],
   Company: ['About', 'Blog', 'Careers', 'Press Kit', 'Contact'],
@@ -27,9 +29,7 @@ const Footer = () => (
             className="inline-block mb-6 group"
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           >
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-500">
-              SubEx.
-            </span>
+            <Logo />
           </a>
           <p className="text-sm text-zinc-500 dark:text-zinc-500 mb-8 max-w-sm leading-relaxed">
             Smart subscription management with privacy-first design. Never miss a renewal, never

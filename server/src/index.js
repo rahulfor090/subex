@@ -3,7 +3,11 @@ require('dotenv').config();
 const db = require('./models');
 
 const app = express();
+const cors = require('cors');
 const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
 
 // Middleware
 app.use(express.json());
