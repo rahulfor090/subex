@@ -67,7 +67,12 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     website_url: DataTypes.STRING(255),
-    category: DataTypes.STRING(100)
+    category: DataTypes.STRING(100),
+
+    plan_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true // nullable for user-tracked subscriptions without a plan
+    }
 
   }, {
     tableName: "subscriptions",
@@ -75,6 +80,12 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: "created_at",
     updatedAt: "updated_at"
   });
+
+  Subscription.associate = function (models) {
+    Subscription.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    Subscription.belongsTo(models.Plan, { foreignKey: 'plan_id', as: 'plan' });
+    Subscription.hasMany(models.Transaction, { foreignKey: 'subscription_id', as: 'transactions' });
+  };
 
   return Subscription;
 };

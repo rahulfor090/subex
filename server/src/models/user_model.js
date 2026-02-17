@@ -43,6 +43,12 @@ module.exports = (sequelize, DataTypes) => {
     country: DataTypes.STRING(100),
     zip_code: DataTypes.STRING(20),
 
+    role: {
+      type: DataTypes.ENUM('user', 'admin', 'super_admin'),
+      defaultValue: 'user',
+      allowNull: false
+    },
+
     is_email_verified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -54,6 +60,12 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: "created_at",
     updatedAt: "updated_at"
   });
+
+  User.associate = function (models) {
+    User.hasMany(models.Subscription, { foreignKey: 'user_id', as: 'subscriptions' });
+    User.hasMany(models.Transaction, { foreignKey: 'user_id', as: 'transactions' });
+    User.hasOne(models.UserAuth, { foreignKey: 'user_id', as: 'auth' });
+  };
 
   return User;
 };

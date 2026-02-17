@@ -57,6 +57,15 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    // Role-based access helpers
+    const isAdmin = useMemo(() => {
+        return user?.role === 'admin' || user?.role === 'super_admin';
+    }, [user]);
+
+    const isSuperAdmin = useMemo(() => {
+        return user?.role === 'super_admin';
+    }, [user]);
+
     const value = useMemo(() => ({
         user,
         token,
@@ -64,8 +73,10 @@ export const AuthProvider = ({ children }) => {
         signup,
         logout,
         isAuthenticated: !!token && !!user,
+        isAdmin,
+        isSuperAdmin,
         loading
-    }), [user, token, loading, login, signup, logout]);
+    }), [user, token, loading, login, signup, logout, isAdmin, isSuperAdmin]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -9,6 +9,13 @@ import SubscriptionForm from "./pages/subscriptions/SubscriptionForm";
 import { ThemeProvider } from "./lib/ThemeProvider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPlans from "./pages/admin/AdminPlans";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminRoute from "./components/admin/AdminRoute";
+
 // Protected route wrapper component
 const Protected = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -54,6 +61,24 @@ function App() {
               <Route
                 path="/subscriptions/edit/:id"
                 element={<Protected><SubscriptionForm mode="edit" /></Protected>}
+              />
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={<AdminRoute><AdminDashboard /></AdminRoute>}
+              />
+              <Route
+                path="/admin/users"
+                element={<AdminRoute><AdminUsers /></AdminRoute>}
+              />
+              <Route
+                path="/admin/plans"
+                element={<AdminRoute><AdminPlans /></AdminRoute>}
+              />
+              <Route
+                path="/admin/transactions"
+                element={<AdminRoute><AdminTransactions /></AdminRoute>}
               />
             </Routes>
           </BrowserRouter>

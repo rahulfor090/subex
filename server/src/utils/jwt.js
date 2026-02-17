@@ -6,11 +6,12 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 /**
  * Generate JWT token for a user
  * @param {number} userId - User ID to encode in token
+ * @param {string} role - User role to encode in token
  * @returns {string} JWT token
  */
-const generateToken = (userId) => {
+const generateToken = (userId, role = 'user') => {
   return jwt.sign(
-    { userId },
+    { userId, role },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );

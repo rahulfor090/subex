@@ -10,7 +10,7 @@ const authenticate = async (req, res, next) => {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
@@ -39,7 +39,8 @@ const authenticate = async (req, res, next) => {
       user_id: user.user_id,
       email: user.email,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      role: user.role || 'user'
     };
 
     next();

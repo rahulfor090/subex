@@ -82,7 +82,7 @@ router.post('/signup', async (req, res) => {
     });
 
     // Generate JWT token for automatic login
-    const accessToken = generateToken(result.user_id);
+    const accessToken = generateToken(result.user_id, result.role || 'user');
 
     // Return success response with accessToken
     res.status(200).json({
@@ -93,7 +93,7 @@ router.post('/signup', async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle Sequelize validation errors
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({
@@ -190,11 +190,11 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       // Increment failed login attempts
       const newFailedAttempts = (userAuth.failed_login_attempts || 0) + 1;
-      
+
       if (newFailedAttempts >= 5) {
         // Lock the account for 60 seconds
         const lockUntil = new Date(Date.now() + 60 * 1000);
-        
+
         await userAuth.update({
           failed_login_attempts: newFailedAttempts,
           account_locked: true,
@@ -230,7 +230,7 @@ router.post('/login', async (req, res) => {
     });
 
     // Generate JWT token
-    const accessToken = generateToken(user.user_id);
+    const accessToken = generateToken(user.user_id, user.role || 'user');
 
     // Return success response with accessToken
     res.status(200).json({
@@ -240,7 +240,7 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred during login. Please try again later.'
@@ -253,14 +253,14 @@ router.post('/logout', authenticate, async (req, res) => {
   try {
     // The authenticate middleware has already verified the token
     // In a more advanced implementation, you could add the token to a blacklist here
-    
+
     res.status(200).json({
       success: true,
       message: 'Logged out successfully'
     });
   } catch (error) {
     console.error('Logout error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred during logout. Please try again later.'
@@ -287,12 +287,13 @@ router.get('/me', authenticate, async (req, res) => {
         userId: user.user_id.toString(),
         name: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
-        phone: user.phone_number
+        phone: user.phone_number,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
     console.error('Get user error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user details.'
