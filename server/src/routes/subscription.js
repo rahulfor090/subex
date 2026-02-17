@@ -10,11 +10,35 @@ router.use(authenticate);
 router.get('/', async (req, res) => {
   try {
     const userId = req.user.user_id;
+    console.log('Fetching subscriptions for user:', userId);
 
     const subscriptions = await db.Subscription.findAll({
       where: { user_id: userId },
-      order: [['next_renewal_date', 'ASC']]
+      include: [
+        {
+          model: db.Company,
+          as: 'company',
+          attributes: ['id', 'name', 'image'],
+          required: false
+        },
+        {
+          model: db.Folder,
+          as: 'folder',
+          attributes: ['id', 'name'],
+          required: false
+        },
+        {
+          model: db.Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] },
+          required: false
+        }
+      ],
+      order: [['created_at', 'DESC']]
     });
+
+    console.log('Found subscriptions:', subscriptions.length);
 
     res.status(200).json({
       success: true,
@@ -22,10 +46,14 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Get subscriptions error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
     
     res.status(500).json({
       success: false,
-      message: 'An error occurred while fetching subscriptions.'
+      message: 'An error occurred while fetching subscriptions.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -40,7 +68,25 @@ router.get('/:id', async (req, res) => {
       where: {
         subscription_id: subscriptionId,
         user_id: userId
-      }
+      },
+      include: [
+        {
+          model: db.Company,
+          as: 'company',
+          attributes: ['id', 'name', 'image']
+        },
+        {
+          model: db.Folder,
+          as: 'folder',
+          attributes: ['id', 'name']
+        },
+        {
+          model: db.Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
     });
 
     if (!subscription) {
@@ -69,51 +115,85 @@ router.post('/', async (req, res) => {
   try {
     const userId = req.user.user_id;
     const {
-      service_name,
+      company_id,
       description,
-      start_date,
-      next_renewal_date,
-      billing_cycle_number,
-      billing_cycle_period,
-      auto_renew,
-      cost,
+      type,
+      recurring,
+      frequency,
+      cycle,
+      value,
       currency,
-      is_active,
-      is_trial,
-      website_url,
-      category
+      next_payment_date,
+      contract_expiry,
+      url_link,
+      payment_method,
+      folder_id,
+      tag_ids,
+      notes
     } = req.body;
 
     // Validate required fields
-    if (!service_name || !start_date || !next_renewal_date || !cost || !currency || !billing_cycle_period) {
+    if (!company_id || !value || !currency || !cycle) {
       return res.status(400).json({
         success: false,
-        message: 'Service name, start date, next renewal date, cost, currency, and billing cycle period are required'
+        message: 'Company, value, currency, and cycle are required'
       });
     }
 
     // Create subscription
     const subscription = await db.Subscription.create({
       user_id: userId,
-      service_name,
+      company_id,
       description: description || null,
-      start_date,
-      next_renewal_date,
-      billing_cycle_number: billing_cycle_number || 1,
-      billing_cycle_period,
-      auto_renew: auto_renew !== undefined ? auto_renew : true,
-      cost,
+      type: type || 'subscription',
+      recurring: recurring !== undefined ? recurring : true,
+      frequency: frequency || 1,
+      cycle,
+      value,
       currency,
-      is_active: is_active !== undefined ? is_active : true,
-      is_trial: is_trial !== undefined ? is_trial : false,
-      website_url: website_url || null,
-      category: category || null
+      next_payment_date: next_payment_date || null,
+      contract_expiry: contract_expiry || null,
+      url_link: url_link || null,
+      payment_method: payment_method || null,
+      folder_id: folder_id || null,
+      notes: notes || null
+    });
+
+    // Add tags if provided
+    if (tag_ids && Array.isArray(tag_ids) && tag_ids.length > 0) {
+      const tags = await db.Tag.findAll({
+        where: { id: tag_ids }
+      });
+      await subscription.setTags(tags);
+    }
+
+    // Fetch the created subscription with associations
+    const createdSubscription = await db.Subscription.findOne({
+      where: { subscription_id: subscription.subscription_id },
+      include: [
+        {
+          model: db.Company,
+          as: 'company',
+          attributes: ['id', 'name', 'image']
+        },
+        {
+          model: db.Folder,
+          as: 'folder',
+          attributes: ['id', 'name']
+        },
+        {
+          model: db.Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
     });
 
     res.status(200).json({
       success: true,
       message: 'Subscription created successfully',
-      data: subscription
+      data: createdSubscription
     });
   } catch (error) {
     console.error('Create subscription error:', error);
@@ -157,41 +237,88 @@ router.patch('/:id', async (req, res) => {
 
     // Update fields
     const {
-      service_name,
+      company_id,
       description,
-      start_date,
-      next_renewal_date,
-      billing_cycle_number,
-      billing_cycle_period,
-      auto_renew,
-      cost,
+      type,
+      recurring,
+      frequency,
+      cycle,
+      value,
       currency,
-      is_active,
-      is_trial,
-      website_url,
-      category
+      next_payment_date,
+      contract_expiry,
+      url_link,
+      payment_method,
+      folder_id,
+      tag_ids,
+      notes
     } = req.body;
 
+    // Helper function to sanitize date values
+    const sanitizeDate = (dateValue) => {
+      if (!dateValue || dateValue === '' || dateValue === 'Invalid date') {
+        return null;
+      }
+      // Check if it's a valid date
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) {
+        return null;
+      }
+      return dateValue;
+    };
+
     await subscription.update({
-      service_name: service_name !== undefined ? service_name : subscription.service_name,
-      description: description !== undefined ? description : subscription.description,
-      start_date: start_date !== undefined ? start_date : subscription.start_date,
-      next_renewal_date: next_renewal_date !== undefined ? next_renewal_date : subscription.next_renewal_date,
-      billing_cycle_number: billing_cycle_number !== undefined ? billing_cycle_number : subscription.billing_cycle_number,
-      billing_cycle_period: billing_cycle_period !== undefined ? billing_cycle_period : subscription.billing_cycle_period,
-      auto_renew: auto_renew !== undefined ? auto_renew : subscription.auto_renew,
-      cost: cost !== undefined ? cost : subscription.cost,
+      company_id: company_id !== undefined ? company_id : subscription.company_id,
+      description: description !== undefined ? (description || null) : subscription.description,
+      type: type !== undefined ? type : subscription.type,
+      recurring: recurring !== undefined ? recurring : subscription.recurring,
+      frequency: frequency !== undefined ? frequency : subscription.frequency,
+      cycle: cycle !== undefined ? cycle : subscription.cycle,
+      value: value !== undefined ? value : subscription.value,
       currency: currency !== undefined ? currency : subscription.currency,
-      is_active: is_active !== undefined ? is_active : subscription.is_active,
-      is_trial: is_trial !== undefined ? is_trial : subscription.is_trial,
-      website_url: website_url !== undefined ? website_url : subscription.website_url,
-      category: category !== undefined ? category : subscription.category
+      next_payment_date: next_payment_date !== undefined ? sanitizeDate(next_payment_date) : subscription.next_payment_date,
+      contract_expiry: contract_expiry !== undefined ? sanitizeDate(contract_expiry) : subscription.contract_expiry,
+      url_link: url_link !== undefined ? (url_link || null) : subscription.url_link,
+      payment_method: payment_method !== undefined ? payment_method : subscription.payment_method,
+      folder_id: folder_id !== undefined ? folder_id : subscription.folder_id,
+      notes: notes !== undefined ? (notes || null) : subscription.notes
+    });
+
+    // Update tags if provided
+    if (tag_ids !== undefined && Array.isArray(tag_ids)) {
+      const tags = await db.Tag.findAll({
+        where: { id: tag_ids }
+      });
+      await subscription.setTags(tags);
+    }
+
+    // Fetch updated subscription with associations
+    const updatedSubscription = await db.Subscription.findOne({
+      where: { subscription_id: subscription.subscription_id },
+      include: [
+        {
+          model: db.Company,
+          as: 'company',
+          attributes: ['id', 'name', 'image']
+        },
+        {
+          model: db.Folder,
+          as: 'folder',
+          attributes: ['id', 'name']
+        },
+        {
+          model: db.Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
     });
 
     res.status(200).json({
       success: true,
       message: 'Subscription updated successfully',
-      data: subscription
+      data: updatedSubscription
     });
   } catch (error) {
     console.error('Update subscription error:', error);

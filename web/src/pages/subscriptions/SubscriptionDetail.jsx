@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -93,6 +93,11 @@ const SubscriptionDetail = () => {
         }).format(amount);
     };
 
+    const capitalizeFirst = (str) => {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+
     return (
         <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white antialiased overflow-x-hidden">
             {/* Background Effects */}
@@ -150,16 +155,17 @@ const SubscriptionDetail = () => {
                             <div>
                                 <h1 className="text-4xl md:text-5xl font-bold mb-2">
                                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500">
-                                        {subscription.service_name}
+                                        {subscription.company?.name || 'Unknown Company'}
                                     </span>
                                 </h1>
                                 <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${subscription.is_active
-                                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                            : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
+                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${subscription.type === 'subscription' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
+                                            subscription.type === 'trial' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' :
+                                                subscription.type === 'lifetime' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
+                                                    'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
                                         }`}
                                 >
-                                    {subscription.is_active ? 'Active' : 'Inactive'}
+                                    {capitalizeFirst(subscription.type)}
                                 </span>
                             </div>
                             <div className="flex gap-3">
@@ -228,35 +234,67 @@ const SubscriptionDetail = () => {
                             className="bg-white dark:bg-zinc-900/50 backdrop-blur border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-xl"
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <DetailItem label="Service Name" value={subscription.service_name} />
-                                <DetailItem label="Category" value={subscription.category || 'Uncategorized'} />
-                                <DetailItem label="Cost" value={formatCurrency(subscription.cost, subscription.currency)} />
+                                <DetailItem label="Company" value={subscription.company?.name || 'Unknown'} />
+                                <DetailItem label="Type" value={capitalizeFirst(subscription.type)} />
+                                <DetailItem label="Value" value={formatCurrency(subscription.value, subscription.currency)} />
                                 <DetailItem label="Currency" value={subscription.currency} />
-                                <DetailItem label="Start Date" value={formatDate(subscription.start_date)} />
-                                <DetailItem label="Next Renewal" value={formatDate(subscription.next_renewal_date)} />
-                                <DetailItem label="Billing Cycle" value={`Every ${subscription.billing_cycle_number} ${subscription.billing_cycle_period}`} />
-                                <DetailItem label="Auto Renew" value={subscription.auto_renew ? 'Yes' : 'No'} />
-                                <DetailItem label="Trial" value={subscription.is_trial ? 'Yes' : 'No'} />
-                                {subscription.website_url && (
-                                    <DetailItem
-                                        label="Website"
-                                        value={
-                                            <a
-                                                href={subscription.website_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-emerald-500 hover:text-emerald-600 underline"
-                                            >
-                                                {subscription.website_url}
-                                            </a>
-                                        }
-                                    />
+                                <DetailItem label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} />
+                                <DetailItem label="Frequency" value={subscription.frequency} />
+                                <DetailItem label="Cycle" value={capitalizeFirst(subscription.cycle)} />
+                                <DetailItem label="Payment Method" value={subscription.payment_method ? capitalizeFirst(subscription.payment_method) : 'Not Specified'} />
+                                <DetailItem label="Next Payment" value={formatDate(subscription.next_payment_date)} />
+                                <DetailItem label="Contract Expiry" value={formatDate(subscription.contract_expiry)} />
+                                <DetailItem label="Folder" value={subscription.folder?.name || 'No Folder'} />
+
+                                {/* Tags */}
+                                <div className="md:col-span-2">
+                                    <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mb-2">Tags</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {subscription.tags && subscription.tags.length > 0 ? (
+                                            subscription.tags.map(tag => (
+                                                <span
+                                                    key={tag.id}
+                                                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                                >
+                                                    {tag.name}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-zinc-500">No tags</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* URL Link */}
+                                {subscription.url_link && (
+                                    <div className="md:col-span-2">
+                                        <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mb-1">URL Link</h3>
+                                        <a
+                                            href={subscription.url_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-emerald-500 hover:text-emerald-600 underline flex items-center gap-1"
+                                        >
+                                            {subscription.url_link}
+                                            <ExternalLink size={14} />
+                                        </a>
+                                    </div>
                                 )}
                             </div>
+
+                            {/* Description */}
                             {subscription.description && (
                                 <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
                                     <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mb-2">Description</h3>
                                     <p className="text-zinc-900 dark:text-white">{subscription.description}</p>
+                                </div>
+                            )}
+
+                            {/* Notes */}
+                            {subscription.notes && (
+                                <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                                    <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mb-2">Notes</h3>
+                                    <p className="text-zinc-900 dark:text-white whitespace-pre-wrap">{subscription.notes}</p>
                                 </div>
                             )}
                         </motion.div>

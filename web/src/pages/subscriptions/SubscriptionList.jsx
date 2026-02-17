@@ -20,6 +20,8 @@ const SubscriptionList = () => {
     const fetchSubscriptions = async () => {
         try {
             setLoading(true);
+            console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
+
             const response = await fetch('http://localhost:3000/api/subscriptions', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -27,17 +29,20 @@ const SubscriptionList = () => {
                 }
             });
 
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Response data:', data);
 
             if (response.ok && data.success) {
                 setSubscriptions(data.data || []);
                 setError(null);
             } else {
+                console.error('API Error:', data);
                 setError(data.message || 'Failed to load subscriptions');
             }
         } catch (err) {
-            setError('Unable to connect to server. Please try again later.');
             console.error('Fetch subscriptions error:', err);
+            setError('Unable to connect to server. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -142,16 +147,16 @@ const SubscriptionList = () => {
                                     <thead className="bg-zinc-100 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Service Name
+                                                Company
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Next Renewal
+                                                Next Payment
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Category
+                                                Value
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Status
+                                                Tags
                                             </th>
                                         </tr>
                                     </thead>
@@ -166,23 +171,29 @@ const SubscriptionList = () => {
                                                 className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
                                             >
                                                 <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
-                                                    {subscription.service_name}
+                                                    {subscription.company?.name || 'Unknown'}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {formatDate(subscription.next_renewal_date)}
+                                                    {formatDate(subscription.next_payment_date)}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {subscription.category || 'Uncategorized'}
+                                                    {subscription.currency} {subscription.value}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
-                                                    <span
-                                                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${subscription.is_active
-                                                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                                                : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
-                                                            }`}
-                                                    >
-                                                        {subscription.is_active ? 'Active' : 'Inactive'}
-                                                    </span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {subscription.tags && subscription.tags.length > 0 ? (
+                                                            subscription.tags.map(tag => (
+                                                                <span
+                                                                    key={tag.id}
+                                                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                                                >
+                                                                    {tag.name}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-zinc-500 text-xs">No tags</span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </motion.tr>
                                         ))}

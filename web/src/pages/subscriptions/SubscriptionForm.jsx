@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, AlertCircle, Save } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertCircle, Save, Plus, X } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,20 +12,34 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const { token } = useAuth();
 
     const [formData, setFormData] = useState({
-        service_name: '',
+        company_id: '',
         description: '',
-        start_date: '',
-        next_renewal_date: '',
-        billing_cycle_number: 1,
-        billing_cycle_period: 'monthly',
-        auto_renew: true,
-        cost: '',
+        type: 'subscription',
+        recurring: true,
+        frequency: 1,
+        cycle: 'monthly',
+        value: '',
         currency: 'USD',
-        is_active: true,
-        is_trial: false,
-        website_url: '',
-        category: ''
+        next_payment_date: '',
+        contract_expiry: '',
+        url_link: '',
+        payment_method: '',
+        folder_id: '',
+        tag_ids: [],
+        notes: ''
     });
+
+    const [companies, setCompanies] = useState([]);
+    const [folders, setFolders] = useState([]);
+    const [tags, setTags] = useState([]);
+
+    const [showCompanyForm, setShowCompanyForm] = useState(false);
+    const [showFolderForm, setShowFolderForm] = useState(false);
+    const [showTagForm, setShowTagForm] = useState(false);
+
+    const [newCompanyName, setNewCompanyName] = useState('');
+    const [newFolderName, setNewFolderName] = useState('');
+    const [newTagName, setNewTagName] = useState('');
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,10 +48,50 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const [loading, setLoading] = useState(mode === 'edit');
 
     useEffect(() => {
+        fetchCompanies();
+        fetchFolders();
+        fetchTags();
+
         if (mode === 'edit' && id) {
             fetchSubscription();
         }
     }, [mode, id]);
+
+    const fetchCompanies = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/companies', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) setCompanies(data.data);
+        } catch (err) {
+            console.error('Fetch companies error:', err);
+        }
+    };
+
+    const fetchFolders = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/folders', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) setFolders(data.data);
+        } catch (err) {
+            console.error('Fetch folders error:', err);
+        }
+    };
+
+    const fetchTags = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/tags', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) setTags(data.data);
+        } catch (err) {
+            console.error('Fetch tags error:', err);
+        }
+    };
 
     const fetchSubscription = async () => {
         try {
@@ -52,19 +106,21 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
             if (response.ok && data.success) {
                 setFormData({
-                    service_name: data.data.service_name || '',
+                    company_id: data.data.company_id || '',
                     description: data.data.description || '',
-                    start_date: data.data.start_date || '',
-                    next_renewal_date: data.data.next_renewal_date || '',
-                    billing_cycle_number: data.data.billing_cycle_number || 1,
-                    billing_cycle_period: data.data.billing_cycle_period || 'monthly',
-                    auto_renew: data.data.auto_renew ?? true,
-                    cost: data.data.cost || '',
+                    type: data.data.type || 'subscription',
+                    recurring: data.data.recurring ?? true,
+                    frequency: data.data.frequency || 1,
+                    cycle: data.data.cycle || 'monthly',
+                    value: data.data.value || '',
                     currency: data.data.currency || 'USD',
-                    is_active: data.data.is_active ?? true,
-                    is_trial: data.data.is_trial ?? false,
-                    website_url: data.data.website_url || '',
-                    category: data.data.category || ''
+                    next_payment_date: data.data.next_payment_date || '',
+                    contract_expiry: data.data.contract_expiry || '',
+                    url_link: data.data.url_link || '',
+                    payment_method: data.data.payment_method || '',
+                    folder_id: data.data.folder_id || '',
+                    tag_ids: data.data.tags ? data.data.tags.map(t => t.id) : [],
+                    notes: data.data.notes || ''
                 });
             }
         } catch (err) {
@@ -74,26 +130,98 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         }
     };
 
+    const createCompany = async () => {
+        if (!newCompanyName.trim()) return;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/companies', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newCompanyName })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                await fetchCompanies();
+                setFormData(prev => ({ ...prev, company_id: data.data.id }));
+                setNewCompanyName('');
+                setShowCompanyForm(false);
+            }
+        } catch (err) {
+            console.error('Create company error:', err);
+        }
+    };
+
+    const createFolder = async () => {
+        if (!newFolderName.trim()) return;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/folders', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newFolderName })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                await fetchFolders();
+                setFormData(prev => ({ ...prev, folder_id: data.data.id }));
+                setNewFolderName('');
+                setShowFolderForm(false);
+            }
+        } catch (err) {
+            console.error('Create folder error:', err);
+        }
+    };
+
+    const createTag = async () => {
+        if (!newTagName.trim()) return;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/tags', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newTagName })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                await fetchTags();
+                setFormData(prev => ({
+                    ...prev,
+                    tag_ids: [...prev.tag_ids, data.data.id]
+                }));
+                setNewTagName('');
+                setShowTagForm(false);
+            }
+        } catch (err) {
+            console.error('Create tag error:', err);
+        }
+    };
+
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.service_name.trim()) {
-            newErrors.service_name = 'Service name is required';
+        if (!formData.company_id) {
+            newErrors.company_id = 'Company is required';
         }
-        if (!formData.start_date) {
-            newErrors.start_date = 'Start date is required';
-        }
-        if (!formData.next_renewal_date) {
-            newErrors.next_renewal_date = 'Next renewal date is required';
-        }
-        if (!formData.cost || parseFloat(formData.cost) <= 0) {
-            newErrors.cost = 'Valid cost is required';
+        if (!formData.value || parseFloat(formData.value) <= 0) {
+            newErrors.value = 'Valid value is required';
         }
         if (!formData.currency.trim()) {
             newErrors.currency = 'Currency is required';
         }
-        if (!formData.billing_cycle_period) {
-            newErrors.billing_cycle_period = 'Billing cycle period is required';
+        if (!formData.cycle) {
+            newErrors.cycle = 'Cycle is required';
         }
 
         setErrors(newErrors);
@@ -113,6 +241,15 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                 [name]: ''
             }));
         }
+    };
+
+    const handleTagToggle = (tagId) => {
+        setFormData(prev => ({
+            ...prev,
+            tag_ids: prev.tag_ids.includes(tagId)
+                ? prev.tag_ids.filter(id => id !== tagId)
+                : [...prev.tag_ids, tagId]
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -204,7 +341,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                     className="text-center mb-12"
                 >
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        {mode === 'edit' ? 'Edit' : 'Add'} <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500">Subscription</span>
+                        {mode === 'edit' ? 'Edit' : 'Add'} <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-500">Subscription</span>
                     </h1>
                     <p className="text-lg text-zinc-600 dark:text-zinc-400">
                         {mode === 'edit' ? 'Update your subscription details' : 'Add a new subscription to track'}
@@ -219,231 +356,399 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                     className="bg-white dark:bg-zinc-900/50 backdrop-blur border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-xl"
                 >
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Service Information */}
+                        {/* Company */}
                         <div>
-                            <h2 className="text-xl font-semibold mb-4">Service Information</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="service_name" className="block text-sm font-medium mb-2">
-                                        Service Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="service_name"
-                                        name="service_name"
-                                        value={formData.service_name}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.service_name ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                        placeholder="Netflix, Spotify, etc."
-                                    />
-                                    {errors.service_name && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.service_name}</p>
-                                    )}
-                                </div>
+                            <label htmlFor="company_id" className="block text-sm font-medium mb-2">
+                                Company <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex gap-2">
+                                <select
+                                    id="company_id"
+                                    name="company_id"
+                                    value={formData.company_id}
+                                    onChange={handleChange}
+                                    className={`flex-1 px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.company_id ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+                                        } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                                >
+                                    <option value="">Select Company</option>
+                                    {companies.map(company => (
+                                        <option key={company.id} value={company.id}>{company.name}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCompanyForm(!showCompanyForm)}
+                                    className="px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
+                                >
+                                    <Plus size={20} />
+                                </button>
+                            </div>
+                            {errors.company_id && (
+                                <p className="mt-1 text-sm text-red-500">{errors.company_id}</p>
+                            )}
 
-                                <div>
-                                    <label htmlFor="category" className="block text-sm font-medium mb-2">
-                                        Category
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="category"
-                                        name="category"
-                                        value={formData.category}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        placeholder="Entertainment, Productivity, etc."
-                                    />
+                            {/* Inline Company Form */}
+                            {showCompanyForm && (
+                                <div className="mt-2 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={newCompanyName}
+                                            onChange={(e) => setNewCompanyName(e.target.value)}
+                                            placeholder="Company name"
+                                            className="flex-1 px-3 py-2 rounded bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={createCompany}
+                                            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded"
+                                        >
+                                            Add
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCompanyForm(false)}
+                                            className="px-4 py-2 bg-zinc-500 hover:bg-zinc-600 text-white rounded"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
                                 </div>
+                            )}
+                        </div>
 
-                                <div>
-                                    <label htmlFor="description" className="block text-sm font-medium mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        rows="3"
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        placeholder="Additional details about this subscription"
-                                    />
-                                </div>
+                        {/* Description */}
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                rows="3"
+                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                placeholder="Additional details about this subscription"
+                            />
+                        </div>
 
-                                <div>
-                                    <label htmlFor="website_url" className="block text-sm font-medium mb-2">
-                                        Website URL
-                                    </label>
-                                    <input
-                                        type="url"
-                                        id="website_url"
-                                        name="website_url"
-                                        value={formData.website_url}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        placeholder="https://example.com"
-                                    />
-                                </div>
+                        {/* Type & Recurring */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="type" className="block text-sm font-medium mb-2">
+                                    Type
+                                </label>
+                                <select
+                                    id="type"
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                >
+                                    <option value="subscription">Subscription</option>
+                                    <option value="trial">Trial</option>
+                                    <option value="lifetime">Lifetime</option>
+                                    <option value="revenue">Revenue</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">
+                                    Recurring
+                                </label>
+                                <select
+                                    name="recurring"
+                                    value={formData.recurring ? 'Yes' : 'No'}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, recurring: e.target.value === 'Yes' }))}
+                                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                >
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
                             </div>
                         </div>
 
-                        {/* Billing Information */}
-                        <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
-                            <h2 className="text-xl font-semibold mb-4">Billing Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="cost" className="block text-sm font-medium mb-2">
-                                        Cost <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        id="cost"
-                                        name="cost"
-                                        value={formData.cost}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.cost ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                        placeholder="9.99"
-                                    />
-                                    {errors.cost && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.cost}</p>
-                                    )}
-                                </div>
+                        {/* Frequency & Cycle */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="frequency" className="block text-sm font-medium mb-2">
+                                    Frequency
+                                </label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    id="frequency"
+                                    name="frequency"
+                                    value={formData.frequency}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                />
+                            </div>
 
-                                <div>
-                                    <label htmlFor="currency" className="block text-sm font-medium mb-2">
-                                        Currency <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="currency"
-                                        name="currency"
-                                        value={formData.currency}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.currency ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                        placeholder="USD"
-                                    />
-                                    {errors.currency && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.currency}</p>
-                                    )}
-                                </div>
+                            <div>
+                                <label htmlFor="cycle" className="block text-sm font-medium mb-2">
+                                    Cycle <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    id="cycle"
+                                    name="cycle"
+                                    value={formData.cycle}
+                                    onChange={handleChange}
+                                    className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.cycle ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+                                        } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                                >
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                                {errors.cycle && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.cycle}</p>
+                                )}
+                            </div>
+                        </div>
 
-                                <div>
-                                    <label htmlFor="billing_cycle_number" className="block text-sm font-medium mb-2">
-                                        Billing Cycle Number
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        id="billing_cycle_number"
-                                        name="billing_cycle_number"
-                                        value={formData.billing_cycle_number}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                    />
-                                </div>
+                        {/* Value & Currency */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="value" className="block text-sm font-medium mb-2">
+                                    Value <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    id="value"
+                                    name="value"
+                                    value={formData.value}
+                                    onChange={handleChange}
+                                    className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.value ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+                                        } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                                    placeholder="0.00"
+                                />
+                                {errors.value && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.value}</p>
+                                )}
+                            </div>
 
-                                <div>
-                                    <label htmlFor="billing_cycle_period" className="block text-sm font-medium mb-2">
-                                        Billing Cycle Period <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        id="billing_cycle_period"
-                                        name="billing_cycle_period"
-                                        value={formData.billing_cycle_period}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.billing_cycle_period ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                            <div>
+                                <label htmlFor="currency" className="block text-sm font-medium mb-2">
+                                    Currency <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="currency"
+                                    name="currency"
+                                    value={formData.currency}
+                                    onChange={handleChange}
+                                    className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.currency ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+                                        } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                                    placeholder="USD"
+                                />
+                                {errors.currency && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.currency}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Next Payment Date & Contract Expiry */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="next_payment_date" className="block text-sm font-medium mb-2">
+                                    Next Payment Date
+                                </label>
+                                <input
+                                    type="date"
+                                    id="next_payment_date"
+                                    name="next_payment_date"
+                                    value={formData.next_payment_date}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="contract_expiry" className="block text-sm font-medium mb-2">
+                                    Contract Expiry
+                                </label>
+                                <input
+                                    type="date"
+                                    id="contract_expiry"
+                                    name="contract_expiry"
+                                    value={formData.contract_expiry}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* URL Link */}
+                        <div>
+                            <label htmlFor="url_link" className="block text-sm font-medium mb-2">
+                                URL Link
+                            </label>
+                            <input
+                                type="url"
+                                id="url_link"
+                                name="url_link"
+                                value={formData.url_link}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                placeholder="https://example.com"
+                            />
+                        </div>
+
+                        {/* Payment Method */}
+                        <div>
+                            <label htmlFor="payment_method" className="block text-sm font-medium mb-2">
+                                Payment Method
+                            </label>
+                            <select
+                                id="payment_method"
+                                name="payment_method"
+                                value={formData.payment_method}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                            >
+                                <option value="">Not Specified</option>
+                                <option value="creditcard">Credit Card</option>
+                                <option value="free">Free</option>
+                                <option value="paypal">PayPal</option>
+                            </select>
+                        </div>
+
+                        {/* Folder */}
+                        <div>
+                            <label htmlFor="folder_id" className="block text-sm font-medium mb-2">
+                                Folder
+                            </label>
+                            <div className="flex gap-2">
+                                <select
+                                    id="folder_id"
+                                    name="folder_id"
+                                    value={formData.folder_id}
+                                    onChange={handleChange}
+                                    className="flex-1 px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                >
+                                    <option value="">No Folder</option>
+                                    {folders.map(folder => (
+                                        <option key={folder.id} value={folder.id}>{folder.name}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFolderForm(!showFolderForm)}
+                                    className="px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
+                                >
+                                    <Plus size={20} />
+                                </button>
+                            </div>
+
+                            {/* Inline Folder Form */}
+                            {showFolderForm && (
+                                <div className="mt-2 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={newFolderName}
+                                            onChange={(e) => setNewFolderName(e.target.value)}
+                                            placeholder="Folder name"
+                                            className="flex-1 px-3 py-2 rounded bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={createFolder}
+                                            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded"
+                                        >
+                                            Add
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowFolderForm(false)}
+                                            className="px-4 py-2 bg-zinc-500 hover:bg-zinc-600 text-white rounded"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Tags */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium">
+                                    Tags
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowTagForm(!showTagForm)}
+                                    className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm flex items-center gap-1"
+                                >
+                                    <Plus size={16} /> Add Tag
+                                </button>
+                            </div>
+
+                            {/* Inline Tag Form */}
+                            {showTagForm && (
+                                <div className="mb-3 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={newTagName}
+                                            onChange={(e) => setNewTagName(e.target.value)}
+                                            placeholder="Tag name"
+                                            className="flex-1 px-3 py-2 rounded bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={createTag}
+                                            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded"
+                                        >
+                                            Add
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowTagForm(false)}
+                                            className="px-4 py-2 bg-zinc-500 hover:bg-zinc-600 text-white rounded"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex flex-wrap gap-2">
+                                {tags.map(tag => (
+                                    <button
+                                        key={tag.id}
+                                        type="button"
+                                        onClick={() => handleTagToggle(tag.id)}
+                                        className={`px-3 py-1 rounded-full text-sm transition-colors ${formData.tag_ids.includes(tag.id)
+                                                ? 'bg-emerald-500 text-white'
+                                                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
+                                            }`}
                                     >
-                                        <option value="daily">Daily</option>
-                                        <option value="weekly">Weekly</option>
-                                        <option value="monthly">Monthly</option>
-                                        <option value="yearly">Yearly</option>
-                                    </select>
-                                    {errors.billing_cycle_period && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.billing_cycle_period}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label htmlFor="start_date" className="block text-sm font-medium mb-2">
-                                        Start Date <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        id="start_date"
-                                        name="start_date"
-                                        value={formData.start_date}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.start_date ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                    />
-                                    {errors.start_date && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.start_date}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label htmlFor="next_renewal_date" className="block text-sm font-medium mb-2">
-                                        Next Renewal Date <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        id="next_renewal_date"
-                                        name="next_renewal_date"
-                                        value={formData.next_renewal_date}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.next_renewal_date ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                    />
-                                    {errors.next_renewal_date && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.next_renewal_date}</p>
-                                    )}
-                                </div>
+                                        {tag.name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Status Options */}
-                        <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
-                            <h2 className="text-xl font-semibold mb-4">Status & Options</h2>
-                            <div className="space-y-3">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="is_active"
-                                        checked={formData.is_active}
-                                        onChange={handleChange}
-                                        className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                    <span className="text-sm font-medium">Active Subscription</span>
-                                </label>
-
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="auto_renew"
-                                        checked={formData.auto_renew}
-                                        onChange={handleChange}
-                                        className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                    <span className="text-sm font-medium">Auto Renew</span>
-                                </label>
-
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="is_trial"
-                                        checked={formData.is_trial}
-                                        onChange={handleChange}
-                                        className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                    <span className="text-sm font-medium">Trial Period</span>
-                                </label>
-                            </div>
+                        {/* Notes */}
+                        <div>
+                            <label htmlFor="notes" className="block text-sm font-medium mb-2">
+                                Notes
+                            </label>
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                value={formData.notes}
+                                onChange={handleChange}
+                                rows="4"
+                                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                placeholder="Additional notes..."
+                            />
                         </div>
 
                         {/* Submit Status Messages */}
@@ -452,8 +757,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`flex items-center gap-3 p-4 rounded-lg ${submitStatus === 'success'
-                                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                                        : 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
+                                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                                    : 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
                                     }`}
                             >
                                 {submitStatus === 'success' ? (
