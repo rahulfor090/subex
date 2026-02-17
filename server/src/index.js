@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const subscriptionRoutes = require('./routes/subscription');
 
 const app = express();
+const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 
 // Middleware

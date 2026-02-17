@@ -27,6 +27,7 @@ const Protected = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
