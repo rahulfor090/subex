@@ -84,6 +84,12 @@ router.post('/signup', async (req, res) => {
     // Generate JWT token for automatic login
     const accessToken = generateToken(result.user_id);
 
+    // Send welcome email (non-blocking)
+    const emailService = require('../services/email.service');
+    emailService.sendWelcomeEmail(result).catch(err => {
+      console.error('Failed to send welcome email:', err);
+    });
+
     // Return success response with accessToken
     res.status(200).json({
       success: true,
@@ -93,7 +99,7 @@ router.post('/signup', async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle Sequelize validation errors
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({
@@ -190,11 +196,11 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       // Increment failed login attempts
       const newFailedAttempts = (userAuth.failed_login_attempts || 0) + 1;
-      
+
       if (newFailedAttempts >= 5) {
         // Lock the account for 60 seconds
         const lockUntil = new Date(Date.now() + 60 * 1000);
-        
+
         await userAuth.update({
           failed_login_attempts: newFailedAttempts,
           account_locked: true,
@@ -240,7 +246,7 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred during login. Please try again later.'
@@ -253,14 +259,14 @@ router.post('/logout', authenticate, async (req, res) => {
   try {
     // The authenticate middleware has already verified the token
     // In a more advanced implementation, you could add the token to a blacklist here
-    
+
     res.status(200).json({
       success: true,
       message: 'Logged out successfully'
     });
   } catch (error) {
     console.error('Logout error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred during logout. Please try again later.'
@@ -292,10 +298,143 @@ router.get('/me', authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user details.'
+    });
+  }
+});
+
+/**
+ * POST /api/auth/forgot-password
+ * Request password reset
+ */
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Import auth service
+    const authService = require('../services/auth.service');
+    const result = await authService.requestPasswordReset(email);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Forgot password route error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/auth/verify-reset-token/:token
+ * Verify if reset token is valid
+ */
+router.get('/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token is required'
+      });
+    }
+
+    const authService = require('../services/auth.service');
+    const result = await authService.verifyResetToken(token);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Verify reset token route error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password using token
+ */
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token and password are required'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Check for uppercase letter
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one uppercase letter'
+      });
+    }
+
+    // Check for lowercase letter
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one lowercase letter'
+      });
+    }
+
+    // Check for number
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one number'
+      });
+    }
+
+    // Check for special character
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one special character'
+      });
+    }
+
+    const authService = require('../services/auth.service');
+    const result = await authService.resetPassword(token, password);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Reset password route error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     });
   }
 });

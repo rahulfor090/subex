@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import SubscriptionList from "./pages/subscriptions/SubscriptionList";
 import SubscriptionDetail from "./pages/subscriptions/SubscriptionDetail";
 import SubscriptionForm from "./pages/subscriptions/SubscriptionForm";
@@ -39,6 +41,8 @@ function App() {
               <Route path="/register" element={<Registration />} />
               <Route path="/registration" element={<Registration />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/dashboard"
                 element={<Protected><SubscriptionList /></Protected>}

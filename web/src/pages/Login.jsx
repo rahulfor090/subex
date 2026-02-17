@@ -219,6 +219,15 @@ const Login = () => {
                             {errors.password && (
                                 <p className="mt-1 text-sm text-red-500">{errors.password}</p>
                             )}
+                            <div className="text-right">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/forgot-password')}
+                                    className="text-sm text-emerald-500 hover:text-emerald-600 transition-colors"
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
                         </div>
 
                         {/* Submit Status Messages */}
