@@ -7,7 +7,6 @@
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "node scripts/sync-database.js",
     "db:sync": "node scripts/sync-database.js",
     "db:reset": "node scripts/sync-database.js",
     "db:check": "node check_db.js"
@@ -22,6 +21,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.17.1",
+    "nodemailer": "^8.0.1",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.5"
   }
