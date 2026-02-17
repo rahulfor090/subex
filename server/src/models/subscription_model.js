@@ -1,4 +1,4 @@
-// models/subscription.model.js
+// models/subscription_model.js
 
 module.exports = (sequelize, DataTypes) => {
   const Subscription = sequelize.define("Subscription", {
@@ -14,60 +14,88 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
 
-    service_name: {
-      type: DataTypes.STRING(255),
-      allowNull: false
+    company_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'companies',
+        key: 'id'
+      }
     },
 
-    description: DataTypes.TEXT,
-
-    start_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: false
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
     },
 
-    next_renewal_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: false
+    type: {
+      type: DataTypes.ENUM('subscription', 'trial', 'lifetime', 'revenue'),
+      allowNull: false,
+      defaultValue: 'subscription'
     },
 
-    billing_cycle_number: {
-      type: DataTypes.INTEGER,
-      defaultValue: 1
-    },
-
-    billing_cycle_period: {
-      type: DataTypes.ENUM("daily", "weekly", "monthly", "yearly"),
-      allowNull: false
-    },
-
-    auto_renew: {
+    recurring: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
     },
 
-    cost: {
+    frequency: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+      comment: 'Number of billing cycles'
+    },
+
+    cycle: {
+      type: DataTypes.ENUM('daily', 'weekly', 'monthly', 'yearly'),
+      allowNull: false,
+      defaultValue: 'monthly'
+    },
+
+    value: {
       type: DataTypes.DECIMAL(12, 2),
-      allowNull: false
+      allowNull: false,
+      comment: 'Cost/price of the subscription'
     },
 
     currency: {
       type: DataTypes.STRING(10),
-      allowNull: false
+      allowNull: false,
+      defaultValue: 'USD'
     },
 
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
+    next_payment_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
     },
 
-    is_trial: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+    contract_expiry: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
     },
 
-    website_url: DataTypes.STRING(255),
-    category: DataTypes.STRING(100)
+    url_link: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    },
+
+    payment_method: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+
+    folder_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'folders',
+        key: 'id'
+      }
+    },
+
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
 
   }, {
     tableName: "subscriptions",

@@ -4,6 +4,9 @@ const db = require('./models');
 const userRoutes = require('./routes/user');
 const authRoutes = require('./routes/auth');
 const subscriptionRoutes = require('./routes/subscription');
+const companyRoutes = require('./routes/company');
+const folderRoutes = require('./routes/folder');
+const tagRoutes = require('./routes/tag');
 
 const app = express();
 const cors = require('cors');
@@ -30,10 +33,40 @@ const testConnection = async () => {
 
 testConnection();
 
+// Global error handlers (moved before routes to catch early errors)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise);
+  console.error('❌ Reason:', reason);
+  console.error('❌ Stack:', reason.stack);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  console.error('❌ Stack:', error.stack);
+  process.exit(1);
+});
+
 // Routes
-app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/subscriptions', subscriptionRoutes);
+try {
+  console.log('📝 Registering routes...');
+  app.use('/api/users', userRoutes);
+  console.log('✅ User routes registered');
+  app.use('/api/auth', authRoutes);
+  console.log('✅ Auth routes registered');
+  app.use('/api/subscriptions', subscriptionRoutes);
+  console.log('✅ Subscription routes registered');
+  app.use('/api/companies', companyRoutes);
+  console.log('✅ Company routes registered');
+  app.use('/api/folders', folderRoutes);
+  console.log('✅ Folder routes registered');
+  app.use('/api/tags', tagRoutes);
+  console.log('✅ Tag routes registered');
+  console.log('✅ All routes registered successfully');
+} catch (error) {
+  console.error('❌ Error registering routes:', error);
+  console.error('❌ Stack:', error.stack);
+  process.exit(1);
+}
 
 // Basic health check route
 app.get('/', (req, res) => {
@@ -64,9 +97,40 @@ app.get('/health/db', async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+console.log('🚀 Starting server...');
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📍 http://localhost:${PORT}`);
+  console.log('✅ Server started successfully - waiting for requests...');
+});
+
+// Keep server alive
+server.on('close', () => {
+  console.log('❌ Server closed!');
+});
+
+// Force process to stay alive (debugging mysterious exit)
+const keepAlive = setInterval(() => {
+  // This keeps the event loop active
+}, 60000); // Check every minute
+
+// Cleanup on exit
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down gracefully...');
+  clearInterval(keepAlive);
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Received SIGTERM, shutting down...');
+  clearInterval(keepAlive);
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });
 
 module.exports = app;

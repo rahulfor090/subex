@@ -63,7 +63,46 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+// Define relationships
+if (db.Subscription && db.Company) {
+  db.Subscription.belongsTo(db.Company, {
+    foreignKey: 'company_id',
+    as: 'company'
+  });
+  db.Company.hasMany(db.Subscription, {
+    foreignKey: 'company_id',
+    as: 'subscriptions'
+  });
+}
+
+if (db.Subscription && db.Folder) {
+  db.Subscription.belongsTo(db.Folder, {
+    foreignKey: 'folder_id',
+    as: 'folder'
+  });
+  db.Folder.hasMany(db.Subscription, {
+    foreignKey: 'folder_id',
+    as: 'subscriptions'
+  });
+}
+
+if (db.Subscription && db.Tag && db.SubscriptionTag) {
+  db.Subscription.belongsToMany(db.Tag, {
+    through: db.SubscriptionTag,
+    foreignKey: 'subscription_id',
+    otherKey: 'tag_id',
+    as: 'tags'
+  });
+  db.Tag.belongsToMany(db.Subscription, {
+    through: db.SubscriptionTag,
+    foreignKey: 'tag_id',
+    otherKey: 'subscription_id',
+    as: 'subscriptions'
+  });
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+
