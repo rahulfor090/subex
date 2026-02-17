@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { ModeToggle } from './ModeToggle';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import UserProfile from './UserProfile';
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -11,6 +14,8 @@ const navLinks = [
 ];
 
 const Header = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -50,6 +55,15 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
+            {isAuthenticated && (
+              <a
+                href="/"
+                onClick={(e) => { e.preventDefault(); navigate('/'); }}
+                className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg"
+              >
+                Home
+              </a>
+            )}
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -65,15 +79,25 @@ const Header = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <ModeToggle />
-            <Button
-              variant="ghost"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 font-medium rounded-lg text-sm"
-            >
-              Log in
-            </Button>
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-5 text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all border-none">
-              Start free trial
-            </Button>
+            {isAuthenticated ? (
+              <UserProfile />
+            ) : (
+              <>
+                <Button
+                  onClick={() => navigate('/login')}
+                  variant="ghost"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 font-medium rounded-lg text-sm"
+                >
+                  Log in
+                </Button>
+                <Button
+                  onClick={() => navigate('/register')}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg px-5 text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all border-none"
+                >
+                  Start free trial
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -95,6 +119,15 @@ const Header = () => {
             }`}
         >
           <nav className="py-4 space-y-1 border-t border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-black/95 backdrop-blur-xl rounded-b-2xl px-4 pb-6 mt-2 border-b border-x shadow-xl">
+            {isAuthenticated && (
+              <a
+                href="/"
+                onClick={(e) => { e.preventDefault(); closeMobile(); navigate('/'); }}
+                className="block px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg font-medium transition-colors text-sm"
+              >
+                Home
+              </a>
+            )}
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -106,12 +139,23 @@ const Header = () => {
               </a>
             ))}
             <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-zinc-200 dark:border-white/10">
-              <Button variant="outline" className="w-full rounded-lg h-10 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white text-sm bg-transparent">
-                Log in
-              </Button>
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-10 text-sm shadow-lg border-none">
-                Start free trial
-              </Button>
+              {isAuthenticated ? (
+                <div className="px-2">
+                  <UserProfile />
+                </div>
+              ) : (
+                <>
+                  <Button onClick={() => navigate('/login')} variant="outline" className="w-full rounded-lg h-10 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white text-sm bg-transparent">
+                    Log in
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/register')}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-10 text-sm shadow-lg border-none"
+                  >
+                    Start free trial
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

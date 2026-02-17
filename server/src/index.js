@@ -1,11 +1,19 @@
 const express = require('express');
 require('dotenv').config();
+const cors = require('cors');
 const db = require('./models');
+const userRoutes = require('./routes/user');
+const authRoutes = require('./routes/auth');
+const subscriptionRoutes = require('./routes/subscription');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite default port
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -21,6 +29,11 @@ const testConnection = async () => {
 };
 
 testConnection();
+
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Basic health check route
 app.get('/', (req, res) => {

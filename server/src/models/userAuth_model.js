@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
 
+    account_locked_until: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+
     last_login: {
       type: DataTypes.DATE
     }

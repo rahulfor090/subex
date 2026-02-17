@@ -5,9 +5,11 @@ import { Button } from './ui/button';
 import { Spotlight } from './ui/Spotlight';
 import ThreeDTiltCard from './ui/ThreeDTiltCard';
 import { useTheme } from '../lib/ThemeProvider';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   return (
     <section className="relative min-h-screen flex items-center bg-white dark:bg-black/[0.96] antialiased bg-grid-black/[0.02] dark:bg-grid-white/[0.02] overflow-hidden pt-20 transition-colors duration-300">
@@ -66,7 +68,11 @@ const Hero = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start"
           >
-            <Button size="lg" className="w-full sm:w-auto h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+            <Button
+              size="lg"
+              onClick={() => navigate('/register')}
+              className="w-full sm:w-auto h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
+            >
               Start Free Trial
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
