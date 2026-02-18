@@ -1,12 +1,12 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, DollarSign } from 'lucide-react';
+import { Shield, Lock, Eye, IndianRupee } from 'lucide-react';
 
 const indicators = [
   { icon: Shield, title: 'Private by Design' },
   { icon: Lock, title: 'Encrypted Transactions' },
   { icon: Eye, title: 'Zero Identity Exposure' },
-  { icon: DollarSign, title: 'No Hidden Fees' },
+  { icon: IndianRupee, title: 'No Hidden Fees' },
 ];
 
 const TrustIndicators = () => (

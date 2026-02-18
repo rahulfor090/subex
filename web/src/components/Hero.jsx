@@ -1,38 +1,49 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, CheckCircle2, TrendingUp, ShieldCheck, Zap, Lock } from 'lucide-react';
+import { ArrowRight, Play, CheckCircle2, TrendingUp, ShieldCheck, Zap, Lock, CreditCard, Music, Briefcase, Cloud } from 'lucide-react';
 import { Button } from './ui/button';
+// --- Slider Data ---
 // --- Slider Data ---
 const slides = [
   {
     id: 0,
-    badge: "The #1 Subscription Manager AI",
+    badge: "The #1 Subscription Watchdog",
     badgeColor: "bg-emerald-500",
-    titlePrefix: "Master Your",
-    title: "Digital Life.",
+    titlePrefix: "Track. Control.",
+    title: "Save.",
     gradient: "from-emerald-500 via-cyan-500 to-emerald-500",
     description: "Stop overpaying. Track, manage, and optimize every subscription in one beautiful, AI-powered dashboard.",
     dashboardContent: "savings"
   },
   {
     id: 1,
-    badge: "Real-time Spending Insights",
+    badge: "Your Subscription Watchdog",
     badgeColor: "bg-violet-500",
-    titlePrefix: "Optimize Your",
-    title: "Monthly Budget.",
+    titlePrefix: "Don't Just Pay.",
+    title: "Take Charge.",
     gradient: "from-violet-500 via-fuchsia-500 to-violet-500",
     description: "Our AI analyzes your spending habits to find hidden leaks. Save an average of 15% in your first month automatically.",
     dashboardContent: "analytics"
   },
   {
     id: 2,
-    badge: "Bank-Grade Encryption",
+    badge: "Smarter Subscriptions",
     badgeColor: "bg-blue-500",
-    titlePrefix: "Secure Your",
-    title: "Financial Data.",
+    titlePrefix: "Better Finances.",
+    title: "Total Freedom.",
     gradient: "from-blue-500 via-indigo-500 to-blue-500",
     description: "Your privacy is our priority. We use AES-256 encryption and never sell your personal data to third parties.",
     dashboardContent: "security"
+  },
+  {
+    id: 3,
+    badge: "Peace of Mind",
+    badgeColor: "bg-orange-500",
+    titlePrefix: "You May Forget.",
+    title: "SubEx Won't.",
+    gradient: "from-orange-500 via-amber-500 to-orange-500",
+    description: "Never miss a renewal date again. Get automated reminders and one-click cancellations for unwanted services.",
+    dashboardContent: "alerts"
   }
 ];
 
@@ -137,7 +148,11 @@ const Hero = () => {
                   {activeSlide.title}
                 </span>
                 {/* Glow behind text */}
-                <div className={`absolute inset-0 blur-3xl -z-10 opacity-30 ${activeSlide.id === 0 ? 'bg-emerald-500' : activeSlide.id === 1 ? 'bg-violet-500' : 'bg-blue-500'}`} />
+                <div className={`absolute inset-0 blur-3xl -z-10 opacity-30 ${activeSlide.id === 0 ? 'bg-emerald-500' :
+                  activeSlide.id === 1 ? 'bg-violet-500' :
+                    activeSlide.id === 2 ? 'bg-blue-500' :
+                      'bg-orange-500'
+                  }`} />
               </div>
             </h1>
 
@@ -150,10 +165,10 @@ const Hero = () => {
 
         {/* Floating Icons Background Layer */}
         <div className="absolute inset-0 pointer-events-none max-w-5xl mx-auto z-0 opacity-40 dark:opacity-100">
-          <FloatingIcon icon="🍿" delay={0.5} x={-400} y={100} color="bg-red-500/10" />
-          <FloatingIcon icon="🎵" delay={1.5} x={400} y={-50} color="bg-green-500/10" />
-          <FloatingIcon icon="💼" delay={2.5} x={-300} y={-150} color="bg-blue-500/10" />
-          <FloatingIcon icon="☁️" delay={3.5} x={350} y={150} color="bg-purple-500/10" />
+          <FloatingIcon icon={<Music className="w-6 h-6 text-red-500" />} delay={0.5} x={-400} y={100} color="bg-red-500/10" />
+          <FloatingIcon icon={<CreditCard className="w-6 h-6 text-green-500" />} delay={1.5} x={400} y={-50} color="bg-green-500/10" />
+          <FloatingIcon icon={<Briefcase className="w-6 h-6 text-blue-500" />} delay={2.5} x={-300} y={-150} color="bg-blue-500/10" />
+          <FloatingIcon icon={<Cloud className="w-6 h-6 text-purple-500" />} delay={3.5} x={350} y={150} color="bg-purple-500/10" />
         </div>
 
         {/* Buttons */}
@@ -163,7 +178,7 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="flex flex-col sm:flex-row items-center gap-4 relative z-20 mb-12"
         >
-          <Button className="h-14 px-8 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+          <Button className="h-14 px-8 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-semibold shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all hover:scale-105 active:scale-95 border-none">
             Get Started Free
           </Button>
           <Button variant="outline" className="h-14 px-8 rounded-full border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-lg font-medium backdrop-blur-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-2 bg-transparent">
@@ -191,7 +206,7 @@ const Hero = () => {
           animate={{ opacity: 1, scale: 1, rotateX: 10 }}
           transition={{ duration: 1, delay: 0.8 }}
         >
-          <div className="relative rounded-[2rem] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden group transition-colors duration-500">
+          <div className="relative rounded-[2rem] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-700/50 shadow-2xl overflow-hidden group transition-colors duration-500">
 
             {/* Shine Effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-20" />
@@ -238,14 +253,14 @@ const Hero = () => {
                         <div className="h-48 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 relative overflow-hidden">
                           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-emerald-500/10 to-transparent" />
                           <TrendingUp className="text-emerald-500 mb-2" />
-                          <div className="text-3xl font-bold text-zinc-900 dark:text-white">$1,240.50</div>
+                          <div className="text-3xl font-bold text-zinc-900 dark:text-white">₹45,240.00</div>
                           <div className="text-sm text-zinc-500">Total Monthly Spend</div>
                           <svg className="absolute bottom-0 left-0 w-full h-24 stroke-emerald-500 stroke-2 fill-none" viewBox="0 0 100 20" preserveAspectRatio="none">
                             <path d="M0 20 Q 20 5, 40 15 T 70 5 T 100 15" />
                           </svg>
                         </div>
                         <div className="flex-1 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-3">
-                          {[{ n: 'Netflix', p: '$15.99' }, { n: 'Spotify', p: '$9.99' }, { n: 'Figma', p: '$12.00' }].map((item, i) => (
+                          {[{ n: 'Netflix', p: '₹649' }, { n: 'Spotify', p: '₹119' }, { n: 'Figma', p: '₹1,200' }].map((item, i) => (
                             <div key={i} className="flex justify-between items-center p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-default">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800" />
@@ -290,17 +305,52 @@ const Hero = () => {
                       </div>
                     )}
 
+                    {/* Slide 4: Alerts (New) */}
+                    {activeSlide.id === 3 && (
+                      <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-4 relative overflow-hidden">
+                        {[1, 2, 3].map((i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: i * 0.2 }}
+                            className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center">
+                              <Zap size={16} className="text-orange-500" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="h-2 w-20 bg-zinc-200 dark:bg-zinc-700 rounded mb-1" />
+                              <div className="h-2 w-12 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                            </div>
+                          </motion.div>
+                        ))}
+                        <div className="mt-auto text-center">
+                          <div className="text-xl font-bold text-zinc-900 dark:text-white">Never Miss a Beat</div>
+                          <div className="text-sm text-zinc-500">Instant notifications for renewals</div>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* Right Panel - Stats */}
                   <div className="hidden md:flex col-span-3 flex-col gap-4">
-                    <div className={`flex-1 rounded-2xl bg-gradient-to-br p-6 text-white relative overflow-hidden ${activeSlide.id === 0 ? 'from-emerald-600 to-teal-600' : activeSlide.id === 1 ? 'from-violet-600 to-purple-600' : 'from-blue-600 to-indigo-600'}`}>
+                    <div className={`flex-1 rounded-2xl bg-gradient-to-br p-6 text-white relative overflow-hidden ${activeSlide.id === 0 ? 'from-emerald-600 to-teal-600' :
+                      activeSlide.id === 1 ? 'from-violet-600 to-purple-600' :
+                        activeSlide.id === 2 ? 'from-blue-600 to-indigo-600' :
+                          'from-orange-600 to-amber-600'
+                      }`}>
                       <Zap className="mb-4" />
                       <div className="text-2xl font-bold">3 Alerts</div>
                       <div className="text-sm opacity-80">Requires Attention</div>
                     </div>
                     <div className="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6">
-                      <ShieldCheck className={`${activeSlide.id === 0 ? 'text-emerald-500' : activeSlide.id === 1 ? 'text-violet-500' : 'text-blue-500'} mb-2`} />
+                      <ShieldCheck className={`${activeSlide.id === 0 ? 'text-emerald-500' :
+                        activeSlide.id === 1 ? 'text-violet-500' :
+                          activeSlide.id === 2 ? 'text-blue-500' :
+                            'text-orange-500'
+                        } mb-2`} />
                       <div className="font-bold text-zinc-900 dark:text-white">Score: 98</div>
                       <div className="text-xs text-zinc-500">Security Rating</div>
                     </div>
@@ -317,12 +367,20 @@ const Hero = () => {
             className="absolute -right-12 top-20 bg-white/80 dark:bg-black/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xl z-30 hidden lg:block"
           >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${activeSlide.id === 0 ? 'bg-emerald-500/20' : activeSlide.id === 1 ? 'bg-violet-500/20' : 'bg-blue-500/20'}`}>
-                <CheckCircle2 size={24} className={`${activeSlide.id === 0 ? 'text-emerald-500' : activeSlide.id === 1 ? 'text-violet-500' : 'text-blue-500'}`} />
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${activeSlide.id === 0 ? 'bg-emerald-500/20' :
+                activeSlide.id === 1 ? 'bg-violet-500/20' :
+                  activeSlide.id === 2 ? 'bg-blue-500/20' :
+                    'bg-orange-500/20'
+                }`}>
+                <CheckCircle2 size={24} className={`${activeSlide.id === 0 ? 'text-emerald-500' :
+                  activeSlide.id === 1 ? 'text-violet-500' :
+                    activeSlide.id === 2 ? 'text-blue-500' :
+                      'text-orange-500'
+                  }`} />
               </div>
               {/* ... Rest of the component */}
               <div>
-                <div className="text-lg font-bold text-zinc-900 dark:text-white">Saved $420</div>
+                <div className="text-lg font-bold text-zinc-900 dark:text-white">Saved ₹35,000</div>
                 <div className="text-sm text-zinc-500">Annual Projection</div>
               </div>
             </div>

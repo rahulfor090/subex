@@ -55,7 +55,7 @@ const testimonials = [
         name: 'Sophie Martin',
         username: '@sophie_m',
         role: 'Freelancer',
-        content: "Saved $400 this year just by identifying duplicate cloud storage accounts. This app is essential.",
+        content: "Saved ₹34,000 this year just by identifying duplicate cloud storage accounts. This app is essential.",
         avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80',
         platform: 'twitter'
     },
