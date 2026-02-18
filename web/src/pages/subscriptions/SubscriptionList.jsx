@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, AlertCircle, Loader2, Trash2, Bell } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-
+import Header from '../../components/Header';
+import AlertModal from '../../components/AlertModal';
 
 const SubscriptionList = () => {
     const navigate = useNavigate();
@@ -12,6 +13,8 @@ const SubscriptionList = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+    const [alertSubscription, setAlertSubscription] = useState(null);
 
     useEffect(() => {
         fetchSubscriptions();
@@ -45,6 +48,31 @@ const SubscriptionList = () => {
             setError('Unable to connect to server. Please try again later.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const deleteSubscription = async (e, subscriptionId) => {
+        e.stopPropagation();
+        if (!window.confirm('Are you sure you want to delete this subscription?')) return;
+        try {
+            setDeletingId(subscriptionId);
+            const response = await fetch(`http://localhost:3000/api/subscriptions/${subscriptionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setSubscriptions(prev => prev.filter(s => s.subscription_id !== subscriptionId));
+            } else {
+                setError(data.message || 'Failed to delete subscription');
+            }
+        } catch (err) {
+            setError('Unable to connect to server. Please try again later.');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -153,6 +181,9 @@ const SubscriptionList = () => {
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
                                                 Tags
                                             </th>
+                                            <th className="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -190,6 +221,27 @@ const SubscriptionList = () => {
                                                         )}
                                                     </div>
                                                 </td>
+                                                <td className="px-6 py-4 text-sm" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={e => deleteSubscription(e, subscription.subscription_id)}
+                                                            disabled={deletingId === subscription.subscription_id}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {deletingId === subscription.subscription_id
+                                                                ? <Loader2 size={13} className="animate-spin" />
+                                                                : <Trash2 size={13} />}
+                                                            Delete
+                                                        </button>
+                                                        <button
+                                                            onClick={e => { e.stopPropagation(); setAlertSubscription(subscription); }}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+                                                        >
+                                                            <Bell size={13} />
+                                                            Alert
+                                                        </button>
+                                                    </div>
+                                                </td>
                                             </motion.tr>
                                         ))}
                                     </tbody>
@@ -199,6 +251,14 @@ const SubscriptionList = () => {
                     </motion.div>
                 )}
             </div>
+
+            {/* Alert Modal */}
+            {alertSubscription && (
+                <AlertModal
+                    subscription={alertSubscription}
+                    onClose={() => setAlertSubscription(null)}
+                />
+            )}
         </div>
     );
 };

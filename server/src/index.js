@@ -7,6 +7,7 @@ const subscriptionRoutes = require('./routes/subscription');
 const companyRoutes = require('./routes/company');
 const folderRoutes = require('./routes/folder');
 const tagRoutes = require('./routes/tag');
+const alertRoutes = require('./routes/alerts');
 
 const app = express();
 const cors = require('cors');
@@ -61,6 +62,8 @@ try {
   console.log('✅ Folder routes registered');
   app.use('/api/tags', tagRoutes);
   console.log('✅ Tag routes registered');
+  app.use('/api/alerts', alertRoutes);
+  console.log('✅ Alert routes registered');
   console.log('✅ All routes registered successfully');
 } catch (error) {
   console.error('❌ Error registering routes:', error);
