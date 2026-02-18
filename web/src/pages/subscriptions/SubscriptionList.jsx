@@ -4,7 +4,7 @@ import { Plus, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import Header from '../../components/Header';
+
 
 const SubscriptionList = () => {
     const navigate = useNavigate();
@@ -59,14 +59,9 @@ const SubscriptionList = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white antialiased overflow-x-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
-            <div className="fixed inset-0 bg-white/90 dark:bg-black/[0.96] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
+        <div className="space-y-8">
 
-            <Header />
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="relative z-10 mx-auto">
                 {/* Header Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -85,7 +80,7 @@ const SubscriptionList = () => {
                         </p>
                     </div>
                     <Button
-                        onClick={() => navigate('/subscriptions/add')}
+                        onClick={() => navigate('/dashboard/subscriptions/add')}
                         className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
                     >
                         <Plus size={20} />
@@ -134,7 +129,7 @@ const SubscriptionList = () => {
                                     Start by adding your first subscription
                                 </p>
                                 <Button
-                                    onClick={() => navigate('/subscriptions/add')}
+                                    onClick={() => navigate('/dashboard/subscriptions/add')}
                                     className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none"
                                 >
                                     <Plus size={20} className="mr-2" />
@@ -167,7 +162,7 @@ const SubscriptionList = () => {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: index * 0.05 }}
-                                                onClick={() => navigate(`/subscriptions/${subscription.subscription_id}`)}
+                                                onClick={() => navigate(`/dashboard/subscriptions/${subscription.subscription_id}`)}
                                                 className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
                                             >
                                                 <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">

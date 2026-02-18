@@ -40,7 +40,7 @@ const StepOneAnimation = () => (
           <div className="w-8 h-8 rounded bg-[#E50914] flex items-center justify-center text-white font-bold text-xs tracking-tighter">N</div>
           <div className="flex-1">
             <div className="text-xs font-medium text-zinc-900 dark:text-zinc-200">Netflix Standard</div>
-            <div className="text-[10px] text-zinc-500">$15.49 / mo</div>
+            <div className="text-[10px] text-zinc-500">₹649 / mo</div>
           </div>
           <div className="w-4 h-4 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
             <Check size={10} className="text-emerald-600 dark:text-emerald-500" />
@@ -59,7 +59,7 @@ const StepOneAnimation = () => (
           </div>
           <div className="flex-1">
             <div className="text-xs font-medium text-zinc-900 dark:text-zinc-200">Spotify Premium</div>
-            <div className="text-[10px] text-zinc-500">$10.99 / mo</div>
+            <div className="text-[10px] text-zinc-500">₹119 / mo</div>
           </div>
           <div className="w-4 h-4 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
             <Check size={10} className="text-emerald-600 dark:text-emerald-500" />
@@ -130,7 +130,7 @@ const StepTwoAnimation = () => (
         </div>
         <div className="text-xs font-medium text-zinc-900 dark:text-white mb-0.5">Renewal Warning</div>
         <div className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
-          Your <span className="text-zinc-900 dark:text-white font-medium">Netflix Standard</span> subscription will renew for <span className="text-zinc-900 dark:text-white font-medium">$15.49</span> tomorrow.
+          Your <span className="text-zinc-900 dark:text-white font-medium">Netflix Standard</span> subscription will renew for <span className="text-zinc-900 dark:text-white font-medium">₹649</span> tomorrow.
         </div>
 
         {/* Action Buttons */}
@@ -216,7 +216,7 @@ const StepThreeAnimation = () => (
         {/* Amount */}
         <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800 flex justify-between items-center transition-colors duration-500">
           <div className="text-[10px] text-zinc-500">Estimated Value</div>
-          <div className="text-sm font-bold text-zinc-900 dark:text-white">$240.00</div>
+          <div className="text-sm font-bold text-zinc-900 dark:text-white">₹20,000</div>
         </div>
       </div>
 

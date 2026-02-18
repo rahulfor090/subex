@@ -4,7 +4,7 @@ import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLi
 import { Button } from '../../components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import Header from '../../components/Header';
+
 
 const SubscriptionDetail = () => {
     const navigate = useNavigate();
@@ -89,7 +89,7 @@ const SubscriptionDetail = () => {
         if (!amount) return 'N/A';
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: currency || 'USD'
+            currency: currency || 'INR'
         }).format(amount);
     };
 
@@ -99,19 +99,14 @@ const SubscriptionDetail = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white antialiased overflow-x-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
-            <div className="fixed inset-0 bg-white/90 dark:bg-black/[0.96] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
+        <div className="space-y-8">
 
-            <Header />
-
-            <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="relative z-10 max-w-4xl mx-auto">
                 {/* Back Button */}
                 <motion.button
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/dashboard/subscriptions')}
                     className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors mb-8"
                 >
                     <ArrowLeft size={20} />
@@ -160,9 +155,9 @@ const SubscriptionDetail = () => {
                                 </h1>
                                 <span
                                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${subscription.type === 'subscription' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
-                                            subscription.type === 'trial' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' :
-                                                subscription.type === 'lifetime' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
-                                                    'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
+                                        subscription.type === 'trial' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' :
+                                            subscription.type === 'lifetime' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
+                                                'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
                                         }`}
                                 >
                                     {capitalizeFirst(subscription.type)}
@@ -170,7 +165,7 @@ const SubscriptionDetail = () => {
                             </div>
                             <div className="flex gap-3">
                                 <Button
-                                    onClick={() => navigate(`/subscriptions/edit/${id}`)}
+                                    onClick={() => navigate(`/dashboard/subscriptions/edit/${id}`)}
                                     className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
                                 >
                                     <Edit size={18} />

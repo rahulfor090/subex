@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle2, AlertCircle, Save, Plus, X } from 'lucide-reac
 import { Button } from '../../components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import Header from '../../components/Header';
+
 
 const SubscriptionForm = ({ mode = 'add' }) => {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         frequency: 1,
         cycle: 'monthly',
         value: '',
-        currency: 'USD',
+        currency: 'INR',
         next_payment_date: '',
         contract_expiry: '',
         url_link: '',
@@ -287,7 +287,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                     : 'Subscription created successfully!');
 
                 setTimeout(() => {
-                    navigate('/dashboard');
+                    navigate('/dashboard/subscriptions');
                 }, 1500);
             } else {
                 setSubmitStatus('error');
@@ -314,19 +314,14 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white antialiased overflow-x-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
-            <div className="fixed inset-0 bg-white/90 dark:bg-black/[0.96] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
+        <div className="space-y-8">
 
-            <Header />
-
-            <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="relative z-10 max-w-4xl mx-auto">
                 {/* Back Button */}
                 <motion.button
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/dashboard/subscriptions')}
                     className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors mb-8"
                 >
                     <ArrowLeft size={20} />
@@ -543,7 +538,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                     onChange={handleChange}
                                     className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.currency ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
                                         } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                    placeholder="USD"
+                                    placeholder="INR"
                                 />
                                 {errors.currency && (
                                     <p className="mt-1 text-sm text-red-500">{errors.currency}</p>
@@ -725,8 +720,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                         type="button"
                                         onClick={() => handleTagToggle(tag.id)}
                                         className={`px-3 py-1 rounded-full text-sm transition-colors ${formData.tag_ids.includes(tag.id)
-                                                ? 'bg-emerald-500 text-white'
-                                                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                                             }`}
                                     >
                                         {tag.name}
