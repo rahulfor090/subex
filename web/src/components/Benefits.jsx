@@ -1,10 +1,10 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, DollarSign, Repeat, BarChart3, UserCheck, TrendingDown } from 'lucide-react';
+import { AlertCircle, IndianRupee, Repeat, BarChart3, UserCheck, TrendingDown } from 'lucide-react';
 
 const benefits = [
   { icon: AlertCircle, title: 'Avoid Surprise Charges', description: 'Stay ahead with proactive alerts before any renewal hits your account.', color: 'text-red-500', bg: 'bg-red-500/10' },
-  { icon: DollarSign, title: 'Save Money Every Month', description: 'Cut unnecessary subscriptions and keep more money in your pocket.', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { icon: IndianRupee, title: 'Save Money Every Month', description: 'Cut unnecessary subscriptions and keep more money in your pocket.', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
   { icon: Repeat, title: 'Monetize Unused', description: 'Turn unused extras into cash through our secure marketplace.', color: 'text-blue-500', bg: 'bg-blue-500/10' },
   { icon: BarChart3, title: 'Stay Organized', description: 'All subscriptions visible in one unified, beautiful dashboard.', color: 'text-purple-500', bg: 'bg-purple-500/10' },
   { icon: UserCheck, title: 'Total Privacy Control', description: 'Your identity stays protected with zero-knowledge encryption.', color: 'text-amber-500', bg: 'bg-amber-500/10' },

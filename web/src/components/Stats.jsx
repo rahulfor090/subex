@@ -1,9 +1,9 @@
 ﻿import React, { useEffect, useState, useRef } from 'react';
-import { Users, DollarSign, Activity, Award } from 'lucide-react';
+import { Users, IndianRupee, Activity, Award } from 'lucide-react';
 
 const stats = [
     { label: 'Active Users', numValue: 10000, prefix: '', suffix: '+', icon: Users, description: 'Trusting our platform daily' },
-    { label: 'Money Saved', numValue: 2400000, prefix: '$', suffix: '+', icon: DollarSign, description: 'In unwanted subscriptions' },
+    { label: 'Money Saved', numValue: 2400000, prefix: '₹', suffix: '+', icon: IndianRupee, description: 'In unwanted subscriptions' },
     { label: 'Subscriptions', numValue: 50000, prefix: '', suffix: '+', icon: Activity, description: 'Managed and optimized' },
     { label: 'Privacy Protected', numValue: 100, prefix: '', suffix: '%', icon: Award, description: 'Data security guaranteed' }
 ];

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Logo = ({ className = "" }) => {
+const Logo = ({ className = "", showText = true }) => {
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <motion.div
@@ -43,15 +43,17 @@ const Logo = ({ className = "" }) => {
                 </svg>
             </motion.div>
 
-            <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-xl font-bold tracking-tight"
-            >
-                <span className="text-zinc-900 dark:text-white">Sub</span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500">Ex</span>
-            </motion.span>
+            {showText && (
+                <motion.span
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-xl font-bold tracking-tight"
+                >
+                    <span className="text-[rgb(43,43,149)] dark:text-white">Sub</span>
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-cyan-500">Ex</span>
+                </motion.span>
+            )}
         </div>
     );
 };
