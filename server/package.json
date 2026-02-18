@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:sync": "node scripts/sync-database.js",
     "db:reset": "node scripts/sync-database.js",
-    "db:check": "node check_db.js"
+    "db:check": "node check_db.js",
+    "postinstall": "node scripts/sync-database.js"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.17.1",
+    "mysql2": "^3.17.2",
     "nodemailer": "^8.0.1",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.5"
