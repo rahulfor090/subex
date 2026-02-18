@@ -164,7 +164,8 @@ The Subex Team
      */
     async sendPasswordResetEmail(user, resetToken) {
         try {
-            const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+            const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+            const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
             const mailOptions = {
                 from: process.env.EMAIL_FROM || '"Subex" <noreply@subex.com>',
