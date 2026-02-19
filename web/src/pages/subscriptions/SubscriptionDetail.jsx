@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink, Copy } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,6 +15,8 @@ const SubscriptionDetail = () => {
     const [error, setError] = useState(null);
     const [deleteStatus, setDeleteStatus] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [duplicateStatus, setDuplicateStatus] = useState(null);
+    const [duplicateMessage, setDuplicateMessage] = useState('');
 
     useEffect(() => {
         fetchSubscription();
@@ -72,6 +74,58 @@ const SubscriptionDetail = () => {
             setDeleteStatus('error');
             setError('Unable to connect to server. Please try again later.');
             console.error('Delete subscription error:', err);
+        }
+    };
+
+    const handleDuplicate = async () => {
+        try {
+            setDuplicateStatus('loading');
+            setDuplicateMessage('');
+
+            // Prepare the duplicate subscription data
+            const duplicateData = {
+                company_id: subscription.company?.id,
+                description: subscription.description,
+                type: subscription.type,
+                recurring: subscription.recurring,
+                frequency: subscription.frequency,
+                cycle: subscription.cycle,
+                value: subscription.value,
+                currency: subscription.currency,
+                next_payment_date: subscription.next_payment_date,
+                contract_expiry: subscription.contract_expiry,
+                url_link: subscription.url_link,
+                payment_method: subscription.payment_method,
+                folder_id: subscription.folder?.id || null,
+                tag_ids: subscription.tags ? subscription.tags.map(tag => tag.id) : [],
+                notes: subscription.notes
+            };
+
+            const response = await fetch('http://localhost:3000/api/subscriptions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(duplicateData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setDuplicateStatus('success');
+                setDuplicateMessage('Subscription duplicated successfully! Redirecting...');
+                setTimeout(() => {
+                    navigate(`/dashboard/subscriptions/${data.data.subscription_id}`);
+                }, 1500);
+            } else {
+                setDuplicateStatus('error');
+                setDuplicateMessage(data.message || 'Failed to duplicate subscription');
+            }
+        } catch (err) {
+            setDuplicateStatus('error');
+            setDuplicateMessage('Unable to connect to server. Please try again later.');
+            console.error('Duplicate subscription error:', err);
         }
     };
 
@@ -165,6 +219,14 @@ const SubscriptionDetail = () => {
                             </div>
                             <div className="flex gap-3">
                                 <Button
+                                    onClick={handleDuplicate}
+                                    disabled={duplicateStatus === 'loading'}
+                                    className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] border-none flex items-center gap-2"
+                                >
+                                    <Copy size={18} />
+                                    {duplicateStatus === 'loading' ? 'Duplicating...' : 'Duplicate'}
+                                </Button>
+                                <Button
                                     onClick={() => navigate(`/dashboard/subscriptions/edit/${id}`)}
                                     className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
                                 >
@@ -218,6 +280,28 @@ const SubscriptionDetail = () => {
                             >
                                 <CheckCircle2 size={20} />
                                 <span>Subscription deleted successfully! Redirecting...</span>
+                            </motion.div>
+                        )}
+
+                        {/* Duplicate Status Messages */}
+                        {duplicateStatus === 'success' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-6"
+                            >
+                                <CheckCircle2 size={20} />
+                                <span>{duplicateMessage}</span>
+                            </motion.div>
+                        )}
+                        {duplicateStatus === 'error' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 mb-6"
+                            >
+                                <AlertCircle size={20} />
+                                <span>{duplicateMessage}</span>
                             </motion.div>
                         )}
 
