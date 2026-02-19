@@ -5,6 +5,11 @@ import {
     ExternalLink, Calendar, CreditCard, RefreshCw, Tag, Folder,
     Globe, FileText, DollarSign, Clock, Shield, StickyNote
 } from 'lucide-react';
+
+import { motion } from 'framer-motion';
+import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink, Copy } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import CompanyLogo, { getDomain } from '../../components/CompanyLogo';
@@ -117,6 +122,8 @@ const SubscriptionDetail = () => {
     const [error, setError] = useState(null);
     const [deleteStatus, setDeleteStatus] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [duplicateStatus, setDuplicateStatus] = useState(null);
+    const [duplicateMessage, setDuplicateMessage] = useState('');
 
     useEffect(() => { fetchSubscription(); }, [id]);
 
@@ -147,10 +154,10 @@ const SubscriptionDetail = () => {
             } else { setDeleteStatus('error'); setError(data.message || 'Delete failed'); }
         } catch { setDeleteStatus('error'); setError('Unable to connect to server.'); }
     };
-
     const fmt = (ds) => {
         if (!ds) return 'N/A';
         return new Date(ds).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
     };
 
     const fmtCurrency = (amt, cur) => {
@@ -329,7 +336,6 @@ const SubscriptionDetail = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-
             {/* ── Details grid ──────────────────────────────────────── */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -343,6 +349,7 @@ const SubscriptionDetail = () => {
                 <Chip icon={Clock} label="Expires" value={fmt(subscription.contract_expiry)} />
                 <Chip icon={CreditCard} label="Payment" value={cap(subscription.payment_method) || 'Not set'} />
             </motion.div>
+
 
             {/* ── Folder + Tags ──────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
