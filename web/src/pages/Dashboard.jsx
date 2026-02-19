@@ -1,343 +1,310 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-    TrendingUp,
-    CreditCard,
-    Calendar,
-    Plus,
-    Activity,
-    PieChart as PieChartIcon,
-    DollarSign,
-    ArrowUpRight,
-    ArrowDownRight
+    TrendingUp, TrendingDown, DollarSign, CreditCard,
+    Calendar, AlertTriangle, ArrowUpRight, Plus, ChevronRight,
+    Zap, Clock, CheckCircle2, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/button';
+import CompanyLogo from '../components/CompanyLogo';
 import SpendingChart from '../components/dashboard/SpendingChart';
 import CategoryPieChart from '../components/dashboard/CategoryPieChart';
 
-// Animation Variants
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1
-        }
-    }
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const fmt = (amount, currency = 'INR') => {
+    try {
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+    } catch { return `${currency} ${amount}`; }
 };
 
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { type: "spring", stiffness: 100 }
-    }
+const daysUntil = (ds) => {
+    if (!ds) return null;
+    return Math.ceil((new Date(ds) - new Date()) / 86400000);
 };
 
-// Enhanced StatCard
-const StatCard = ({ title, value, change, trend, icon: Icon, color }) => (
-    <motion.div
-        variants={itemVariants}
-        className="group relative overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
-    >
-        <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-${color}-500 transform group-hover:scale-110 duration-500`}>
-            <Icon size={80} />
-        </div>
+const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+};
 
-        <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl bg-${color}-50 dark:bg-${color}-500/10 text-${color}-600 dark:text-${color}-400 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon size={24} />
-                </div>
-                {change && (
-                    <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${trend === 'up'
-                            ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
-                            : trend === 'down'
-                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                        }`}>
-                        {trend === 'up' && <ArrowUpRight size={14} />}
-                        {trend === 'down' && <ArrowDownRight size={14} />}
-                        {change}
-                    </div>
-                )}
-            </div>
-
-            <h3 className="text-zinc-500 dark:text-zinc-400 font-medium text-sm mb-1">{title}</h3>
-            <h2 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">{value}</h2>
-        </div>
-    </motion.div>
-);
-
-const Dashboard = () => {
-    const navigate = useNavigate();
-    const { token, user } = useAuth(); // Assuming user object has name
-    const [stats, setStats] = useState({
-        totalSubscriptions: 0,
-        monthlyCost: 0,
-        upcomingPayments: 0
-    });
-    const [subscriptions, setSubscriptions] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/subscriptions', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-
-                if (data.success && data.data) {
-                    const subs = data.data;
-                    setSubscriptions(subs);
-
-                    // Calculate stats
-                    const total = subs.length;
-                    const monthly = subs.reduce((acc, sub) => {
-                        let cost = parseFloat(sub.value || 0);
-                        if (sub.cycle === 'yearly') cost /= 12;
-                        if (sub.cycle === 'weekly') cost *= 4;
-                        return acc + cost;
-                    }, 0);
-
-                    const now = new Date();
-                    const nextWeek = new Date();
-                    nextWeek.setDate(now.getDate() + 7);
-
-                    const upcoming = subs.filter(sub => {
-                        const date = new Date(sub.next_payment_date);
-                        return date >= now && date <= nextWeek;
-                    });
-
-                    setStats({
-                        totalSubscriptions: total,
-                        monthlyCost: monthly.toFixed(2),
-                        upcomingPayments: upcoming.length
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [token]);
-
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Good morning';
-        if (hour < 18) return 'Good afternoon';
-        return 'Good evening';
+// ─── Stat Card ───────────────────────────────────────────────────────────────
+const StatCard = ({ label, value, sub, icon: Icon, trend, color, delay = 0 }) => {
+    const colors = {
+        emerald: { bg: 'from-emerald-500/10 to-cyan-500/5', icon: 'text-emerald-500', border: 'border-emerald-500/20' },
+        violet: { bg: 'from-violet-500/10 to-purple-500/5', icon: 'text-violet-500', border: 'border-violet-500/20' },
+        amber: { bg: 'from-amber-500/10 to-orange-500/5', icon: 'text-amber-500', border: 'border-amber-500/20' },
+        rose: { bg: 'from-rose-500/10 to-pink-500/5', icon: 'text-rose-500', border: 'border-rose-500/20' },
     };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-                <div className="relative">
-                    <div className="w-16 h-16 border-4 border-zinc-200 dark:border-zinc-800 rounded-full"></div>
-                    <div className="w-16 h-16 border-4 border-emerald-500 rounded-full animate-spin absolute top-0 left-0 border-t-transparent"></div>
-                </div>
-            </div>
-        );
-    }
-
-    const recentSubscriptions = [...subscriptions].slice(0, 5);
+    const c = colors[color] || colors.emerald;
 
     return (
         <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="space-y-8 pb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay }}
+            className={`relative overflow-hidden bg-white dark:bg-zinc-900 rounded-2xl border ${c.border} p-5 shadow-sm hover:shadow-lg transition-all duration-300 group`}
         >
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <motion.p
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-emerald-600 dark:text-emerald-400 font-medium mb-1"
-                    >
-                        {getGreeting()}, {user?.name || 'User'} 👋
-                    </motion.p>
-                    <motion.h1
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight"
-                    >
-                        Financial Overview
-                    </motion.h1>
-                </div>
-                <div className="flex gap-3">
-                    <Button
-                        onClick={() => navigate('/dashboard/subscriptions/add')}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 active:scale-95 transition-all duration-200 h-11 px-6 text-sm font-semibold rounded-xl"
-                    >
-                        <Plus className="mr-2" size={18} />
-                        New Subscription
-                    </Button>
-                </div>
-            </div>
+            {/* Background gradient blob */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.bg} opacity-50 group-hover:opacity-100 transition-opacity duration-300`} />
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard
-                    title="Monthly Spend"
-                    value={`$${stats.monthlyCost}`}
-                    change="+2.5% from last month" // Placeholder for now
-                    trend="up"
-                    icon={DollarSign}
-                    color="emerald"
-                />
-                <StatCard
-                    title="Active Subscriptions"
-                    value={stats.totalSubscriptions}
-                    change={`${stats.totalSubscriptions} Active services`}
-                    trend="neutral"
-                    icon={CreditCard}
-                    color="blue"
-                />
-                <StatCard
-                    title="Upcoming Payments"
-                    value={stats.upcomingPayments}
-                    change="Next 7 days"
-                    trend="up" // indicating urgency/count
-                    icon={Calendar}
-                    color="purple"
-                />
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <motion.div
-                    variants={itemVariants}
-                    className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                                <TrendingUp size={20} className="text-emerald-500" />
-                                Spending Forecast
-                            </h2>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Projected expenses for the next 6 months</p>
+            <div className="relative z-10">
+                <div className="flex items-start justify-between mb-4">
+                    <div className={`p-2.5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm ${c.icon}`}>
+                        <Icon size={18} />
+                    </div>
+                    {trend !== undefined && (
+                        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${trend >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'}`}>
+                            {trend >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                            {Math.abs(trend)}%
                         </div>
-                    </div>
-                    <SpendingChart subscriptions={subscriptions} />
-                </motion.div>
-
-                <motion.div
-                    variants={itemVariants}
-                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                                <PieChartIcon size={20} className="text-blue-500" />
-                                Distribution
-                            </h2>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">By category</p>
-                        </div>
-                    </div>
-                    <CategoryPieChart subscriptions={subscriptions} />
-                </motion.div>
+                    )}
+                </div>
+                <p className="text-2xl font-black text-zinc-900 dark:text-white mb-1">{value}</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">{label}</p>
+                {sub && <p className="text-xs text-zinc-400 mt-1">{sub}</p>}
             </div>
-
-            {/* Recent Activity Section */}
-            <motion.div
-                variants={itemVariants}
-                className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm overflow-hidden"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                            <Activity size={20} className="text-emerald-500" />
-                            Recent Activity
-                        </h2>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Latest added subscriptions</p>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate('/dashboard/subscriptions')}
-                        className="text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400"
-                    >
-                        View All
-                    </Button>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                                <th className="text-left py-4 px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Company</th>
-                                <th className="text-left py-4 px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Billing Date</th>
-                                <th className="text-left py-4 px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
-                                <th className="text-right py-4 px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Amount</th>
-                                <th className="text-right py-4 px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                            {recentSubscriptions.length === 0 ? (
-                                <tr>
-                                    <td colSpan="5" className="text-center py-12 text-zinc-500">
-                                        No recent activity to show.
-                                    </td>
-                                </tr>
-                            ) : (
-                                recentSubscriptions.map((sub, i) => (
-                                    <motion.tr
-                                        key={sub.subscription_id || i}
-                                        whileHover={{ backgroundColor: "rgba(16, 185, 129, 0.03)" }}
-                                        className="group transition-colors cursor-pointer"
-                                        onClick={() => navigate(`/dashboard/subscriptions/${sub.subscription_id}`)}
-                                    >
-                                        <td className="py-4 px-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500/10 to-cyan-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shadow-sm group-hover:shadow-md transition-all duration-300">
-                                                    {sub.company?.name?.[0]?.toUpperCase() || 'S'}
-                                                </div>
-                                                <span className="font-semibold text-zinc-900 dark:text-white">{sub.company?.name || 'Unknown'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-sm text-zinc-600 dark:text-zinc-400 font-medium">
-                                            {formatDate(sub.next_payment_date)}
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            {sub.tags && sub.tags.length > 0 ? (
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-                                                    {sub.tags[0].name}
-                                                </span>
-                                            ) : (
-                                                <span className="text-zinc-400 text-sm">-</span>
-                                            )}
-                                        </td>
-                                        <td className="py-4 px-4 text-right font-bold text-zinc-900 dark:text-white">
-                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: sub.currency || 'USD' }).format(sub.value)}
-                                        </td>
-                                        <td className="py-4 px-4 text-right">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                                Active
-                                            </span>
-                                        </td>
-                                    </motion.tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </motion.div>
         </motion.div>
+    );
+};
+
+// ─── Upcoming item ────────────────────────────────────────────────────────────
+const UpcomingItem = ({ sub }) => {
+    const days = daysUntil(sub.next_payment_date);
+    const urgent = days !== null && days <= 7;
+    const overdue = days !== null && days < 0;
+
+    return (
+        <div className="flex items-center gap-3 py-3 border-b border-zinc-100 dark:border-zinc-800 last:border-0 group">
+            <CompanyLogo name={sub.company?.name || ''} size="sm" rounded="rounded-xl" />
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{sub.company?.name || 'Unknown'}</p>
+                <p className="text-xs text-zinc-400 truncate">
+                    {sub.cycle} · {sub.currency} {sub.value}
+                </p>
+            </div>
+            {days !== null && (
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${overdue ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' :
+                        urgent ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' :
+                            'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                    }`}>
+                    {overdue ? `${Math.abs(days)}d ago` : days === 0 ? 'Today' : `${days}d`}
+                </span>
+            )}
+        </div>
+    );
+};
+
+// ─── Recent activity row ──────────────────────────────────────────────────────
+const ActivityRow = ({ sub, onClick }) => (
+    <tr onClick={onClick}
+        className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors">
+        <td className="px-5 py-3.5">
+            <div className="flex items-center gap-3">
+                <CompanyLogo name={sub.company?.name || ''} size="sm" rounded="rounded-xl" />
+                <div>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white">{sub.company?.name || 'Unknown'}</p>
+                    {sub.description && <p className="text-xs text-zinc-400 truncate max-w-[160px]">{sub.description}</p>}
+                </div>
+            </div>
+        </td>
+        <td className="px-5 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 capitalize">{sub.cycle}</td>
+        <td className="px-5 py-3.5 text-sm font-semibold text-zinc-900 dark:text-white">
+            {fmt(sub.value, sub.currency)}
+        </td>
+        <td className="px-5 py-3.5">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sub.type === 'subscription' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
+                    sub.type === 'trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
+                        'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+                }`}>
+                {sub.type}
+            </span>
+        </td>
+        <td className="px-5 py-3.5 text-right">
+            <ChevronRight size={14} className="text-zinc-300 group-hover:text-emerald-500 transition-colors ml-auto" />
+        </td>
+    </tr>
+);
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+const Dashboard = () => {
+    const navigate = useNavigate();
+    const { user, token } = useAuth();
+    const [subs, setSubs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:3000/api/subscriptions', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(r => r.json())
+            .then(d => { if (d.success) setSubs(d.data || []); })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [token]);
+
+    // ── Derived stats ─────────────────────────────────────────────────────────
+    const monthly = subs.reduce((acc, s) => {
+        const v = parseFloat(s.value) || 0;
+        if (s.cycle === 'monthly') return acc + v;
+        if (s.cycle === 'yearly') return acc + v / 12;
+        if (s.cycle === 'weekly') return acc + v * 4.33;
+        if (s.cycle === 'quarterly') return acc + v / 3;
+        return acc;
+    }, 0);
+
+    const annual = monthly * 12;
+    const active = subs.filter(s => s.type === 'subscription').length;
+    const upcoming = [...subs]
+        .filter(s => s.next_payment_date)
+        .sort((a, b) => new Date(a.next_payment_date) - new Date(b.next_payment_date))
+        .slice(0, 6);
+    const overdueCount = subs.filter(s => {
+        const d = daysUntil(s.next_payment_date);
+        return d !== null && d < 0;
+    }).length;
+
+    if (loading) return (
+        <div className="flex items-center justify-center py-32 gap-3 text-zinc-400">
+            <Loader2 size={22} className="animate-spin text-emerald-500" />
+            <span>Loading your dashboard…</span>
+        </div>
+    );
+
+    return (
+        <div className="space-y-8">
+            {/* ── Greeting ───────────────────────────────────────────── */}
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-zinc-900 dark:text-white">
+                        {greeting()}, {user?.name?.split(' ')[0] || 'there'} 👋
+                    </h1>
+                    <p className="text-zinc-400 text-sm mt-1">
+                        You have <strong className="text-zinc-700 dark:text-zinc-200">{subs.length}</strong> subscriptions tracked
+                        {overdueCount > 0 && <>, <span className="text-red-500 font-bold">{overdueCount} overdue</span></>}
+                    </p>
+                </div>
+                <button
+                    onClick={() => navigate('/dashboard/subscriptions/add')}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-100 transition-all text-sm">
+                    <Plus size={16} />
+                    Add Subscription
+                </button>
+            </motion.div>
+
+            {/* ── Stats grid ─────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard label="Monthly Spend" value={fmt(monthly)} icon={DollarSign} color="emerald" delay={0.05} />
+                <StatCard label="Annual Spend" value={fmt(annual)} icon={TrendingUp} color="violet" delay={0.1} />
+                <StatCard label="Active Subs" value={active} icon={CheckCircle2} color="amber" delay={0.15} />
+                <StatCard label="Upcoming (7d)" value={upcoming.filter(s => { const d = daysUntil(s.next_payment_date); return d !== null && d >= 0 && d <= 7; }).length} icon={AlertTriangle} color="rose" delay={0.2}
+                    sub={overdueCount > 0 ? `${overdueCount} overdue` : undefined} />
+            </div>
+
+            {/* ── Charts ─────────────────────────────────────────────── */}
+            {subs.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                        className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-5">
+                            <div>
+                                <h2 className="text-base font-bold text-zinc-900 dark:text-white">Spending Projection</h2>
+                                <p className="text-xs text-zinc-400 mt-0.5">Next 6 months forecast</p>
+                            </div>
+                            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                                <Zap size={16} className="text-emerald-500" />
+                            </div>
+                        </div>
+                        <SpendingChart subscriptions={subs} />
+                    </motion.div>
+
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                        className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-5">
+                            <div>
+                                <h2 className="text-base font-bold text-zinc-900 dark:text-white">By Category</h2>
+                                <p className="text-xs text-zinc-400 mt-0.5">Subscription distribution</p>
+                            </div>
+                        </div>
+                        <CategoryPieChart subscriptions={subs} />
+                    </motion.div>
+                </div>
+            )}
+
+            {/* ── Bottom section ─────────────────────────────────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Upcoming renewals */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+                    className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                            <Clock size={16} className="text-amber-500" />
+                            Upcoming Renewals
+                        </h2>
+                        <button onClick={() => navigate('/dashboard/subscriptions')}
+                            className="text-xs text-emerald-500 hover:text-emerald-600 font-semibold flex items-center gap-1">
+                            View all <ArrowUpRight size={12} />
+                        </button>
+                    </div>
+                    {upcoming.length === 0 ? (
+                        <p className="text-sm text-zinc-400 py-8 text-center">No upcoming renewals</p>
+                    ) : (
+                        upcoming.map(s => <UpcomingItem key={s.subscription_id} sub={s} />)
+                    )}
+                </motion.div>
+
+                {/* Recent subscriptions table */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                    className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
+                        <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                            <CreditCard size={16} className="text-violet-500" />
+                            Recent Subscriptions
+                        </h2>
+                        <button onClick={() => navigate('/dashboard/subscriptions')}
+                            className="text-xs text-emerald-500 hover:text-emerald-600 font-semibold flex items-center gap-1">
+                            View all <ArrowUpRight size={12} />
+                        </button>
+                    </div>
+
+                    {subs.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 gap-4">
+                            <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                <CreditCard size={28} className="text-zinc-300 dark:text-zinc-600" />
+                            </div>
+                            <p className="text-zinc-400 font-medium">No subscriptions yet</p>
+                            <button onClick={() => navigate('/dashboard/subscriptions/add')}
+                                className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-colors">
+                                Add your first one
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-zinc-100 dark:border-zinc-800">
+                                        <th className="px-5 py-3 text-left text-xs font-bold text-zinc-400 uppercase tracking-wider">Service</th>
+                                        <th className="px-5 py-3 text-left text-xs font-bold text-zinc-400 uppercase tracking-wider">Cycle</th>
+                                        <th className="px-5 py-3 text-left text-xs font-bold text-zinc-400 uppercase tracking-wider">Amount</th>
+                                        <th className="px-5 py-3 text-left text-xs font-bold text-zinc-400 uppercase tracking-wider">Type</th>
+                                        <th className="px-5 py-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                    {subs.slice(0, 8).map(s => (
+                                        <ActivityRow key={s.subscription_id} sub={s}
+                                            onClick={() => navigate(`/dashboard/subscriptions/${s.subscription_id}`)} />
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </motion.div>
+            </div>
+        </div>
     );
 };
 

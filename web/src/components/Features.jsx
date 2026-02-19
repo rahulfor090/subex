@@ -4,7 +4,7 @@ import {
   BarChart3,
   ShieldCheck,
   Zap,
-  CreditCard,
+
   ArrowUpRight
 } from 'lucide-react';
 
@@ -60,7 +60,7 @@ const FeatureHeader = ({ icon: Icon, title, description, badge }) => (
 
 const AnalyticsCard = () => (
   <FeatureCard
-    className="col-span-1 md:col-span-2 lg:col-span-2 h-[400px]"
+    className="col-span-1 md:col-span-2 lg:col-span-1 h-[400px]"
     delay={0.1}
     image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop"
   >
@@ -102,20 +102,7 @@ const AlertsCard = () => (
   </FeatureCard>
 );
 
-const MarketplaceCard = () => (
-  <FeatureCard
-    className="col-span-1 md:col-span-2 lg:col-span-2 h-[400px]"
-    delay={0.4}
-    image="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop"
-  >
-    <FeatureHeader
-      icon={CreditCard}
-      title="P2P Marketplace"
-      description="The first secure marketplace to buy and sell unused subscriptions. Recoup your costs instantly."
-      badge="Beta"
-    />
-  </FeatureCard>
-);
+
 
 const Features = () => {
   return (
@@ -156,7 +143,7 @@ const Features = () => {
           <AnalyticsCard />
           <SecurityCard />
           <AlertsCard />
-          <MarketplaceCard />
+
         </div>
 
         {/* Bottom CTA */}

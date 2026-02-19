@@ -287,13 +287,20 @@ router.get('/me', authenticate, async (req, res) => {
       });
     }
 
+    // Also get auth details for password_updated_at
+    const userAuth = await db.UserAuth.findOne({
+      where: { user_id: user.user_id }
+    });
+
     res.status(200).json({
       success: true,
       data: {
         userId: user.user_id.toString(),
         name: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
-        phone: user.phone_number
+        phone: user.phone_number,
+        profilePicture: user.profile_picture || null,
+        passwordUpdatedAt: userAuth?.password_updated_at || null
       }
     });
   } catch (error) {
@@ -435,6 +442,74 @@ router.post('/reset-password', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+});
+
+
+// POST /api/auth/change-password - Change user password
+router.post('/change-password', authenticate, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.user_id;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current and new password are required'
+      });
+    }
+
+    // Validate new password strength
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 8 characters long'
+      });
+    }
+
+    // Get user auth record
+    const userAuth = await db.UserAuth.findOne({
+      where: { user_id: userId }
+    });
+
+    if (!userAuth) {
+      return res.status(404).json({
+        success: false,
+        message: 'User authentication record not found'
+      });
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, userAuth.password_hash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Incorrect current password'
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    await userAuth.update({
+      password_hash: newPasswordHash,
+      password_updated_at: new Date()
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while changing password'
     });
   }
 });
