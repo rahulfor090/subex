@@ -6,9 +6,6 @@ import {
     Globe, FileText, DollarSign, Clock, Shield, StickyNote
 } from 'lucide-react';
 
-import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink, Copy } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
