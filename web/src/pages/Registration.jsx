@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, AlertCircle, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertCircle, User, Mail } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,13 +13,6 @@ const Registration = () => {
         last_name: '',
         email: '',
         phone_number: '',
-        date_of_birth: '',
-        address_line1: '',
-        address_line2: '',
-        city: '',
-        state: '',
-        country: '',
-        zip_code: '',
         password: '',
         confirm_password: ''
     });
@@ -138,13 +131,6 @@ const Registration = () => {
                     last_name: '',
                     email: '',
                     phone_number: '',
-                    date_of_birth: '',
-                    address_line1: '',
-                    address_line2: '',
-                    city: '',
-                    state: '',
-                    country: '',
-                    zip_code: '',
                     password: '',
                     confirm_password: ''
                 });
@@ -279,39 +265,23 @@ const Registration = () => {
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label htmlFor="phone_number" className="block text-sm font-medium mb-2">
-                                            Phone Number
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            id="phone_number"
-                                            name="phone_number"
-                                            value={formData.phone_number}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.phone_number ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
-                                                } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
-                                            placeholder="+1 (555) 123-4567"
-                                        />
-                                        {errors.phone_number && (
-                                            <p className="mt-1 text-sm text-red-500">{errors.phone_number}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="date_of_birth" className="block text-sm font-medium mb-2">
-                                            Date of Birth
-                                        </label>
-                                        <input
-                                            type="date"
-                                            id="date_of_birth"
-                                            name="date_of_birth"
-                                            value={formData.date_of_birth}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        />
-                                    </div>
+                                <div>
+                                    <label htmlFor="phone_number" className="block text-sm font-medium mb-2">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="phone_number"
+                                        name="phone_number"
+                                        value={formData.phone_number}
+                                        onChange={handleChange}
+                                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border ${errors.phone_number ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                                        placeholder="+91 (Mobile) 98765 43210"
+                                    />
+                                    {errors.phone_number && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.phone_number}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -365,109 +335,6 @@ const Registration = () => {
                                     {errors.confirm_password && (
                                         <p className="mt-1 text-sm text-red-500">{errors.confirm_password}</p>
                                     )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Address Information */}
-                        <div>
-                            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                <MapPin size={20} className="text-emerald-500" />
-                                Address (Optional)
-                            </h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="address_line1" className="block text-sm font-medium mb-2">
-                                        Address Line 1
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="address_line1"
-                                        name="address_line1"
-                                        value={formData.address_line1}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        placeholder="123 Main Street"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="address_line2" className="block text-sm font-medium mb-2">
-                                        Address Line 2
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="address_line2"
-                                        name="address_line2"
-                                        value={formData.address_line2}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                        placeholder="Apt 4B"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label htmlFor="city" className="block text-sm font-medium mb-2">
-                                            City
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="city"
-                                            name="city"
-                                            value={formData.city}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                            placeholder="New York"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="state" className="block text-sm font-medium mb-2">
-                                            State/Province
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="state"
-                                            name="state"
-                                            value={formData.state}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                            placeholder="NY"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label htmlFor="country" className="block text-sm font-medium mb-2">
-                                            Country
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="country"
-                                            name="country"
-                                            value={formData.country}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                            placeholder="United States"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="zip_code" className="block text-sm font-medium mb-2">
-                                            Zip/Postal Code
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="zip_code"
-                                            name="zip_code"
-                                            value={formData.zip_code}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                                            placeholder="10001"
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         </div>
