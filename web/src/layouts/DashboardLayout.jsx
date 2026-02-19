@@ -70,18 +70,24 @@ const DashboardLayout = () => {
         <div className={`flex flex-col h-full ${mobile ? 'w-72' : collapsed ? 'w-[68px]' : 'w-60'} transition-all duration-300 ease-in-out`}>
             {/* Logo */}
             <div className={`flex items-center gap-3 px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 ${collapsed && !mobile ? 'justify-center px-2' : ''}`}>
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                    <Sparkles size={16} className="text-white" />
-                </div>
-                {(!collapsed || mobile) && (
-                    <div>
-                        <span className="text-base font-black tracking-tight text-zinc-900 dark:text-white">SubEx</span>
-                        <span className="text-[10px] font-medium text-zinc-400 block -mt-0.5">Subscription Manager</span>
+                <button
+                    onClick={() => navigate('/')}
+                    className={`flex items-center gap-3 min-w-0 group ${collapsed && !mobile ? 'justify-center' : 'flex-1'}`}
+                    title="Go to home"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:shadow-emerald-400/40 group-hover:scale-105 transition-all duration-200">
+                        <Sparkles size={16} className="text-white" />
                     </div>
-                )}
+                    {(!collapsed || mobile) && (
+                        <div className="text-left">
+                            <span className="text-base font-black tracking-tight text-zinc-900 dark:text-white group-hover:text-emerald-500 transition-colors">SubEx</span>
+                            <span className="text-[10px] font-medium text-zinc-400 block -mt-0.5">Subscription Manager</span>
+                        </div>
+                    )}
+                </button>
                 {!mobile && (
                     <button onClick={() => setCollapsed(c => !c)}
-                        className={`ml-auto p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all ${collapsed ? 'mx-auto' : ''}`}>
+                        className={`p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex-shrink-0 ${collapsed ? '' : 'ml-auto'}`}>
                         <ChevronLeft size={16} className={`transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
                     </button>
                 )}
