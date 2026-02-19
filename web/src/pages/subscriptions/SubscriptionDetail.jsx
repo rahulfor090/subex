@@ -5,6 +5,11 @@ import {
     ExternalLink, CreditCard, RefreshCw, Tag, Folder,
     Globe, FileText, DollarSign, Clock, Shield, StickyNote
 } from 'lucide-react';
+
+import { motion } from 'framer-motion';
+import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink, Copy } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import CompanyLogo from '../../components/CompanyLogo';
@@ -99,6 +104,8 @@ const SubscriptionDetail = () => {
     const [error, setError] = useState(null);
     const [deleteStatus, setDeleteStatus] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [duplicateStatus, setDuplicateStatus] = useState(null);
+    const [duplicateMessage, setDuplicateMessage] = useState('');
 
     useEffect(() => { fetchSubscription(); }, [id]);
 
@@ -129,10 +136,10 @@ const SubscriptionDetail = () => {
             } else { setDeleteStatus('error'); setError(data.message || 'Delete failed'); }
         } catch { setDeleteStatus('error'); setError('Unable to connect to server.'); }
     };
-
     const fmt = (ds) => {
         if (!ds) return 'N/A';
         return new Date(ds).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
     };
 
     const fmtCurrency = (amt, cur) => {
@@ -307,6 +314,7 @@ const SubscriptionDetail = () => {
                 )}
             </AnimatePresence>
 
+
             {/* ── Error banner ─────────────────────────────────────────────── */}
             {error && (
                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 mb-4">
@@ -318,6 +326,7 @@ const SubscriptionDetail = () => {
             {/* ── Details grid ─────────────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+
                 <Chip icon={DollarSign} label="Amount" value={fmtCurrency(subscription.value, subscription.currency)} />
                 <Chip icon={RefreshCw} label="Billing" value={`Every ${subscription.frequency || 1} ${subscription.cycle}`} />
                 <Chip icon={Shield} label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} />
@@ -326,8 +335,10 @@ const SubscriptionDetail = () => {
                 <Chip icon={CreditCard} label="Payment" value={cap(subscription.payment_method) || 'Not set'} />
             </motion.div>
 
+
             {/* ── Folder + Tags ─────────────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+
                 className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur border border-zinc-200/80 dark:border-zinc-700/60 shadow-sm">
                     <div className="flex items-center gap-1.5 mb-3">

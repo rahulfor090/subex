@@ -275,6 +275,155 @@ The Subex Team
     }
 
     /**
+     * Send subscription reminder email
+     */
+    async sendSubscriptionReminderEmail(user, subscription, alert) {
+        try {
+            const currencyFormatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: subscription.currency || 'USD',
+            });
+            const formattedAmount = currencyFormatter.format(subscription.value);
+            const dueDate = new Date(alert.alert_send_date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Fallback for company name/image if not available
+            const companyName = subscription.company ? subscription.company.name : 'Subscription';
+            // Use a generic icon if company image is missing
+            const companyImage = subscription.company && subscription.company.image 
+                ? subscription.company.image 
+                : 'https://cdn-icons-png.flaticon.com/512/2933/2933116.png'; // Generic bill icon
+
+            const mailOptions = {
+                from: process.env.EMAIL_FROM || '"Subex" <noreply@subex.com>',
+                to: user.email,
+                subject: `Payment Reminder: ${companyName} - ${formattedAmount}`,
+                html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              .header {
+                background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 10px 10px 0 0;
+              }
+              .content {
+                background: #f9fafb;
+                padding: 30px;
+                border-radius: 0 0 10px 10px;
+              }
+              .card {
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                text-align: center;
+              }
+              .amount {
+                font-size: 32px;
+                color: #10b981;
+                font-weight: bold;
+                margin: 10px 0;
+              }
+              .date {
+                color: #666;
+                font-size: 16px;
+              }
+              .service-logo {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                margin-bottom: 10px;
+                object-fit: contain;
+              }
+              .button {
+                display: inline-block;
+                padding: 12px 30px;
+                background: #10b981;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                margin-top: 20px;
+                font-weight: bold;
+              }
+              .footer {
+                margin-top: 20px;
+                font-size: 14px;
+                color: #666;
+                text-align: center;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1 style="margin: 0;">Payment Reminder</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${user.first_name},</p>
+              
+              <p>This is a friendly reminder that you have an upcoming payment for <strong>${companyName}</strong>.</p>
+              
+              <div class="card">
+                <img src="${companyImage}" alt="${companyName}" class="service-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2933/2933116.png'">
+                <div class="amount">${formattedAmount}</div>
+                <div class="date">Due on ${dueDate}</div>
+              </div>
+
+              <p>Make sure your payment method is up to date to ensure uninterrupted service.</p>
+              
+              <div style="text-align: center;">
+                <a href="${process.env.FRONTEND_URL || '#'}" class="button">View Subscription</a>
+              </div>
+              
+              <div class="footer">
+                <p>Track all your subscriptions with Subex</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
+                text: `
+Payment Reminder from Subex
+
+Hi ${user.first_name},
+
+This is a reminder that you have an upcoming payment for ${companyName}.
+
+Amount: ${formattedAmount}
+Due Date: ${dueDate}
+
+Make sure your payment method is up to date.
+
+View your subscription: ${process.env.FRONTEND_URL || '#'}
+        `,
+            };
+
+            const info = await this.transporter.sendMail(mailOptions);
+            console.log('Reminder email sent successfully:', info.messageId);
+            return { success: true, messageId: info.messageId };
+        } catch (error) {
+            console.error('Error sending reminder email:', error);
+            throw error; // Propagate error so cron service can handle it
+        }
+    }
+
+    /**
      * Verify email configuration
      */
     async verifyConnection() {
