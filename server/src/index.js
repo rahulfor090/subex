@@ -8,6 +8,8 @@ const companyRoutes = require('./routes/company');
 const folderRoutes = require('./routes/folder');
 const tagRoutes = require('./routes/tag');
 const alertRoutes = require('./routes/alerts');
+const adminRoutes = require('./routes/admin');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 const cors = require('cors');
@@ -15,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
   credentials: true
 }));
 app.use(express.json());
@@ -64,6 +66,8 @@ try {
   console.log('✅ Tag routes registered');
   app.use('/api/alerts', alertRoutes);
   console.log('✅ Alert routes registered');
+  app.use('/api/admin', adminRoutes);
+  console.log('✅ Admin routes registered');
   console.log('✅ All routes registered successfully');
 } catch (error) {
   console.error('❌ Error registering routes:', error);
@@ -98,6 +102,9 @@ app.get('/health/db', async (req, res) => {
     });
   }
 });
+
+// Global error handler (must be after all routes)
+app.use(errorHandler);
 
 // Start server
 console.log('🚀 Starting server...');

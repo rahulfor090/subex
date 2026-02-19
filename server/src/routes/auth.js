@@ -293,7 +293,8 @@ router.get('/me', authenticate, async (req, res) => {
         userId: user.user_id.toString(),
         name: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
-        phone: user.phone_number
+        phone: user.phone_number,
+        role: user.role || 'user'
       }
     });
   } catch (error) {

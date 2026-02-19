@@ -130,6 +130,24 @@ if (db.User && db.SubExAlert) {
   db.SubExAlert.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
 }
 
+// User <-> Transaction
+if (db.User && db.Transaction) {
+  db.User.hasMany(db.Transaction, { foreignKey: 'user_id', as: 'transactions' });
+  db.Transaction.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
+// Subscription <-> Transaction
+if (db.Subscription && db.Transaction) {
+  db.Subscription.hasMany(db.Transaction, { foreignKey: 'subscription_id', as: 'transactions' });
+  db.Transaction.belongsTo(db.Subscription, { foreignKey: 'subscription_id', as: 'subscription' });
+}
+
+// User <-> UserAuth
+if (db.User && db.UserAuth) {
+  db.User.hasOne(db.UserAuth, { foreignKey: 'user_id', as: 'auth' });
+  db.UserAuth.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
