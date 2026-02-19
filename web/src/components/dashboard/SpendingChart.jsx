@@ -8,7 +8,7 @@ const CustomTooltip = ({ active, payload, label }) => {
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-lg shadow-xl">
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-1">{label}</p>
                 <p className="text-emerald-500 font-bold text-lg">
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payload[0].value)}
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(payload[0].value)}
                 </p>
             </div>
         );
@@ -81,7 +81,7 @@ const SpendingChart = ({ subscriptions }) => {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#71717a', fontSize: 12 }}
-                        tickFormatter={(value) => `$${value}`}
+                        tickFormatter={(value) => `₹${value}`}
                         dx={-10}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />

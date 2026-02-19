@@ -37,8 +37,8 @@ const StatItem = ({ label, value, subtext, trend }) => (
         <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{value}</h3>
         {subtext && (
             <p className={`text-xs flex items-center gap-1 ${trend === 'up' ? 'text-red-500' :
-                    trend === 'down' ? 'text-emerald-500' :
-                        'text-zinc-400'
+                trend === 'down' ? 'text-emerald-500' :
+                    'text-zinc-400'
                 }`}>
                 {trend === 'up' && <ArrowUpRight size={12} />}
                 {trend === 'down' && <ArrowDownRight size={12} />}
@@ -115,23 +115,23 @@ const Analytics = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatItem
                     label="Monthly Spend"
-                    value={`$${stats.monthly?.toFixed(2) || '0.00'}`}
+                    value={`₹${stats.monthly?.toFixed(2) || '0.00'}`}
                     subtext="Estimated recurring"
                     trend="up" // Placeholder logic
                 />
                 <StatItem
                     label="Yearly Projection"
-                    value={`$${stats.yearly?.toFixed(2) || '0.00'}`}
+                    value={`₹${stats.yearly?.toFixed(2) || '0.00'}`}
                     subtext="If current subs remain active"
                 />
                 <StatItem
                     label="Average Cost"
-                    value={`$${stats.average?.toFixed(2) || '0.00'}`}
+                    value={`₹${stats.average?.toFixed(2) || '0.00'}`}
                     subtext="Per subscription"
                 />
                 <StatItem
                     label="Highest Expense"
-                    value={stats.mostExpensive ? `$${stats.mostExpensive.value}` : '$0.00'}
+                    value={stats.mostExpensive ? `₹${stats.mostExpensive.value}` : '₹0.00'}
                     subtext={stats.mostExpensive?.company?.name || '-'}
                 />
             </div>
@@ -172,7 +172,7 @@ const Analytics = () => {
                         <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
                             <h3 className="font-semibold text-blue-800 dark:text-blue-400 mb-2">📅 Upcoming Heavy Week</h3>
                             <p className="text-sm text-blue-700 dark:text-blue-300">
-                                You have 3 payments due in the next 7 days totaling $45.00.
+                                You have 3 payments due in the next 7 days totaling ₹3,500.00.
                             </p>
                         </div>
                     </div>

@@ -7,11 +7,9 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Load user from localStorage on mount
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-
         if (storedToken && storedUser) {
             setToken(storedToken);
             setUser(JSON.parse(storedUser));
@@ -19,23 +17,31 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = useCallback((token, userData) => {
-        localStorage.setItem('token', token);
+    const login = useCallback((tkn, userData) => {
+        localStorage.setItem('token', tkn);
         localStorage.setItem('user', JSON.stringify(userData));
-        setToken(token);
+        setToken(tkn);
         setUser(userData);
     }, []);
 
-    const signup = useCallback((token, userData) => {
-        localStorage.setItem('token', token);
+    const signup = useCallback((tkn, userData) => {
+        localStorage.setItem('token', tkn);
         localStorage.setItem('user', JSON.stringify(userData));
-        setToken(token);
+        setToken(tkn);
         setUser(userData);
+    }, []);
+
+    // Merge updated fields into current user state and persist to localStorage
+    const updateUser = useCallback((updatedFields) => {
+        setUser(prev => {
+            const newUser = { ...prev, ...updatedFields };
+            localStorage.setItem('user', JSON.stringify(newUser));
+            return newUser;
+        });
     }, []);
 
     const logout = useCallback(async () => {
         try {
-            // Call logout API
             const currentToken = localStorage.getItem('token');
             if (currentToken) {
                 await fetch('http://localhost:3000/api/auth/logout', {
@@ -49,7 +55,6 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Logout API error:', error);
         } finally {
-            // Clear local storage and state regardless of API response
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setToken(null);
@@ -63,9 +68,10 @@ export const AuthProvider = ({ children }) => {
         login,
         signup,
         logout,
+        updateUser,
         isAuthenticated: !!token && !!user,
         loading
-    }), [user, token, loading, login, signup, logout]);
+    }), [user, token, loading, login, signup, logout, updateUser]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
