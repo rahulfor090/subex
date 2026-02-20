@@ -6,15 +6,30 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         if (storedToken && storedUser) {
             setToken(storedToken);
             setUser(JSON.parse(storedUser));
+
+            // Refresh role from the server
+            fetch('http://localhost:3000/api/auth/me', {
+                headers: { Authorization: `Bearer ${storedToken}` }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const updated = { ...JSON.parse(storedUser), role: data.data.role || 'user' };
+                        setUser(updated);
+                        localStorage.setItem('user', JSON.stringify(updated));
+                    }
+                })
+                .catch(() => { })
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     const login = useCallback((tkn, userData) => {

@@ -23,6 +23,15 @@ import CookiesPage from "./pages/CookiesPage";
 import { ThemeProvider } from "./lib/ThemeProvider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
+// Admin imports
+import AdminProtected from "./components/admin/AdminProtected";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPlans from "./pages/admin/AdminPlans";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminSystemHealth from "./pages/admin/AdminSystemHealth";
+
 // Protected route wrapper component
 const Protected = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -68,6 +77,14 @@ function App() {
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="security" element={<SecurityPage />} />
                 <Route path="profile" element={<ProfilePage />} />
+              </Route>
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="plans" element={<AdminPlans />} />
+                <Route path="transactions" element={<AdminTransactions />} />
+                <Route path="system" element={<AdminSystemHealth />} />
               </Route>
               <Route path="/privacy-policy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
