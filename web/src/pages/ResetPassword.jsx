@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch, apiJSON } from '../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -32,7 +33,7 @@ const ResetPassword = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/auth/verify-reset-token/${token}`);
+                const response = await apiFetch(`/api/auth/verify-reset-token/${token}`);
                 const data = await response.json();
 
                 if (response.ok && data.success) {
@@ -108,15 +109,9 @@ const ResetPassword = () => {
         setSubmitStatus(null);
 
         try {
-            const response = await fetch('http://localhost:3000/api/auth/reset-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token,
-                    password: formData.password
-                }),
+            const response = await apiJSON('/api/auth/reset-password', 'POST', {
+                token,
+                password: formData.password
             });
 
             const data = await response.json();

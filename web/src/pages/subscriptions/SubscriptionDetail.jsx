@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -23,7 +24,7 @@ const SubscriptionDetail = () => {
     const fetchSubscription = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const response = await apiFetch(`/api/subscriptions/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -49,7 +50,7 @@ const SubscriptionDetail = () => {
     const handleDelete = async () => {
         try {
             setDeleteStatus('loading');
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const response = await apiFetch(`/api/subscriptions/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -160,9 +161,9 @@ const SubscriptionDetail = () => {
                                 </h1>
                                 <span
                                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${subscription.type === 'subscription' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
-                                            subscription.type === 'trial' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' :
-                                                subscription.type === 'lifetime' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
-                                                    'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
+                                        subscription.type === 'trial' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' :
+                                            subscription.type === 'lifetime' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
+                                                'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
                                         }`}
                                 >
                                     {capitalizeFirst(subscription.type)}

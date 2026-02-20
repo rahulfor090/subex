@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiJSON, apiFetch } from '../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, AlertCircle, User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -104,13 +105,7 @@ const Registration = () => {
                 password: formData.password
             };
 
-            const response = await fetch('http://localhost:3000/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            });
+            const response = await apiJSON('/api/auth/signup', 'POST', requestBody);
 
             const data = await response.json();
 
@@ -121,10 +116,8 @@ const Registration = () => {
                 // Store token and user data
                 if (data.accessToken) {
                     // Fetch user details using the token
-                    const userResponse = await fetch('http://localhost:3000/api/auth/me', {
-                        headers: {
-                            'Authorization': `Bearer ${data.accessToken}`
-                        }
+                    const userResponse = await apiFetch('/api/auth/me', {
+                        headers: { 'Authorization': `Bearer ${data.accessToken}` }
                     });
                     const userData = await userResponse.json();
 

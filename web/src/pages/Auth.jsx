@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, Lock, User, Phone, CheckCircle2, XCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_BASE_URL } from "@/lib/api";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function Auth() {
     setMessage({ type: "", text: "" });
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,9 +58,9 @@ export default function Auth() {
       if (data.success) {
         // Update auth context
         login(data.data.user, data.data.token);
-        
+
         setMessage({ type: "success", text: data.message });
-        
+
         // Redirect to home after successful login
         setTimeout(() => {
           navigate('/');
@@ -96,7 +96,7 @@ export default function Auth() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,9 +115,9 @@ export default function Auth() {
       if (data.success) {
         // Update auth context
         login(data.data.user, data.data.token);
-        
+
         setMessage({ type: "success", text: data.message });
-        
+
         // Redirect to home after successful registration
         setTimeout(() => {
           navigate('/');
@@ -165,7 +165,7 @@ export default function Auth() {
               Manage your subscriptions effortlessly
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">

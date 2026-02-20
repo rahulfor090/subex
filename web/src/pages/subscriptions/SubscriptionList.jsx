@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
 import { Plus, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -22,7 +23,7 @@ const SubscriptionList = () => {
             setLoading(true);
             console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
 
-            const response = await fetch('http://localhost:3000/api/subscriptions', {
+            const response = await apiFetch('/api/subscriptions', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

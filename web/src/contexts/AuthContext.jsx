@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
+import { apiFetch } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -33,12 +34,20 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     }, []);
 
+    const updateUser = useCallback((updates) => {
+        setUser(prev => {
+            const updated = { ...prev, ...updates };
+            localStorage.setItem('user', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+
     const logout = useCallback(async () => {
         try {
             // Call logout API
             const currentToken = localStorage.getItem('token');
             if (currentToken) {
-                await fetch('http://localhost:3000/api/auth/logout', {
+                await apiFetch('/api/auth/logout', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,
@@ -63,9 +72,10 @@ export const AuthProvider = ({ children }) => {
         login,
         signup,
         logout,
+        updateUser,
         isAuthenticated: !!token && !!user,
         loading
-    }), [user, token, loading, login, signup, logout]);
+    }), [user, token, loading, login, signup, logout, updateUser]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

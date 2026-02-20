@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, AlertCircle, Save, Plus, X } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -59,7 +60,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchCompanies = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/companies', {
+            const response = await apiFetch('/api/companies', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -71,7 +72,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchFolders = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/folders', {
+            const response = await apiFetch('/api/folders', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -83,7 +84,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchTags = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/tags', {
+            const response = await apiFetch('/api/tags', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -95,7 +96,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchSubscription = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const response = await apiFetch(`/api/subscriptions/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -134,7 +135,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         if (!newCompanyName.trim()) return;
 
         try {
-            const response = await fetch('http://localhost:3000/api/companies', {
+            const response = await apiFetch('/api/companies', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -159,7 +160,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         if (!newFolderName.trim()) return;
 
         try {
-            const response = await fetch('http://localhost:3000/api/folders', {
+            const response = await apiFetch('/api/folders', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -184,7 +185,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         if (!newTagName.trim()) return;
 
         try {
-            const response = await fetch('http://localhost:3000/api/tags', {
+            const response = await apiFetch('/api/tags', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -263,13 +264,12 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         setSubmitStatus(null);
 
         try {
-            const url = mode === 'edit'
-                ? `http://localhost:3000/api/subscriptions/${id}`
-                : 'http://localhost:3000/api/subscriptions';
-
+            const path = mode === 'edit'
+                ? `/api/subscriptions/${id}`
+                : '/api/subscriptions';
             const method = mode === 'edit' ? 'PATCH' : 'POST';
 
-            const response = await fetch(url, {
+            const response = await apiFetch(path, {
                 method,
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -725,8 +725,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                         type="button"
                                         onClick={() => handleTagToggle(tag.id)}
                                         className={`px-3 py-1 rounded-full text-sm transition-colors ${formData.tag_ids.includes(tag.id)
-                                                ? 'bg-emerald-500 text-white'
-                                                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                                             }`}
                                     >
                                         {tag.name}

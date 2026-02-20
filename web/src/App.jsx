@@ -5,6 +5,8 @@ import Registration from "./pages/Registration";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthCallback from "./pages/OAuthCallback";
+import CreatePassword from "./pages/CreatePassword";
 import SubscriptionList from "./pages/subscriptions/SubscriptionList";
 import SubscriptionDetail from "./pages/subscriptions/SubscriptionDetail";
 import SubscriptionForm from "./pages/subscriptions/SubscriptionForm";
@@ -43,6 +45,11 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
+              <Route
+                path="/create-password"
+                element={<Protected><CreatePassword /></Protected>}
+              />
               <Route
                 path="/dashboard"
                 element={<Protected><SubscriptionList /></Protected>}
