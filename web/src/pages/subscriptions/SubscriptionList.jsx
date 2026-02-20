@@ -28,7 +28,7 @@ const SubscriptionList = () => {
             setLoading(true);
             console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
 
-            const response = await fetch('http://localhost:3000/api/subscriptions', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ const SubscriptionList = () => {
         if (!window.confirm('Are you sure you want to delete this subscription?')) return;
         try {
             setDeletingId(subscriptionId);
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${subscriptionId}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${subscriptionId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

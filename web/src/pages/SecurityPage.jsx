@@ -19,7 +19,7 @@ const SecurityPage = () => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/auth/me', {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -64,7 +64,7 @@ const SecurityPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/api/auth/change-password', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/change-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

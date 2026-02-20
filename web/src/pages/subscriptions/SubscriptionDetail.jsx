@@ -109,7 +109,7 @@ const SubscriptionDetail = () => {
     const fetchSubscription = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, {
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
             });
             const data = await res.json();
@@ -122,7 +122,7 @@ const SubscriptionDetail = () => {
     const handleDelete = async () => {
         try {
             setDeleteStatus('loading');
-            const res = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
             });

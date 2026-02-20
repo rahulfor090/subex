@@ -19,12 +19,12 @@ export default defineConfig(({ mode }) => {
             open: true,
             proxy: {
                 '/api': {
-                    target: env.BACKEND_URL || 'http://localhost:3000',
+                    target: env.VITE_BACKEND_URL || 'http://localhost:3000',
                     changeOrigin: true,
                     secure: false,
                 },
                 '/health': {
-                    target: env.BACKEND_URL || 'http://localhost:3000',
+                    target: env.VITE_BACKEND_URL || 'http://localhost:3000',
                     changeOrigin: true,
                     secure: false,
                 }

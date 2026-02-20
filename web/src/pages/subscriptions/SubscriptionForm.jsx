@@ -149,7 +149,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchCompanies = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/companies', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/companies`, { headers: { Authorization: `Bearer ${token}` } });
             const d = await res.json();
             if (d.success) setCompanies(d.data);
         } catch { }
@@ -157,7 +157,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchFolders = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/folders', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/folders`, { headers: { Authorization: `Bearer ${token}` } });
             const d = await res.json();
             if (d.success) setFolders(d.data);
         } catch { }
@@ -165,7 +165,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchTags = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/tags', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tags`, { headers: { Authorization: `Bearer ${token}` } });
             const d = await res.json();
             if (d.success) setTags(d.data);
         } catch { }
@@ -173,7 +173,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
 
     const fetchSubscription = async () => {
         try {
-            const res = await fetch(`http://localhost:3000/api/subscriptions/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             const d = await res.json();
             if (res.ok && d.success) {
                 setFormData({
@@ -195,7 +195,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const createCompany = async () => {
         if (!newCompanyName.trim()) return;
         try {
-            const res = await fetch('http://localhost:3000/api/companies', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newCompanyName }) });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/companies`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newCompanyName }) });
             const d = await res.json();
             if (d.success) { await fetchCompanies(); setFormData(p => ({ ...p, company_id: d.data.id })); setNewCompanyName(''); setShowCompanyForm(false); }
         } catch { }
@@ -204,7 +204,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const createFolder = async () => {
         if (!newFolderName.trim()) return;
         try {
-            const res = await fetch('http://localhost:3000/api/folders', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newFolderName }) });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/folders`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newFolderName }) });
             const d = await res.json();
             if (d.success) { await fetchFolders(); setFormData(p => ({ ...p, folder_id: d.data.id })); setNewFolderName(''); setShowFolderForm(false); }
         } catch { }
@@ -213,7 +213,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const createTag = async () => {
         if (!newTagName.trim()) return;
         try {
-            const res = await fetch('http://localhost:3000/api/tags', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newTagName }) });
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tags`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newTagName }) });
             const d = await res.json();
             if (d.success) { await fetchTags(); setFormData(p => ({ ...p, tag_ids: [...p.tag_ids, d.data.id] })); setNewTagName(''); setShowTagForm(false); }
         } catch { }
@@ -250,7 +250,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         setIsSubmitting(true);
         setSubmitStatus(null);
         try {
-            const url = mode === 'edit' ? `http://localhost:3000/api/subscriptions/${id}` : 'http://localhost:3000/api/subscriptions';
+            const url = mode === 'edit' ? `${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}` : `${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`;
             const res = await fetch(url, {
                 method: mode === 'edit' ? 'PATCH' : 'POST',
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
