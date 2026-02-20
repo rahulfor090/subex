@@ -46,7 +46,7 @@ const AlertModal = ({ subscription, onClose }) => {
         try {
             setLoading(true);
             const res = await fetch(
-                `http://localhost:3000/api/alerts?subscriptionId=${subscription.subscription_id}`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/alerts?subscriptionId=${subscription.subscription_id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             const data = await res.json();
@@ -66,7 +66,7 @@ const AlertModal = ({ subscription, onClose }) => {
         try {
             setSaving(true);
             setError(null);
-            const res = await fetch('http://localhost:3000/api/alerts', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/alerts`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -98,7 +98,7 @@ const AlertModal = ({ subscription, onClose }) => {
     const handleDelete = async (id) => {
         try {
             setDeletingId(id);
-            const res = await fetch(`http://localhost:3000/api/alerts/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/alerts/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });

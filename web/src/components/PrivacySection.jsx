@@ -4,7 +4,7 @@ import { Lock, Shield, Eye, FileCheck, CheckCircle } from 'lucide-react';
 
 const privacyFeatures = [
   { icon: Lock, title: 'End-to-End Encryption', description: 'Military-grade encryption protects every transaction and personal detail.' },
-  { icon: Shield, title: 'Anonymous Transaction Masking', description: 'Your identity remains completely hidden during all marketplace activities.' },
+  { icon: Shield, title: 'Advanced Identity Protection', description: 'Your personal identity is masked and protected with state-of-the-art security protocols.' },
   { icon: Eye, title: 'Zero-Knowledge Authentication', description: 'We never store or see your sensitive data. Complete privacy guaranteed.' },
   { icon: FileCheck, title: 'No Data Selling Policy', description: 'Your information is yours alone. We never share or sell your data. Ever.' },
 ];

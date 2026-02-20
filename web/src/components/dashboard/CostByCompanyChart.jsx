@@ -42,7 +42,7 @@ const CostByCompanyChart = ({ subscriptions }) => {
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-lg shadow-xl text-sm">
                     <p className="font-semibold text-zinc-900 dark:text-white mb-1">{label}</p>
                     <p className="text-emerald-500 font-bold">
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payload[0].value)} / mo
+                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(payload[0].value)} / mo
                     </p>
                 </div>
             );

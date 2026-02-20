@@ -14,7 +14,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import PrivacyPage from "./pages/PrivacyPage";
 import RenewalAlerts from "./pages/RenewalAlerts";
-import Marketplace from "./pages/Marketplace";
+
 import Transactions from "./pages/Transactions";
 import SecurityPage from "./pages/SecurityPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -73,7 +73,7 @@ function App() {
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="alerts" element={<RenewalAlerts />} />
-                <Route path="marketplace" element={<Marketplace />} />
+
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="security" element={<SecurityPage />} />
                 <Route path="profile" element={<ProfilePage />} />

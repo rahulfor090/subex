@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, AlertCircle, Loader2, Trash2, Bell } from 'lucide-react';
+import { Plus, AlertCircle, Loader2, Trash2, Bell, Globe } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../../components/Header';
 import AlertModal from '../../components/AlertModal';
+import ServicesBrowseModal from '../../components/ServicesBrowseModal';
+import CompanyLogo from '../../components/CompanyLogo';
 
 const SubscriptionList = () => {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ const SubscriptionList = () => {
     const [error, setError] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
     const [alertSubscription, setAlertSubscription] = useState(null);
+    const [showBrowse, setShowBrowse] = useState(false);
 
     useEffect(() => {
         fetchSubscriptions();
@@ -25,7 +28,7 @@ const SubscriptionList = () => {
             setLoading(true);
             console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
 
-            const response = await fetch('http://localhost:3000/api/subscriptions', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -56,7 +59,7 @@ const SubscriptionList = () => {
         if (!window.confirm('Are you sure you want to delete this subscription?')) return;
         try {
             setDeletingId(subscriptionId);
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${subscriptionId}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${subscriptionId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -107,13 +110,23 @@ const SubscriptionList = () => {
                             Manage all your subscriptions in one place
                         </p>
                     </div>
-                    <Button
-                        onClick={() => navigate('/dashboard/subscriptions/add')}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
-                    >
-                        <Plus size={20} />
-                        Add a Subscription
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowBrowse(true)}
+                            className="flex items-center gap-2 h-12 px-5 border-zinc-300 dark:border-zinc-700"
+                        >
+                            <Globe size={18} className="text-emerald-500" />
+                            Browse Services
+                        </Button>
+                        <Button
+                            onClick={() => navigate('/dashboard/subscriptions/add')}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
+                        >
+                            <Plus size={20} />
+                            Add Subscription
+                        </Button>
+                    </div>
                 </motion.div>
 
                 {/* Loading State */}
@@ -196,8 +209,13 @@ const SubscriptionList = () => {
                                                 onClick={() => navigate(`/dashboard/subscriptions/${subscription.subscription_id}`)}
                                                 className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
                                             >
-                                                <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
-                                                    {subscription.company?.name || 'Unknown'}
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <CompanyLogo name={subscription.company?.name || ''} size="sm" rounded="rounded-xl" />
+                                                        <span className="text-sm font-semibold text-zinc-900 dark:text-white">
+                                                            {subscription.company?.name || 'Unknown'}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
                                                     {formatDate(subscription.next_payment_date)}
@@ -257,6 +275,18 @@ const SubscriptionList = () => {
                 <AlertModal
                     subscription={alertSubscription}
                     onClose={() => setAlertSubscription(null)}
+                />
+            )}
+
+            {/* Browse Services Modal */}
+            {showBrowse && (
+                <ServicesBrowseModal
+                    onClose={() => setShowBrowse(false)}
+                    onSelect={(service) => {
+                        navigate('/dashboard/subscriptions/add', {
+                            state: { prefill: { companyName: service.name, category: service.category } }
+                        });
+                    }}
                 />
             )}
         </div>

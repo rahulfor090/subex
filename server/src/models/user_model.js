@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
     country: DataTypes.STRING(100),
     zip_code: DataTypes.STRING(20),
 
+    profile_picture: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    },
+
     is_email_verified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
