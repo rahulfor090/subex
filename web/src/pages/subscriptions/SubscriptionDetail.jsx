@@ -230,9 +230,14 @@ const SubscriptionDetail = () => {
                             </p>
                         )}
                         <p className="text-3xl font-black" style={{ color: brandText }}>
-                            {fmtCurrency(subscription.value, subscription.currency)}
+                            {fmtCurrency(subscription.actual_amount, subscription.currency)}
                             <span className="text-sm font-semibold opacity-60 ml-2">/ {subscription.cycle}</span>
                         </p>
+                        {subscription.amount_paid && (
+                            <p className="text-md font-medium" style={{ color: brandText }}>
+                                Paid: {fmtCurrency(subscription.amount_paid, subscription.currency)}
+                            </p>
+                        )}
                     </div>
 
                     {/* Days badge */}
@@ -251,7 +256,7 @@ const SubscriptionDetail = () => {
                 </div>
 
                 {/* Action bar */}
-                <div className="relative z-10 px-7 sm:px-10 pb-6 flex flex-wrap gap-2">
+                <div className="relative z-10 px-7 sm:px-10 pb-6 flex flex-wrap items-center gap-2">
                     <button
                         onClick={() => navigate(`/dashboard/subscriptions/edit/${id}`)}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100 shadow-md"
@@ -264,13 +269,22 @@ const SubscriptionDetail = () => {
                         style={{ background: 'rgba(239,68,68,0.25)', color: '#fca5a5', border: '1.5px solid rgba(239,68,68,0.35)' }}>
                         <Trash2 size={14} /> Delete
                     </button>
-                    {subscription.url_link && (
-                        <a href={subscription.url_link} target="_blank" rel="noopener noreferrer"
-                            className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
-                            style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.13), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
-                            <Globe size={14} /> Visit <ExternalLink size={11} />
-                        </a>
-                    )}
+
+                    <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
+                        {subscription.actual_amount && subscription.amount_paid && parseFloat(subscription.actual_amount) > parseFloat(subscription.amount_paid) && (
+                            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
+                                You saved {fmtCurrency(subscription.actual_amount - subscription.amount_paid, subscription.currency)} this much money
+                            </div>
+                        )}
+                        {subscription.url_link && (
+                            <a href={subscription.url_link} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.13), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
+                                <Globe size={14} /> Visit <ExternalLink size={11} />
+                            </a>
+                        )}
+                    </div>
                 </div>
             </motion.div>
 
@@ -322,9 +336,10 @@ const SubscriptionDetail = () => {
 
             {/* ── Details grid ─────────────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
 
-                <Chip icon={DollarSign} label="Amount" value={fmtCurrency(subscription.value, subscription.currency)} />
+                <Chip icon={DollarSign} label="Actual Amount" value={fmtCurrency(subscription.actual_amount, subscription.currency)} />
+                <Chip icon={DollarSign} label="Amount Paid" value={subscription.amount_paid ? fmtCurrency(subscription.amount_paid, subscription.currency) : '—'} />
                 <Chip icon={RefreshCw} label="Billing" value={`Every ${subscription.frequency || 1} ${subscription.cycle}`} />
                 <Chip icon={Shield} label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} />
                 <Chip icon={Clock} label="Next Due" value={fmt(subscription.next_payment_date)} />

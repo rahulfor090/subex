@@ -51,10 +51,16 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'monthly'
     },
 
-    value: {
+    actual_amount: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
       comment: 'Cost/price of the subscription'
+    },
+
+    amount_paid: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: true,
+      comment: 'Amount actually paid for the subscription'
     },
 
     currency: {
