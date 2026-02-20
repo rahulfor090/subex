@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Bell, ShieldCheck, Check, Mail, Lock, RefreshCw, CreditCard, MousePointer2 } from 'lucide-react';
+import { Plus, Bell, Check, Mail, RefreshCw, MousePointer2 } from 'lucide-react';
 
 // --- Realistic UI Components ---
 
@@ -40,7 +40,7 @@ const StepOneAnimation = () => (
           <div className="w-8 h-8 rounded bg-[#E50914] flex items-center justify-center text-white font-bold text-xs tracking-tighter">N</div>
           <div className="flex-1">
             <div className="text-xs font-medium text-zinc-900 dark:text-zinc-200">Netflix Standard</div>
-            <div className="text-[10px] text-zinc-500">$15.49 / mo</div>
+            <div className="text-[10px] text-zinc-500">₹649 / mo</div>
           </div>
           <div className="w-4 h-4 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
             <Check size={10} className="text-emerald-600 dark:text-emerald-500" />
@@ -59,7 +59,7 @@ const StepOneAnimation = () => (
           </div>
           <div className="flex-1">
             <div className="text-xs font-medium text-zinc-900 dark:text-zinc-200">Spotify Premium</div>
-            <div className="text-[10px] text-zinc-500">$10.99 / mo</div>
+            <div className="text-[10px] text-zinc-500">₹119 / mo</div>
           </div>
           <div className="w-4 h-4 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
             <Check size={10} className="text-emerald-600 dark:text-emerald-500" />
@@ -130,7 +130,7 @@ const StepTwoAnimation = () => (
         </div>
         <div className="text-xs font-medium text-zinc-900 dark:text-white mb-0.5">Renewal Warning</div>
         <div className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
-          Your <span className="text-zinc-900 dark:text-white font-medium">Netflix Standard</span> subscription will renew for <span className="text-zinc-900 dark:text-white font-medium">$15.49</span> tomorrow.
+          Your <span className="text-zinc-900 dark:text-white font-medium">Netflix Standard</span> subscription will renew for <span className="text-zinc-900 dark:text-white font-medium">₹649</span> tomorrow.
         </div>
 
         {/* Action Buttons */}
@@ -162,84 +162,11 @@ const StepTwoAnimation = () => (
   </div>
 );
 
-// Step 3: Realistic Transaction/Marketplace
-const StepThreeAnimation = () => (
-  <div className="relative w-full h-full bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center font-sans overflow-hidden transition-colors duration-500">
 
-    <div className="relative w-72 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xl p-4 transition-colors duration-500">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
-        <div className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">Transfer Subscription</div>
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-          <Lock size={8} className="text-emerald-600 dark:text-emerald-500" />
-          <span className="text-[8px] font-medium text-emerald-600 dark:text-emerald-500">SECURE</span>
-        </div>
-      </div>
-
-      {/* Card Details */}
-      <div className="space-y-3">
-        {/* Product Info */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
-            <CreditCard size={18} className="text-zinc-400" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-zinc-900 dark:text-white">Equinox Gym Membership</div>
-            <div className="text-[10px] text-zinc-500">3 Months Remaining</div>
-          </div>
-        </div>
-
-        {/* Transfer Status Line */}
-        <div className="relative py-4">
-          {/* Progress Line */}
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-zinc-200 dark:bg-zinc-800 -translate-y-1/2" />
-          <motion.div
-            initial={{ width: "0%" }}
-            whileInView={{ width: "100%" }}
-            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatDelay: 3 }}
-            className="absolute top-1/2 left-0 h-0.5 bg-emerald-500 -translate-y-1/2"
-          />
-
-          <div className="relative flex justify-between text-[10px] items-center z-10">
-            <div className="bg-white dark:bg-zinc-900 px-1 text-zinc-400">Listed</div>
-            <motion.div
-              animate={{ color: ["#71717a", "#10b981", "#71717a"] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              className="bg-white dark:bg-zinc-900 px-1"
-            >
-              Encrypting...
-            </motion.div>
-            <div className="bg-white dark:bg-zinc-900 px-1 text-zinc-400">Sold</div>
-          </div>
-        </div>
-
-        {/* Amount */}
-        <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800 flex justify-between items-center transition-colors duration-500">
-          <div className="text-[10px] text-zinc-500">Estimated Value</div>
-          <div className="text-sm font-bold text-zinc-900 dark:text-white">$240.00</div>
-        </div>
-      </div>
-
-      {/* Shield Overlay Animation */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: [0, 1, 0], scale: [0.9, 1, 1.1] }}
-        transition={{ delay: 1.5, duration: 1.5, repeat: Infinity, repeatDelay: 3.5 }}
-        className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[1px] rounded-xl z-20"
-      >
-        <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-          <ShieldCheck size={32} className="text-emerald-600 dark:text-emerald-500" />
-        </div>
-      </motion.div>
-
-    </div>
-  </div>
-);
 
 const steps = [
   { icon: Plus, title: 'Add Your Subscriptions', description: 'Track Netflix, Spotify, SaaS tools, and all your recurring payments in one secure place.', animation: StepOneAnimation, badge: 'Quick Setup' },
   { icon: Bell, title: 'Get Smart Email Alerts', description: 'Receive timely reminders days before renewal so you never face unexpected charges again.', animation: StepTwoAnimation, badge: 'AI-Powered' },
-  { icon: ShieldCheck, title: 'Trade Securely & Anonymously', description: 'Have a subscription you no longer need? Sell the remaining time securely on our encrypted marketplace.', animation: StepThreeAnimation, badge: 'Zero Knowledge' },
 ];
 
 const HowItWorks = () => (
@@ -262,7 +189,7 @@ const HowItWorks = () => (
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight"
         >
-          Three steps to freedom
+          Steps to freedom
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 10 }}

@@ -26,6 +26,13 @@ const ForgotPassword = () => {
 
         try {
             const response = await apiJSON('/api/auth/forgot-password', 'POST', { email });
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/forgot-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
 
             const data = await response.json();
 

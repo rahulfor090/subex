@@ -33,7 +33,7 @@ const ResetPassword = () => {
             }
 
             try {
-                const response = await apiFetch(`/api/auth/verify-reset-token/${token}`);
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-reset-token/${token}`);
                 const data = await response.json();
 
                 if (response.ok && data.success) {
@@ -109,9 +109,15 @@ const ResetPassword = () => {
         setSubmitStatus(null);
 
         try {
-            const response = await apiJSON('/api/auth/reset-password', 'POST', {
-                token,
-                password: formData.password
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    token,
+                    password: formData.password
+                }),
             });
 
             const data = await response.json();

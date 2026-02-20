@@ -7,11 +7,32 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthCallback from "./pages/OAuthCallback";
 import CreatePassword from "./pages/CreatePassword";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 import SubscriptionList from "./pages/subscriptions/SubscriptionList";
 import SubscriptionDetail from "./pages/subscriptions/SubscriptionDetail";
 import SubscriptionForm from "./pages/subscriptions/SubscriptionForm";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import PrivacyPage from "./pages/PrivacyPage";
+import RenewalAlerts from "./pages/RenewalAlerts";
+
+import Transactions from "./pages/Transactions";
+import SecurityPage from "./pages/SecurityPage";
+import ProfilePage from "./pages/ProfilePage";
+import TermsPage from "./pages/TermsPage";
+import CookiesPage from "./pages/CookiesPage";
 import { ThemeProvider } from "./lib/ThemeProvider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+
+// Admin imports
+import AdminProtected from "./components/admin/AdminProtected";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPlans from "./pages/admin/AdminPlans";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminSystemHealth from "./pages/admin/AdminSystemHealth";
 
 // Protected route wrapper component
 const Protected = ({ children }) => {
@@ -66,6 +87,31 @@ function App() {
                 path="/subscriptions/edit/:id"
                 element={<Protected><SubscriptionForm mode="edit" /></Protected>}
               />
+              <Route path="/dashboard" element={<Protected><DashboardLayout /></Protected>}>
+                <Route index element={<Dashboard />} />
+                <Route path="subscriptions" element={<SubscriptionList />} />
+                <Route path="subscriptions/add" element={<SubscriptionForm mode="add" />} />
+                <Route path="subscriptions/edit/:id" element={<SubscriptionForm mode="edit" />} />
+                <Route path="subscriptions/:id" element={<SubscriptionDetail />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="alerts" element={<RenewalAlerts />} />
+
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="security" element={<SecurityPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+              </Route>
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="plans" element={<AdminPlans />} />
+                <Route path="transactions" element={<AdminTransactions />} />
+                <Route path="system" element={<AdminSystemHealth />} />
+              </Route>
+              <Route path="/privacy-policy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/cookies" element={<CookiesPage />} />
             </Routes>
           </BrowserRouter>
         </div>

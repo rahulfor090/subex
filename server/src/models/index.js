@@ -101,8 +101,54 @@ if (db.Subscription && db.Tag && db.SubscriptionTag) {
   });
 }
 
+// Associations
+// User <-> Subscription
+if (db.User && db.Subscription) {
+  db.User.hasMany(db.Subscription, { foreignKey: 'user_id', as: 'subscriptions' });
+  db.Subscription.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
+// Subscription <-> Alert (One-to-Many)
+if (db.Subscription && db.Alert) {
+  db.Subscription.hasMany(db.Alert, { foreignKey: 'subscription_id', as: 'alerts', onDelete: 'CASCADE' });
+  db.Alert.belongsTo(db.Subscription, { foreignKey: 'subscription_id', as: 'subscription' });
+}
+
+// SubExAlert Associations
+if (db.Alert && db.SubExAlert) {
+  db.Alert.hasMany(db.SubExAlert, { foreignKey: 'alert_id', as: 'scheduled_alerts', onDelete: 'CASCADE' });
+  db.SubExAlert.belongsTo(db.Alert, { foreignKey: 'alert_id', as: 'alert_configuration' });
+}
+
+if (db.Subscription && db.SubExAlert) {
+  db.Subscription.hasMany(db.SubExAlert, { foreignKey: 'subscription_id', as: 'subscription_alerts', onDelete: 'CASCADE' });
+  db.SubExAlert.belongsTo(db.Subscription, { foreignKey: 'subscription_id', as: 'subscription' });
+}
+
+if (db.User && db.SubExAlert) {
+  db.User.hasMany(db.SubExAlert, { foreignKey: 'user_id', as: 'user_alerts' });
+  db.SubExAlert.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
+// User <-> Transaction
+if (db.User && db.Transaction) {
+  db.User.hasMany(db.Transaction, { foreignKey: 'user_id', as: 'transactions' });
+  db.Transaction.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
+// Subscription <-> Transaction
+if (db.Subscription && db.Transaction) {
+  db.Subscription.hasMany(db.Transaction, { foreignKey: 'subscription_id', as: 'transactions' });
+  db.Transaction.belongsTo(db.Subscription, { foreignKey: 'subscription_id', as: 'subscription' });
+}
+
+// User <-> UserAuth
+if (db.User && db.UserAuth) {
+  db.User.hasOne(db.UserAuth, { foreignKey: 'user_id', as: 'auth' });
+  db.UserAuth.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
-

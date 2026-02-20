@@ -15,7 +15,7 @@ const testimonials = [
         name: 'Alex Rivera',
         username: '@arivera_tech',
         role: 'Senior Dev',
-        content: "The encryption protocol they use for the marketplace is impressive. Finally, a secure way to offload unused SaaS seats.",
+        content: "The encryption protocol they use is impressive. Finally, a secure way to manage all my SaaS logins.",
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80',
         platform: 'linkedin'
     },
@@ -39,7 +39,7 @@ const testimonials = [
         name: 'Lisa Wang',
         username: '@lisadesigns',
         role: 'UX Researcher',
-        content: "The marketplace feature is genius. Sold my annual gym membership in 2 hours. Funds transferred instantly.",
+        content: "The analytics feature is genius. Found 3 subscriptions I forgot about in 2 hours. Saved money instantly.",
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80',
         platform: 'twitter'
     },
@@ -55,7 +55,7 @@ const testimonials = [
         name: 'Sophie Martin',
         username: '@sophie_m',
         role: 'Freelancer',
-        content: "Saved $400 this year just by identifying duplicate cloud storage accounts. This app is essential.",
+        content: "Saved ₹34,000 this year just by identifying duplicate cloud storage accounts. This app is essential.",
         avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80',
         platform: 'twitter'
     },

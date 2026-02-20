@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
-import { Plus, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, AlertCircle, Loader2, Trash2, Bell, Globe } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../../components/Header';
+import AlertModal from '../../components/AlertModal';
+import ServicesBrowseModal from '../../components/ServicesBrowseModal';
+import CompanyLogo from '../../components/CompanyLogo';
 
 const SubscriptionList = () => {
     const navigate = useNavigate();
@@ -13,6 +16,9 @@ const SubscriptionList = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+    const [alertSubscription, setAlertSubscription] = useState(null);
+    const [showBrowse, setShowBrowse] = useState(false);
 
     useEffect(() => {
         fetchSubscriptions();
@@ -23,7 +29,7 @@ const SubscriptionList = () => {
             setLoading(true);
             console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
 
-            const response = await apiFetch('/api/subscriptions', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -49,6 +55,31 @@ const SubscriptionList = () => {
         }
     };
 
+    const deleteSubscription = async (e, subscriptionId) => {
+        e.stopPropagation();
+        if (!window.confirm('Are you sure you want to delete this subscription?')) return;
+        try {
+            setDeletingId(subscriptionId);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${subscriptionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setSubscriptions(prev => prev.filter(s => s.subscription_id !== subscriptionId));
+            } else {
+                setError(data.message || 'Failed to delete subscription');
+            }
+        } catch (err) {
+            setError('Unable to connect to server. Please try again later.');
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
@@ -60,14 +91,9 @@ const SubscriptionList = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white antialiased overflow-x-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] pointer-events-none" />
-            <div className="fixed inset-0 bg-white/90 dark:bg-black/[0.96] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
+        <div className="space-y-8">
 
-            <Header />
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="relative z-10 mx-auto">
                 {/* Header Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -85,13 +111,23 @@ const SubscriptionList = () => {
                             Manage all your subscriptions in one place
                         </p>
                     </div>
-                    <Button
-                        onClick={() => navigate('/subscriptions/add')}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
-                    >
-                        <Plus size={20} />
-                        Add a Subscription
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowBrowse(true)}
+                            className="flex items-center gap-2 h-12 px-5 border-zinc-300 dark:border-zinc-700"
+                        >
+                            <Globe size={18} className="text-emerald-500" />
+                            Browse Services
+                        </Button>
+                        <Button
+                            onClick={() => navigate('/dashboard/subscriptions/add')}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none flex items-center gap-2"
+                        >
+                            <Plus size={20} />
+                            Add Subscription
+                        </Button>
+                    </div>
                 </motion.div>
 
                 {/* Loading State */}
@@ -135,7 +171,7 @@ const SubscriptionList = () => {
                                     Start by adding your first subscription
                                 </p>
                                 <Button
-                                    onClick={() => navigate('/subscriptions/add')}
+                                    onClick={() => navigate('/dashboard/subscriptions/add')}
                                     className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg px-6 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border-none"
                                 >
                                     <Plus size={20} className="mr-2" />
@@ -159,6 +195,9 @@ const SubscriptionList = () => {
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
                                                 Tags
                                             </th>
+                                            <th className="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -168,11 +207,16 @@ const SubscriptionList = () => {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: index * 0.05 }}
-                                                onClick={() => navigate(`/subscriptions/${subscription.subscription_id}`)}
+                                                onClick={() => navigate(`/dashboard/subscriptions/${subscription.subscription_id}`)}
                                                 className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
                                             >
-                                                <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
-                                                    {subscription.company?.name || 'Unknown'}
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <CompanyLogo name={subscription.company?.name || ''} size="sm" rounded="rounded-xl" />
+                                                        <span className="text-sm font-semibold text-zinc-900 dark:text-white">
+                                                            {subscription.company?.name || 'Unknown'}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
                                                     {formatDate(subscription.next_payment_date)}
@@ -196,6 +240,27 @@ const SubscriptionList = () => {
                                                         )}
                                                     </div>
                                                 </td>
+                                                <td className="px-6 py-4 text-sm" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={e => deleteSubscription(e, subscription.subscription_id)}
+                                                            disabled={deletingId === subscription.subscription_id}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {deletingId === subscription.subscription_id
+                                                                ? <Loader2 size={13} className="animate-spin" />
+                                                                : <Trash2 size={13} />}
+                                                            Delete
+                                                        </button>
+                                                        <button
+                                                            onClick={e => { e.stopPropagation(); setAlertSubscription(subscription); }}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+                                                        >
+                                                            <Bell size={13} />
+                                                            Alert
+                                                        </button>
+                                                    </div>
+                                                </td>
                                             </motion.tr>
                                         ))}
                                     </tbody>
@@ -205,6 +270,26 @@ const SubscriptionList = () => {
                     </motion.div>
                 )}
             </div>
+
+            {/* Alert Modal */}
+            {alertSubscription && (
+                <AlertModal
+                    subscription={alertSubscription}
+                    onClose={() => setAlertSubscription(null)}
+                />
+            )}
+
+            {/* Browse Services Modal */}
+            {showBrowse && (
+                <ServicesBrowseModal
+                    onClose={() => setShowBrowse(false)}
+                    onSelect={(service) => {
+                        navigate('/dashboard/subscriptions/add', {
+                            state: { prefill: { companyName: service.name, category: service.category } }
+                        });
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -4,9 +4,13 @@ import path from 'path'
 
 export default defineConfig(({ mode }) => {
     // Load env variables so vite.config itself can read VITE_* vars
-    const env = loadEnv(mode, process.cwd(), '')
+  
 
     const apiTarget = env.VITE_API_URL || 'http://localhost:3000'
+    // Load env file based on `mode` in the current working directory.
+    // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+    const env = loadEnv(mode, process.cwd(), '');
+
 
     return {
         plugins: [react()],
@@ -20,12 +24,14 @@ export default defineConfig(({ mode }) => {
             open: true,
             proxy: {
                 '/api': {
-                    target: apiTarget,
+
+                    target: env.VITE_BACKEND_URL || 'http://localhost:3000',
                     changeOrigin: true,
                     secure: false,
                 },
                 '/health': {
-                    target: apiTarget,
+
+                    target: env.VITE_BACKEND_URL || 'http://localhost:3000',
                     changeOrigin: true,
                     secure: false,
                 }

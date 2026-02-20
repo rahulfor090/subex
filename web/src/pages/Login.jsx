@@ -87,6 +87,13 @@ const Login = () => {
             };
 
             const response = await apiJSON('/api/auth/login', 'POST', requestBody);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
 
             const data = await response.json();
 
@@ -96,8 +103,10 @@ const Login = () => {
 
                 // Fetch user details using the token
                 if (data.accessToken) {
-                    const userResponse = await apiFetch('/api/auth/me', {
-                        headers: { 'Authorization': `Bearer ${data.accessToken}` }
+                    const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${data.accessToken}`
+                        }
                     });
                     const userData = await userResponse.json();
 

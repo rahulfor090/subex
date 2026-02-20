@@ -9,18 +9,22 @@ const subscriptionRoutes = require('./routes/subscription');
 const companyRoutes = require('./routes/company');
 const folderRoutes = require('./routes/folder');
 const tagRoutes = require('./routes/tag');
-
+const alertRoutes = require('./routes/alerts');
+const adminRoutes = require('./routes/admin');
+const { errorHandler } = require('./middleware/errorHandler');
+const cronRoutes = require('./routes/cron');
 const app = express();
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(require('path').join(__dirname, '../uploads')));
 
 // Session middleware (required for Passport OAuth 1.0a handshake)
 app.use(session({
@@ -93,6 +97,12 @@ try {
   console.log('✅ Folder routes registered');
   app.use('/api/tags', tagRoutes);
   console.log('✅ Tag routes registered');
+  app.use('/api/alerts', alertRoutes);
+  console.log('✅ Alert routes registered');
+  app.use('/api/admin', adminRoutes);
+  console.log('✅ Admin routes registered');
+  app.use('/api/cron', cronRoutes);
+  console.log('✅ Cron routes registered');
   console.log('✅ All routes registered successfully');
 } catch (error) {
   console.error('❌ Error registering routes:', error);
@@ -128,11 +138,15 @@ app.get('/health/db', async (req, res) => {
   }
 });
 
+// Global error handler (must be after all routes)
+app.use(errorHandler);
+
 // Start server
 console.log('🚀 Starting server...');
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
+  console.log(`📍 Server URL: http://localhost:${PORT}`);
+  console.log(`📍 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log('✅ Server started successfully - waiting for requests...');
 });
 
