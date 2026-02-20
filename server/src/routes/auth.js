@@ -5,6 +5,64 @@ const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { generateToken } = require('../utils/jwt');
 const { authenticate } = require('../middleware/auth');
+const passport = require('../config/passport');
+
+// GET /api/auth/google - Initiate Google OAuth
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// GET /api/auth/google/callback - Google OAuth callback
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed` }),
+  (req, res) => {
+    try {
+      const token = generateToken(req.user.user_id);
+      // Redirect to frontend with token in URL
+      res.redirect(`${process.env.FRONTEND_URL}/oauth-callback?token=${token}`);
+    } catch (error) {
+      console.error('Google OAuth callback error:', error);
+      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+  }
+);
+
+// GET /api/auth/twitter - Initiate Twitter OAuth
+router.get('/twitter', (req, res, next) => {
+  // Guard: check keys are configured
+  if (!process.env.TWITTER_CONSUMER_KEY || process.env.TWITTER_CONSUMER_KEY === 'YOUR_TWITTER_CONSUMER_KEY_HERE') {
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=twitter_not_configured`);
+  }
+  passport.authenticate('twitter', (err) => {
+    if (err) {
+      console.error('Twitter OAuth initiation error:', err.message);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+  })(req, res, next);
+});
+
+// GET /api/auth/twitter/callback - Twitter OAuth callback
+router.get(
+  '/twitter/callback',
+  (req, res, next) => {
+    passport.authenticate('twitter', { session: false }, (err, user) => {
+      if (err || !user) {
+        console.error('Twitter OAuth callback error:', err?.message || 'No user returned');
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  (req, res) => {
+    try {
+      const token = generateToken(req.user.user_id);
+      res.redirect(`${process.env.FRONTEND_URL}/oauth-callback?token=${token}`);
+    } catch (error) {
+      console.error('Twitter token generation error:', error);
+      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+  }
+);
 
 // POST /api/auth/signup - Register a new user
 router.post('/signup', async (req, res) => {
@@ -287,11 +345,12 @@ router.get('/me', authenticate, async (req, res) => {
       });
     }
 
-    // Also get auth details for password_updated_at
-    const userAuth = await db.UserAuth.findOne({
-      where: { user_id: user.user_id }
-    });
+    // Check if this user has a password set (OAuth users may not)
+    const userAuth = await db.UserAuth.findOne({ where: { user_id: user.user_id } });
+    const hasPassword = !!(userAuth && userAuth.password_hash);
 
+    // Also get auth details for password_updated_at
+   
     res.status(200).json({
       success: true,
       data: {
@@ -299,6 +358,7 @@ router.get('/me', authenticate, async (req, res) => {
         name: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
         phone: user.phone_number,
+        hasPassword
         role: user.role || 'user'
         profilePicture: user.profile_picture || null,
         passwordUpdatedAt: userAuth?.password_updated_at || null
@@ -311,6 +371,74 @@ router.get('/me', authenticate, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user details.'
+    });
+  }
+});
+
+// POST /api/auth/set-password - Set password for first time (OAuth users)
+router.post('/set-password', authenticate, async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password is required'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ success: false, message: 'Password must contain at least one uppercase letter' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ success: false, message: 'Password must contain at least one lowercase letter' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ success: false, message: 'Password must contain at least one number' });
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]/.test(password)) {
+      return res.status(400).json({ success: false, message: 'Password must contain at least one special character' });
+    }
+
+    const userId = req.user.user_id;
+
+    // Check if user already has a password
+    let userAuth = await db.UserAuth.findOne({ where: { user_id: userId } });
+
+    if (userAuth && userAuth.password_hash) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password is already set. Use the forgot password flow to change it.'
+      });
+    }
+
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(password, saltRounds);
+
+    if (userAuth) {
+      // Update existing auth record
+      await userAuth.update({ password_hash });
+    } else {
+      // Create new auth record (shouldn't happen normally, but be safe)
+      await db.UserAuth.create({
+        user_id: userId,
+        password_hash
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password set successfully'
+    });
+  } catch (error) {
+    console.error('Set password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while setting your password.'
     });
   }
 });

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
+import { apiFetch } from '../lib/api';
 
 const AuthContext = createContext(null);
 

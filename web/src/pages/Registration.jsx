@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiJSON, apiFetch } from '../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, AlertCircle, User, Mail } from 'lucide-react';
 import { Button } from '../components/ui/button';

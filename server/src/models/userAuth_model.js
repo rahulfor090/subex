@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 
     password_hash: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
 
     failed_login_attempts: {

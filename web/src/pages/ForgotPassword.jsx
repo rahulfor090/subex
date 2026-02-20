@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiJSON } from '../lib/api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -24,6 +25,7 @@ const ForgotPassword = () => {
         setSubmitStatus(null);
 
         try {
+            const response = await apiJSON('/api/auth/forgot-password', 'POST', { email });
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/forgot-password`, {
                 method: 'POST',
                 headers: {
@@ -116,8 +118,8 @@ const ForgotPassword = () => {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`flex items-center gap-3 p-4 rounded-lg ${submitStatus === 'success'
-                                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                                        : 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
+                                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                                    : 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
                                     }`}
                             >
                                 {submitStatus === 'success' ? (

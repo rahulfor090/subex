@@ -370,6 +370,42 @@ class AuthService {
       };
     }
   }
+  /**
+   * Find or create a user from OAuth (Google, etc.)
+   */
+  async findOrCreateOAuthUser({ googleId, email, first_name, last_name }) {
+    try {
+      // Try to find existing user by email
+      let user = await db.User.findOne({ where: { email } });
+
+      if (!user) {
+        // Create new user (no password needed for OAuth users)
+        user = await db.User.create({
+          first_name: first_name || 'User',
+          last_name: last_name || '',
+          email,
+          is_email_verified: true // Google already verified the email
+        });
+
+        // Create a UserAuth record with no password (OAuth-only user)
+        await db.UserAuth.create({
+          user_id: user.user_id,
+          password_hash: null,
+          failed_login_attempts: 0,
+          account_locked: false
+        });
+
+        console.log(`✅ New OAuth user created: ${email}`);
+      } else {
+        console.log(`✅ Existing user found for OAuth login: ${email}`);
+      }
+
+      return user;
+    } catch (error) {
+      console.error('findOrCreateOAuthUser error:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new AuthService();

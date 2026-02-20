@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
+import { ArrowLeft, CheckCircle2, AlertCircle, Save, Plus, X } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, ArrowRight, CheckCircle2, AlertCircle,
