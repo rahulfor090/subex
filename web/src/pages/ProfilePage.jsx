@@ -13,7 +13,7 @@ const ProfilePage = () => {
     const fileInputRef = useRef(null);
 
     const avatarSrc = user?.profilePicture
-        ? `http://localhost:3000${user.profilePicture}`
+        ? `${import.meta.env.VITE_BACKEND_URL}${user.profilePicture}`
         : null;
 
     const handleFileSelect = async (e) => {
@@ -27,7 +27,7 @@ const ProfilePage = () => {
         fd.append('avatar', file);
 
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: fd
@@ -50,7 +50,7 @@ const ProfilePage = () => {
     const handleRemovePfp = async () => {
         setUploadingPfp(true);
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -70,7 +70,7 @@ const ProfilePage = () => {
         setSaving(true);
         setStatus({ type: '', message: '' });
         try {
-            const res = await fetch('http://localhost:3000/api/users/profile', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

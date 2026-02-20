@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const currentToken = localStorage.getItem('token');
             if (currentToken) {
-                await fetch('http://localhost:3000/api/auth/logout', {
+                await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,

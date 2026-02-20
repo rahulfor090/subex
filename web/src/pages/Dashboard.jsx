@@ -136,7 +136,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/subscriptions', {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(r => r.json())

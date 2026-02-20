@@ -97,7 +97,7 @@ const Registration = () => {
                 password: formData.password
             };
 
-            const response = await fetch('http://localhost:3000/api/auth/signup', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const Registration = () => {
                 // Store token and user data
                 if (data.accessToken) {
                     // Fetch user details using the token
-                    const userResponse = await fetch('http://localhost:3000/api/auth/me', {
+                    const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${data.accessToken}`
                         }

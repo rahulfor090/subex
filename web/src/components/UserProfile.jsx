@@ -25,7 +25,7 @@ const UserProfile = () => {
     };
 
     const avatarSrc = user.profilePicture
-        ? `http://localhost:3000${user.profilePicture}`
+        ? `${import.meta.env.VITE_BACKEND_URL}${user.profilePicture}`
         : null;
 
     const Avatar = ({ size = 'sm' }) => {

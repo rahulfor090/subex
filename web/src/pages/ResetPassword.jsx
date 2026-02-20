@@ -32,7 +32,7 @@ const ResetPassword = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/auth/verify-reset-token/${token}`);
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-reset-token/${token}`);
                 const data = await response.json();
 
                 if (response.ok && data.success) {
@@ -108,7 +108,7 @@ const ResetPassword = () => {
         setSubmitStatus(null);
 
         try {
-            const response = await fetch('http://localhost:3000/api/auth/reset-password', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
