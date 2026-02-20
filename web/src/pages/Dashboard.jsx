@@ -82,13 +82,13 @@ const UpcomingItem = ({ sub }) => {
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{sub.company?.name || 'Unknown'}</p>
                 <p className="text-xs text-zinc-400 truncate">
-                    {sub.cycle} · {sub.currency} {sub.value}
+                    {sub.cycle} · {sub.currency} {sub.actual_amount}
                 </p>
             </div>
             {days !== null && (
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${overdue ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' :
-                        urgent ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' :
-                            'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                    urgent ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' :
+                        'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
                     }`}>
                     {overdue ? `${Math.abs(days)}d ago` : days === 0 ? 'Today' : `${days}d`}
                 </span>
@@ -112,12 +112,12 @@ const ActivityRow = ({ sub, onClick }) => (
         </td>
         <td className="px-5 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 capitalize">{sub.cycle}</td>
         <td className="px-5 py-3.5 text-sm font-semibold text-zinc-900 dark:text-white">
-            {fmt(sub.value, sub.currency)}
+            {fmt(sub.amount_paid || sub.actual_amount, sub.currency)}
         </td>
         <td className="px-5 py-3.5">
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sub.type === 'subscription' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
-                    sub.type === 'trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
-                        'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+                sub.type === 'trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
+                    'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
                 }`}>
                 {sub.type}
             </span>
@@ -147,7 +147,7 @@ const Dashboard = () => {
 
     // ── Derived stats ─────────────────────────────────────────────────────────
     const monthly = subs.reduce((acc, s) => {
-        const v = parseFloat(s.value) || 0;
+        const v = parseFloat(s.actual_amount) || 0;
         if (s.cycle === 'monthly') return acc + v;
         if (s.cycle === 'yearly') return acc + v / 12;
         if (s.cycle === 'weekly') return acc + v * 4.33;

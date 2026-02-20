@@ -121,7 +121,8 @@ router.post('/', async (req, res) => {
       recurring,
       frequency,
       cycle,
-      value,
+      actual_amount,
+      amount_paid,
       currency,
       next_payment_date,
       contract_expiry,
@@ -133,10 +134,10 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!company_id || !value || !currency || !cycle) {
+    if (!company_id || !actual_amount || !currency || !cycle) {
       return res.status(400).json({
         success: false,
-        message: 'Company, value, currency, and cycle are required'
+        message: 'Company, actual amount, currency, and cycle are required'
       });
     }
 
@@ -149,7 +150,8 @@ router.post('/', async (req, res) => {
       recurring: recurring !== undefined ? recurring : true,
       frequency: frequency || 1,
       cycle,
-      value,
+      actual_amount,
+      amount_paid: amount_paid || null,
       currency,
       next_payment_date: next_payment_date || null,
       contract_expiry: contract_expiry || null,
@@ -165,6 +167,34 @@ router.post('/', async (req, res) => {
         where: { id: tag_ids }
       });
       await subscription.setTags(tags);
+    }
+
+    // Auto-create default alerts (5 days and 10 days before)
+    if (next_payment_date) {
+      const paymentDate = new Date(next_payment_date);
+      if (!isNaN(paymentDate.getTime())) {
+        for (const daysBefore of [5, 10]) {
+          const newAlert = await db.Alert.create({
+            user_id: userId,
+            subscription_id: subscription.subscription_id,
+            quantity: daysBefore,
+            unit: 'day',
+            alert_on: 'payment_date',
+            contact: req.user.email
+          });
+
+          const sendDate = new Date(paymentDate);
+          sendDate.setDate(sendDate.getDate() - daysBefore);
+          
+          await db.SubExAlert.create({
+            user_id: userId,
+            subscription_id: subscription.subscription_id,
+            alert_id: newAlert.id,
+            alert_send_date: sendDate.toISOString().split('T')[0],
+            status: 'pending'
+          });
+        }
+      }
     }
 
     // Fetch the created subscription with associations
@@ -243,7 +273,8 @@ router.patch('/:id', async (req, res) => {
       recurring,
       frequency,
       cycle,
-      value,
+      actual_amount,
+      amount_paid,
       currency,
       next_payment_date,
       contract_expiry,
@@ -274,13 +305,14 @@ router.patch('/:id', async (req, res) => {
       recurring: recurring !== undefined ? recurring : subscription.recurring,
       frequency: frequency !== undefined ? frequency : subscription.frequency,
       cycle: cycle !== undefined ? cycle : subscription.cycle,
-      value: value !== undefined ? value : subscription.value,
+      actual_amount: actual_amount !== undefined ? actual_amount : subscription.actual_amount,
+      amount_paid: amount_paid !== undefined ? (amount_paid === '' ? null : amount_paid) : subscription.amount_paid,
       currency: currency !== undefined ? currency : subscription.currency,
       next_payment_date: next_payment_date !== undefined ? sanitizeDate(next_payment_date) : subscription.next_payment_date,
       contract_expiry: contract_expiry !== undefined ? sanitizeDate(contract_expiry) : subscription.contract_expiry,
       url_link: url_link !== undefined ? (url_link || null) : subscription.url_link,
       payment_method: payment_method !== undefined ? payment_method : subscription.payment_method,
-      folder_id: folder_id !== undefined ? folder_id : subscription.folder_id,
+      folder_id: folder_id !== undefined ? (folder_id === '' ? null : folder_id) : subscription.folder_id,
       notes: notes !== undefined ? (notes || null) : subscription.notes
     });
 

@@ -222,7 +222,7 @@ const SubscriptionList = () => {
                                                     {formatDate(subscription.next_payment_date)}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {subscription.currency} {subscription.value}
+                                                    {subscription.currency} {subscription.amount_paid || subscription.actual_amount}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <div className="flex flex-wrap gap-1">

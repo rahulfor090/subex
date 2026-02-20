@@ -23,7 +23,7 @@ const CategoryPieChart = ({ subscriptions }) => {
             counts[category] = (counts[category] || 0) + 1; // Count or sum value? Count is safer for distribution
             // Or maybe sum value for realistic "spending distribution"
             // Let's sum value for spending distribution
-            // counts[category] = (counts[category] || 0) + parseFloat(sub.value || 0);
+            // counts[category] = (counts[category] || 0) + parseFloat(sub.actual_amount || 0);
         });
 
         // Mapping to array
