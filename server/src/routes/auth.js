@@ -358,11 +358,10 @@ router.get('/me', authenticate, async (req, res) => {
         name: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
         phone: user.phone_number,
-        hasPassword
-        role: user.role || 'user'
+        hasPassword,
+        role: user.role || 'user',
         profilePicture: user.profile_picture || null,
         passwordUpdatedAt: userAuth?.password_updated_at || null
-        master
       }
     });
   } catch (error) {

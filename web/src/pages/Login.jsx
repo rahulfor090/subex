@@ -86,7 +86,6 @@ const Login = () => {
                 password: formData.password
             };
 
-            const response = await apiJSON('/api/auth/login', 'POST', requestBody);
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
