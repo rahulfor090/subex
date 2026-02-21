@@ -12,7 +12,7 @@ const syncDatabase = async () => {
     // Sync all models with the database
     // force: true will drop tables and recreate them
     // alter: true will update tables to match models without dropping data
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync({ force: true });
 
     console.log('✅ All models were synchronized successfully.');
     console.log('📊 Database cleared and updated.');
