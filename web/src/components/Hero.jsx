@@ -7,6 +7,16 @@ import { Button } from './ui/button';
 const slides = [
   {
     id: 0,
+    badge: "Peace of Mind",
+    badgeColor: "bg-orange-500",
+    titlePrefix: "You May Forget.",
+    title: "SubEx Won't.",
+    gradient: "from-orange-500 via-amber-500 to-orange-500",
+    description: "Never miss a renewal date again. Get automated reminders and one-click cancellations for unwanted services.",
+    dashboardContent: "alerts"
+  },
+  {
+    id: 1,
     badge: "The #1 Subscription Watchdog",
     badgeColor: "bg-emerald-500",
     titlePrefix: "Track. Control.",
@@ -16,7 +26,7 @@ const slides = [
     dashboardContent: "savings"
   },
   {
-    id: 1,
+    id: 2,
     badge: "Your Subscription Watchdog",
     badgeColor: "bg-violet-500",
     titlePrefix: "Don't Just Pay.",
@@ -26,7 +36,7 @@ const slides = [
     dashboardContent: "analytics"
   },
   {
-    id: 2,
+    id: 3,
     badge: "Smarter Subscriptions",
     badgeColor: "bg-blue-500",
     titlePrefix: "Better Finances.",
@@ -35,16 +45,6 @@ const slides = [
     description: "Your privacy is our priority. We use AES-256 encryption and never sell your personal data to third parties.",
     dashboardContent: "security"
   },
-  {
-    id: 3,
-    badge: "Peace of Mind",
-    badgeColor: "bg-orange-500",
-    titlePrefix: "You May Forget.",
-    title: "SubEx Won't.",
-    gradient: "from-orange-500 via-amber-500 to-orange-500",
-    description: "Never miss a renewal date again. Get automated reminders and one-click cancellations for unwanted services.",
-    dashboardContent: "alerts"
-  }
 ];
 
 // --- Components for Visual Flair ---
@@ -148,10 +148,10 @@ const Hero = () => {
                   {activeSlide.title}
                 </span>
                 {/* Glow behind text */}
-                <div className={`absolute inset-0 blur-3xl -z-10 opacity-30 ${activeSlide.id === 0 ? 'bg-emerald-500' :
-                  activeSlide.id === 1 ? 'bg-violet-500' :
-                    activeSlide.id === 2 ? 'bg-blue-500' :
-                      'bg-orange-500'
+                <div className={`absolute inset-0 blur-3xl -z-10 opacity-30 ${activeSlide.id === 0 ? 'bg-orange-500' :
+                  activeSlide.id === 1 ? 'bg-emerald-500' :
+                    activeSlide.id === 2 ? 'bg-violet-500' :
+                      'bg-blue-500'
                   }`} />
               </div>
             </h1>
@@ -247,66 +247,8 @@ const Hero = () => {
                   {/* Center Content - Dynamic based on slide */}
                   <div className="col-span-12 md:col-span-7 flex flex-col gap-6">
 
-                    {/* Slide 1: Savings/General */}
+                    {/* Slide 0: Alerts — "You May Forget. SubEx Won't." */}
                     {activeSlide.id === 0 && (
-                      <>
-                        <div className="h-48 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 relative overflow-hidden">
-                          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-emerald-500/10 to-transparent" />
-                          <TrendingUp className="text-emerald-500 mb-2" />
-                          <div className="text-3xl font-bold text-zinc-900 dark:text-white">₹45,240.00</div>
-                          <div className="text-sm text-zinc-500">Total Monthly Spend</div>
-                          <svg className="absolute bottom-0 left-0 w-full h-24 stroke-emerald-500 stroke-2 fill-none" viewBox="0 0 100 20" preserveAspectRatio="none">
-                            <path d="M0 20 Q 20 5, 40 15 T 70 5 T 100 15" />
-                          </svg>
-                        </div>
-                        <div className="flex-1 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-3">
-                          {[{ n: 'Netflix', p: '₹649' }, { n: 'Spotify', p: '₹119' }, { n: 'Figma', p: '₹1,200' }].map((item, i) => (
-                            <div key={i} className="flex justify-between items-center p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-default">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800" />
-                                <div className="text-sm font-medium text-zinc-900 dark:text-white">{item.n}</div>
-                              </div>
-                              <div className="text-sm text-zinc-500">{item.p}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {/* Slide 2: Analytics */}
-                    {activeSlide.id === 1 && (
-                      <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex items-end gap-2">
-                        {[40, 70, 50, 90, 60, 80, 40, 60].map((h, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ height: 0 }}
-                            animate={{ height: `${h}%` }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex-1 bg-violet-500/20 rounded-t-lg relative group"
-                          >
-                            <div className="absolute bottom-0 left-0 w-full bg-violet-500 rounded-t-lg transition-all duration-500" style={{ height: '100%' }} />
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Slide 3: Security */}
-                    {activeSlide.id === 2 && (
-                      <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col items-center justify-center text-center">
-                        <motion.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ repeat: Infinity, duration: 2 }}
-                          className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-4"
-                        >
-                          <Lock className="w-12 h-12 text-blue-500" />
-                        </motion.div>
-                        <div className="text-xl font-bold text-zinc-900 dark:text-white">AES-256 Encrypted</div>
-                        <div className="text-sm text-zinc-500">Your data is completely secure.</div>
-                      </div>
-                    )}
-
-                    {/* Slide 4: Alerts (New) */}
-                    {activeSlide.id === 3 && (
                       <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-4 relative overflow-hidden">
                         {[1, 2, 3].map((i) => (
                           <motion.div
@@ -332,24 +274,82 @@ const Hero = () => {
                       </div>
                     )}
 
+                    {/* Slide 1: Savings */}
+                    {activeSlide.id === 1 && (
+                      <>
+                        <div className="h-48 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 relative overflow-hidden">
+                          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-emerald-500/10 to-transparent" />
+                          <TrendingUp className="text-emerald-500 mb-2" />
+                          <div className="text-3xl font-bold text-zinc-900 dark:text-white">₹45,240.00</div>
+                          <div className="text-sm text-zinc-500">Total Monthly Spend</div>
+                          <svg className="absolute bottom-0 left-0 w-full h-24 stroke-emerald-500 stroke-2 fill-none" viewBox="0 0 100 20" preserveAspectRatio="none">
+                            <path d="M0 20 Q 20 5, 40 15 T 70 5 T 100 15" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-3">
+                          {[{ n: 'Netflix', p: '₹649' }, { n: 'Spotify', p: '₹119' }, { n: 'Figma', p: '₹1,200' }].map((item, i) => (
+                            <div key={i} className="flex justify-between items-center p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-default">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800" />
+                                <div className="text-sm font-medium text-zinc-900 dark:text-white">{item.n}</div>
+                              </div>
+                              <div className="text-sm text-zinc-500">{item.p}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Slide 2: Analytics */}
+                    {activeSlide.id === 2 && (
+                      <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex items-end gap-2">
+                        {[40, 70, 50, 90, 60, 80, 40, 60].map((h, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ height: 0 }}
+                            animate={{ height: `${h}%` }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex-1 bg-violet-500/20 rounded-t-lg relative group"
+                          >
+                            <div className="absolute bottom-0 left-0 w-full bg-violet-500 rounded-t-lg transition-all duration-500" style={{ height: '100%' }} />
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Slide 3: Security */}
+                    {activeSlide.id === 3 && (
+                      <div className="h-full rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col items-center justify-center text-center">
+                        <motion.div
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ repeat: Infinity, duration: 2 }}
+                          className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-4"
+                        >
+                          <Lock className="w-12 h-12 text-blue-500" />
+                        </motion.div>
+                        <div className="text-xl font-bold text-zinc-900 dark:text-white">AES-256 Encrypted</div>
+                        <div className="text-sm text-zinc-500">Your data is completely secure.</div>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* Right Panel - Stats */}
                   <div className="hidden md:flex col-span-3 flex-col gap-4">
-                    <div className={`flex-1 rounded-2xl bg-gradient-to-br p-6 text-white relative overflow-hidden ${activeSlide.id === 0 ? 'from-emerald-600 to-teal-600' :
-                      activeSlide.id === 1 ? 'from-violet-600 to-purple-600' :
-                        activeSlide.id === 2 ? 'from-blue-600 to-indigo-600' :
-                          'from-orange-600 to-amber-600'
+                    <div className={`flex-1 rounded-2xl bg-gradient-to-br p-6 text-white relative overflow-hidden ${activeSlide.id === 0 ? 'from-orange-600 to-amber-600' :
+                      activeSlide.id === 1 ? 'from-emerald-600 to-teal-600' :
+                        activeSlide.id === 2 ? 'from-violet-600 to-purple-600' :
+                          'from-blue-600 to-indigo-600'
                       }`}>
                       <Zap className="mb-4" />
                       <div className="text-2xl font-bold">3 Alerts</div>
                       <div className="text-sm opacity-80">Requires Attention</div>
                     </div>
                     <div className="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6">
-                      <ShieldCheck className={`${activeSlide.id === 0 ? 'text-emerald-500' :
-                        activeSlide.id === 1 ? 'text-violet-500' :
-                          activeSlide.id === 2 ? 'text-blue-500' :
-                            'text-orange-500'
+                      <ShieldCheck className={`${activeSlide.id === 0 ? 'text-orange-500' :
+                        activeSlide.id === 1 ? 'text-emerald-500' :
+                          activeSlide.id === 2 ? 'text-violet-500' :
+                            'text-blue-500'
                         } mb-2`} />
                       <div className="font-bold text-zinc-900 dark:text-white">Score: 98</div>
                       <div className="text-xs text-zinc-500">Security Rating</div>
@@ -367,15 +367,15 @@ const Hero = () => {
             className="absolute -right-12 top-20 bg-white/80 dark:bg-black/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xl z-30 hidden lg:block"
           >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${activeSlide.id === 0 ? 'bg-emerald-500/20' :
-                activeSlide.id === 1 ? 'bg-violet-500/20' :
-                  activeSlide.id === 2 ? 'bg-blue-500/20' :
-                    'bg-orange-500/20'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${activeSlide.id === 0 ? 'bg-orange-500/20' :
+                activeSlide.id === 1 ? 'bg-emerald-500/20' :
+                  activeSlide.id === 2 ? 'bg-violet-500/20' :
+                    'bg-blue-500/20'
                 }`}>
-                <CheckCircle2 size={24} className={`${activeSlide.id === 0 ? 'text-emerald-500' :
-                  activeSlide.id === 1 ? 'text-violet-500' :
-                    activeSlide.id === 2 ? 'text-blue-500' :
-                      'text-orange-500'
+                <CheckCircle2 size={24} className={`${activeSlide.id === 0 ? 'text-orange-500' :
+                  activeSlide.id === 1 ? 'text-emerald-500' :
+                    activeSlide.id === 2 ? 'text-violet-500' :
+                      'text-blue-500'
                   }`} />
               </div>
               {/* ... Rest of the component */}

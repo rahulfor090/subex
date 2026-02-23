@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, ArrowRight, CheckCircle2, AlertCircle,
-    Save, Plus, X, Building2, DollarSign, CalendarDays,
+    Save, Plus, X, Building2, IndianRupee, CalendarDays,
     Tag, Loader2, Check, Globe, CreditCard, Folder,
     Sparkles, ChevronDown
 } from 'lucide-react';
@@ -15,7 +15,7 @@ import CompanyLogo from '../../components/CompanyLogo';
 // ─── Step definitions ────────────────────────────────────────────────────────
 const STEPS = [
     { id: 1, title: 'Service', icon: Building2, color: 'from-violet-500 to-purple-600', desc: 'Pick the company' },
-    { id: 2, title: 'Billing', icon: DollarSign, color: 'from-emerald-500 to-cyan-500', desc: 'Amount & frequency' },
+    { id: 2, title: 'Billing', icon: IndianRupee, color: 'from-emerald-500 to-cyan-500', desc: 'Amount & frequency' },
     { id: 3, title: 'Dates', icon: CalendarDays, color: 'from-orange-400 to-rose-500', desc: 'Renewal & payment' },
     { id: 4, title: 'Finish', icon: Sparkles, color: 'from-pink-500 to-fuchsia-600', desc: 'Organize & submit' },
 ];
@@ -475,8 +475,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                                 Amount Paid
                                             </label>
                                             <div className="relative">
-                                                <DollarSign size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                                                <input type="number" step="0.01" min="0" name="amount_paid" value={formData.amount_paid}
+                                                <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                                                <input type="number" step="0.01" min="0" name="value" value={formData.value}
                                                     onChange={handleChange} placeholder="0.00"
                                                     className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-zinc-900 dark:text-white text-sm backdrop-blur`} />
                                             </div>
