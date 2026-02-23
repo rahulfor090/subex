@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
 import { Plus, AlertCircle, Loader2, Trash2, Bell, Globe } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -28,7 +29,7 @@ const SubscriptionList = () => {
             setLoading(true);
             console.log('Fetching subscriptions with token:', token ? 'Token exists' : 'No token');
 
-            const response = await fetch('http://localhost:3000/api/subscriptions', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -59,7 +60,7 @@ const SubscriptionList = () => {
         if (!window.confirm('Are you sure you want to delete this subscription?')) return;
         try {
             setDeletingId(subscriptionId);
-            const response = await fetch(`http://localhost:3000/api/subscriptions/${subscriptionId}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${subscriptionId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -221,7 +222,7 @@ const SubscriptionList = () => {
                                                     {formatDate(subscription.next_payment_date)}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: subscription.currency || 'INR', maximumFractionDigits: 0 }).format(subscription.value)}
+                                                    {subscription.currency} {subscription.amount_paid || subscription.actual_amount}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <div className="flex flex-wrap gap-1">

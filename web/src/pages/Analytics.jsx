@@ -56,7 +56,7 @@ const Analytics = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/subscriptions', {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();

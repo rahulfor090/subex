@@ -67,8 +67,9 @@ const RenewalRow = ({ sub }) => {
         <div className="flex items-center gap-3 py-3 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
             <CompanyLogo name={sub.company?.name || ''} size="sm" rounded="rounded-lg" />
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-                    {sub.company?.name || 'Unknown'}
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{sub.company?.name || 'Unknown'}</p>
+                <p className="text-xs text-zinc-400 truncate">
+                    {sub.cycle} · {sub.currency} {sub.actual_amount}
                 </p>
                 <p className="text-xs text-zinc-400 truncate">{fmt(sub.value)} · {sub.cycle}</p>
             </div>
@@ -84,8 +85,35 @@ const RenewalRow = ({ sub }) => {
         </div>
     );
 };
-
-// ─── Main ──────────────────────────────────────────────────────────────────
+const ActivityRow = ({ sub, onClick }) => (
+    <tr onClick={onClick}
+        className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors">
+        <td className="px-5 py-3.5">
+            <div className="flex items-center gap-3">
+                <CompanyLogo name={sub.company?.name || ''} size="sm" rounded="rounded-xl" />
+                <div>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white">{sub.company?.name || 'Unknown'}</p>
+                    {sub.description && <p className="text-xs text-zinc-400 truncate max-w-[160px]">{sub.description}</p>}
+                </div>
+            </div>
+        </td>
+        <td className="px-5 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 capitalize">{sub.cycle}</td>
+        <td className="px-5 py-3.5 text-sm font-semibold text-zinc-900 dark:text-white">
+            {fmt(sub.amount_paid || sub.actual_amount, sub.currency)}
+        </td>
+        <td className="px-5 py-3.5">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sub.type === 'subscription' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
+                sub.type === 'trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
+                    'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+                }`}>
+                {sub.type}
+            </span>
+        </td>
+        <td className="px-5 py-3.5 text-right">
+            <ChevronRight size={14} className="text-zinc-300 group-hover:text-emerald-500 transition-colors ml-auto" />
+        </td>
+    </tr>
+);
 const Dashboard = () => {
     const navigate = useNavigate();
     const { user, token } = useAuth();
@@ -93,7 +121,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/subscriptions', {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(r => r.json())
@@ -104,7 +132,7 @@ const Dashboard = () => {
 
     // ── Derived stats ──────────────────────────────────────────────────────
     const monthly = subs.reduce((acc, s) => {
-        const v = parseFloat(s.value) || 0;
+        const v = parseFloat(s.actual_amount) || 0;
         if (s.cycle === 'monthly') return acc + v;
         if (s.cycle === 'yearly') return acc + v / 12;
         if (s.cycle === 'weekly') return acc + v * 4.33;

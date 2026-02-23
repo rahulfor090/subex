@@ -1,5 +1,7 @@
 const express = require('express');
 require('dotenv').config();
+const session = require('express-session');
+const passport = require('./config/passport');
 const db = require('./models');
 const userRoutes = require('./routes/user');
 const authRoutes = require('./routes/auth');
@@ -8,20 +10,37 @@ const companyRoutes = require('./routes/company');
 const folderRoutes = require('./routes/folder');
 const tagRoutes = require('./routes/tag');
 const alertRoutes = require('./routes/alerts');
-const cronRoutes = require('./routes/cron.routes');
-
+const adminRoutes = require('./routes/admin');
+const { errorHandler } = require('./middleware/errorHandler');
+const cronRoutes = require('./routes/cron');
 const app = express();
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(require('path').join(__dirname, '../uploads')));
+
+// Session middleware (required for Passport OAuth 1.0a handshake)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback_secret',
+  resave: true,                 // Must be true — passport writes token to session
+  saveUninitialized: true,      // Must be true — session must be saved BEFORE Twitter redirect
+  cookie: {
+    secure: false,              // false for http://localhost
+    maxAge: 5 * 60 * 1000,     // 5 minutes — enough for OAuth handshake
+    sameSite: 'lax'             // 'lax' allows cookie to be sent when Twitter redirects back
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Test database connection on startup
 const testConnection = async () => {
@@ -44,7 +63,21 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error('❌ Uncaught Exception:', error.message);
+
+  // OAuth/network errors from passport-twitter should NOT kill the server
+  // These happen when Twitter rejects a request (bad keys, network issue, etc.)
+  const isOAuthError = error.message?.includes('oauth') ||
+    error.stack?.includes('oauth.js') ||
+    error.stack?.includes('passport-oauth') ||
+    error.stack?.includes('passport-twitter');
+
+  if (isOAuthError) {
+    console.error('⚠️  OAuth error (server will stay alive):', error.message);
+    return; // Don't exit — let the request fail gracefully
+  }
+
+  // For truly fatal errors, exit
   console.error('❌ Stack:', error.stack);
   process.exit(1);
 });
@@ -66,6 +99,8 @@ try {
   console.log('✅ Tag routes registered');
   app.use('/api/alerts', alertRoutes);
   console.log('✅ Alert routes registered');
+  app.use('/api/admin', adminRoutes);
+  console.log('✅ Admin routes registered');
   app.use('/api/cron', cronRoutes);
   console.log('✅ Cron routes registered');
   console.log('✅ All routes registered successfully');
@@ -103,11 +138,15 @@ app.get('/health/db', async (req, res) => {
   }
 });
 
+// Global error handler (must be after all routes)
+app.use(errorHandler);
+
 // Start server
 console.log('🚀 Starting server...');
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
+  console.log(`📍 Server URL: http://localhost:${PORT}`);
+  console.log(`📍 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log('✅ Server started successfully - waiting for requests...');
 });
 

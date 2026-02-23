@@ -5,6 +5,8 @@ import {
     User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight
 } from 'lucide-react';
 import Logo from '../components/Logo';
+import { apiJSON, apiFetch } from '../lib/api';
+import { Button } from '../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AuthRobot from '../components/AuthRobot';
@@ -132,7 +134,15 @@ const Registration = () => {
         setSubmitStatus(null);
 
         try {
-            const res = await fetch('http://localhost:3000/api/auth/signup', {
+            // Prepare request body matching API documentation
+            const requestBody = {
+                name: `${formData.first_name} ${formData.last_name}`.trim(),
+                email: formData.email,
+                phone: formData.phone_number || undefined,
+                password: formData.password
+            };
+
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -149,8 +159,11 @@ const Registration = () => {
                 setSubmitMessage('Account created! Welcome to SubEx 🎉');
                 robotRef.current?.react('success');
                 if (data.accessToken) {
-                    const ur = await fetch('http://localhost:3000/api/auth/me', {
-                        headers: { Authorization: `Bearer ${data.accessToken}` }
+                    // Fetch user details using the token
+                    const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${data.accessToken}`
+                        }
                     });
                     const ud = await ur.json();
                     if (ud.success) signup(data.accessToken, ud.data);

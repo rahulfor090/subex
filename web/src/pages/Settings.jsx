@@ -70,7 +70,7 @@ const Settings = () => {
 
     const [notifications, setNotifications] = useState({ email: true, push: false, news: true });
 
-    const avatarSrc = user?.profilePicture ? `http://localhost:3000${user.profilePicture}` : null;
+    const avatarSrc = user?.profilePicture ? `${import.meta.env.VITE_BACKEND_URL}${user.profilePicture}` : null;
 
     const initials = user?.name
         ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -85,7 +85,7 @@ const Settings = () => {
         const fd = new FormData();
         fd.append('avatar', file);
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: fd
@@ -108,7 +108,7 @@ const Settings = () => {
     const handleRemovePfp = async () => {
         setUploadingPfp(true);
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -129,7 +129,7 @@ const Settings = () => {
         setSavingProfile(true);
         setProfileStatus({ type: '', message: '' });
         try {
-            const res = await fetch('http://localhost:3000/api/users/profile', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ name: formData.name, phone: formData.phone })

@@ -1,19 +1,29 @@
 import React, { useState, useRef } from 'react';
-import { Camera, X, User, Phone, Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Camera, X, User, Phone, Mail, CheckCircle, AlertCircle, Loader2, MapPin, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 
 const ProfilePage = () => {
     const { user, token, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ name: user?.name || '', phone: user?.phone || '' });
+    const [formData, setFormData] = useState({ 
+        name: user?.name || '', 
+        phone: user?.phone || '',
+        date_of_birth: user?.date_of_birth || '',
+        address_line1: user?.address_line1 || '',
+        address_line2: user?.address_line2 || '',
+        city: user?.city || '',
+        state: user?.state || '',
+        country: user?.country || '',
+        zip_code: user?.zip_code || ''
+    });
     const [status, setStatus] = useState({ type: '', message: '' });
     const [saving, setSaving] = useState(false);
     const [uploadingPfp, setUploadingPfp] = useState(false);
     const fileInputRef = useRef(null);
 
     const avatarSrc = user?.profilePicture
-        ? `http://localhost:3000${user.profilePicture}`
+        ? `${import.meta.env.VITE_BACKEND_URL}${user.profilePicture}`
         : null;
 
     const handleFileSelect = async (e) => {
@@ -27,7 +37,7 @@ const ProfilePage = () => {
         fd.append('avatar', file);
 
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: fd
@@ -50,7 +60,7 @@ const ProfilePage = () => {
     const handleRemovePfp = async () => {
         setUploadingPfp(true);
         try {
-            const res = await fetch('http://localhost:3000/api/users/avatar', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/avatar`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -70,17 +80,37 @@ const ProfilePage = () => {
         setSaving(true);
         setStatus({ type: '', message: '' });
         try {
-            const res = await fetch('http://localhost:3000/api/users/profile', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: formData.name, phone: formData.phone })
+                body: JSON.stringify({ 
+                    name: formData.name, 
+                    phone: formData.phone,
+                    date_of_birth: formData.date_of_birth,
+                    address_line1: formData.address_line1,
+                    address_line2: formData.address_line2,
+                    city: formData.city,
+                    state: formData.state,
+                    country: formData.country,
+                    zip_code: formData.zip_code
+                })
             });
             const data = await res.json();
             if (data.success) {
-                updateUser({ name: data.data.name, phone: data.data.phone });
+                updateUser({ 
+                    name: data.data.name, 
+                    phone: data.data.phone,
+                    date_of_birth: data.data.date_of_birth,
+                    address_line1: data.data.address_line1,
+                    address_line2: data.data.address_line2,
+                    city: data.data.city,
+                    state: data.data.state,
+                    country: data.data.country,
+                    zip_code: data.data.zip_code
+                });
                 setStatus({ type: 'success', message: 'Profile saved successfully!' });
                 setIsEditing(false);
             } else {
@@ -170,7 +200,17 @@ const ProfilePage = () => {
                     <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Personal Details</h3>
                     {!isEditing ? (
                         <Button variant="outline" size="sm" onClick={() => {
-                            setFormData({ name: user?.name || '', phone: user?.phone || '' });
+                            setFormData({ 
+                                name: user?.name || '', 
+                                phone: user?.phone || '',
+                                date_of_birth: user?.date_of_birth || '',
+                                address_line1: user?.address_line1 || '',
+                                address_line2: user?.address_line2 || '',
+                                city: user?.city || '',
+                                state: user?.state || '',
+                                country: user?.country || '',
+                                zip_code: user?.zip_code || ''
+                            });
                             setIsEditing(true);
                             setStatus({ type: '', message: '' });
                         }}>Edit</Button>
@@ -186,47 +226,185 @@ const ProfilePage = () => {
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-8">
+                    {/* Basic Information */}
                     <div>
-                        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
-                            <User size={12} className="inline mr-1" /> Full Name
-                        </label>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                value={formData.name}
-                                onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
-                                placeholder="Your full name"
-                            />
-                        ) : (
-                            <p className="text-zinc-900 dark:text-white font-medium">{user?.name || '—'}</p>
-                        )}
+                        <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
+                            <User size={16} className="text-emerald-500" />
+                            Basic Information
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Full Name
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="Your full name"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.name || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Email Address
+                                </label>
+                                <p className="text-zinc-500 dark:text-zinc-400 font-medium">{user?.email || '—'}</p>
+                                <p className="text-xs text-zinc-400 mt-1">Email cannot be changed</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Phone Number
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="+91 98765 43210"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.phone || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Date of Birth
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="date"
+                                        value={formData.date_of_birth}
+                                        onChange={e => setFormData(p => ({ ...p, date_of_birth: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">
+                                        {user?.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Address Information */}
                     <div>
-                        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
-                            <Mail size={12} className="inline mr-1" /> Email Address
-                        </label>
-                        <p className="text-zinc-500 dark:text-zinc-400 font-medium">{user?.email || '—'}</p>
-                        <p className="text-xs text-zinc-400 mt-1">Email cannot be changed</p>
-                    </div>
+                        <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
+                            <MapPin size={16} className="text-emerald-500" />
+                            Address
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Address Line 1
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.address_line1}
+                                        onChange={e => setFormData(p => ({ ...p, address_line1: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="Street address, P.O. box"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.address_line1 || '—'}</p>
+                                )}
+                            </div>
 
-                    <div>
-                        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
-                            <Phone size={12} className="inline mr-1" /> Phone Number
-                        </label>
-                        {isEditing ? (
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
-                                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
-                                placeholder="+91 98765 43210"
-                            />
-                        ) : (
-                            <p className="text-zinc-900 dark:text-white font-medium">{user?.phone || '—'}</p>
-                        )}
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Address Line 2
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.address_line2}
+                                        onChange={e => setFormData(p => ({ ...p, address_line2: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="Apartment, suite, etc. (optional)"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.address_line2 || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    City
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={e => setFormData(p => ({ ...p, city: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="City"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.city || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    State / Province
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.state}
+                                        onChange={e => setFormData(p => ({ ...p, state: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="State"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.state || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    Country
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.country}
+                                        onChange={e => setFormData(p => ({ ...p, country: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="Country"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.country || '—'}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+                                    ZIP / Postal Code
+                                </label>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.zip_code}
+                                        onChange={e => setFormData(p => ({ ...p, zip_code: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-zinc-900 dark:text-white"
+                                        placeholder="ZIP code"
+                                    />
+                                ) : (
+                                    <p className="text-zinc-900 dark:text-white font-medium">{user?.zip_code || '—'}</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

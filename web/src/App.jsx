@@ -6,6 +6,8 @@ import Registration from "./pages/Registration";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthCallback from "./pages/OAuthCallback";
+import CreatePassword from "./pages/CreatePassword";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import SubscriptionList from "./pages/subscriptions/SubscriptionList";
@@ -30,6 +32,15 @@ import { NavigationProvider, useNavDirection } from "./contexts/NavigationContex
 
 // Auth pages that share the horizontal slide transition
 const AUTH_ROUTES = new Set(["/login", "/registration", "/register", "/forgot-password", "/reset-password"]);
+
+// Admin imports
+import AdminProtected from "./components/admin/AdminProtected";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPlans from "./pages/admin/AdminPlans";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminSystemHealth from "./pages/admin/AdminSystemHealth";
 
 // Protected route wrapper component
 const Protected = ({ children }) => {
@@ -155,9 +166,60 @@ function App() {
       <AuthProvider>
         <div className="App">
           <BrowserRouter>
-            <NavigationProvider>
-              <AnimatedRoutes />
-            </NavigationProvider>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/register" element={<Registration />} />
+              <Route path="/registration" element={<Registration />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
+              <Route
+                path="/create-password"
+                element={<Protected><CreatePassword /></Protected>}
+              />
+              <Route
+                path="/dashboard"
+                element={<Protected><SubscriptionList /></Protected>}
+              />
+              <Route
+                path="/subscriptions/:id"
+                element={<Protected><SubscriptionDetail /></Protected>}
+              />
+              <Route
+                path="/subscriptions/add"
+                element={<Protected><SubscriptionForm mode="add" /></Protected>}
+              />
+              <Route
+                path="/subscriptions/edit/:id"
+                element={<Protected><SubscriptionForm mode="edit" /></Protected>}
+              />
+              <Route path="/dashboard" element={<Protected><DashboardLayout /></Protected>}>
+                <Route index element={<Dashboard />} />
+                <Route path="subscriptions" element={<SubscriptionList />} />
+                <Route path="subscriptions/add" element={<SubscriptionForm mode="add" />} />
+                <Route path="subscriptions/edit/:id" element={<SubscriptionForm mode="edit" />} />
+                <Route path="subscriptions/:id" element={<SubscriptionDetail />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="alerts" element={<RenewalAlerts />} />
+
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="security" element={<SecurityPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+              </Route>
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="plans" element={<AdminPlans />} />
+                <Route path="transactions" element={<AdminTransactions />} />
+                <Route path="system" element={<AdminSystemHealth />} />
+              </Route>
+              <Route path="/privacy-policy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/cookies" element={<CookiesPage />} />
+            </Routes>
           </BrowserRouter>
         </div>
       </AuthProvider>

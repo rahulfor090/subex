@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../lib/api';
+import { Button } from '../../components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2,
@@ -499,7 +501,7 @@ const SubscriptionDetail = () => {
     const fetchSubscription = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, {
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
             });
             const data = await res.json();
@@ -512,7 +514,7 @@ const SubscriptionDetail = () => {
     const handleDelete = async () => {
         try {
             setDeleteStatus('loading');
-            const res = await fetch(`http://localhost:3000/api/subscriptions/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
             });
@@ -702,30 +704,58 @@ const SubscriptionDetail = () => {
                                 <p className="text-[10px] font-medium opacity-60" style={{ color: brandText }}>days</p>
                             </motion.div>
                         )}
+                        <p className="text-3xl font-black" style={{ color: brandText }}>
+                            {fmtCurrency(subscription.actual_amount, subscription.currency)}
+                            <span className="text-sm font-semibold opacity-60 ml-2">/ {subscription.cycle}</span>
+                        </p>
+                        {subscription.amount_paid && (
+                            <p className="text-md font-medium" style={{ color: brandText }}>
+                                Paid: {fmtCurrency(subscription.amount_paid, subscription.currency)}
+                            </p>
+                        )}
                     </div>
 
-                    {/* Action bar */}
-                    <div className="flex flex-wrap gap-2 mt-6">
-                        <button
-                            onClick={() => navigate(`/dashboard/subscriptions/edit/${id}`)}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100 shadow-md"
-                            style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.18), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.25)}` }}
-                        >
-                            <Edit size={14} /> Edit
-                        </button>
-                        <button
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
-                            style={{ background: 'rgba(239,68,68,0.25)', color: '#fca5a5', border: '1.5px solid rgba(239,68,68,0.35)' }}
-                        >
-                            <Trash2 size={14} /> Delete
-                        </button>
+                    {/* Days badge */}
+                    {days !== null && (
+                        <div className="flex-shrink-0 text-center px-5 py-4 rounded-2xl"
+                            style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15) }}>
+                            <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5" style={{ color: brandText }}>
+                                {days < 0 ? 'Overdue' : days === 0 ? 'Due' : 'Due in'}
+                            </p>
+                            <p className="text-4xl font-black leading-none" style={{ color: brandText }}>
+                                {Math.abs(days)}
+                            </p>
+                            <p className="text-[10px] font-medium opacity-60" style={{ color: brandText }}>days</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Action bar */}
+                <div className="relative z-10 px-7 sm:px-10 pb-6 flex flex-wrap items-center gap-2">
+                    <button
+                        onClick={() => navigate(`/dashboard/subscriptions/edit/${id}`)}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100 shadow-md"
+                        style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.18), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.25)}` }}>
+                        <Edit size={14} /> Edit
+                    </button>
+                    <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
+                        style={{ background: 'rgba(239,68,68,0.25)', color: '#fca5a5', border: '1.5px solid rgba(239,68,68,0.35)' }}>
+                        <Trash2 size={14} /> Delete
+                    </button>
+
+                    <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
+                        {subscription.actual_amount && subscription.amount_paid && parseFloat(subscription.actual_amount) > parseFloat(subscription.amount_paid) && (
+                            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
+                                You saved {fmtCurrency(subscription.actual_amount - subscription.amount_paid, subscription.currency)} this much money
+                            </div>
+                        )}
                         {subscription.url_link && (
-                            <a
-                                href={subscription.url_link} target="_blank" rel="noopener noreferrer"
-                                className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
-                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.13), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}
-                            >
+                            <a href={subscription.url_link} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-100"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.13), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
                                 <Globe size={14} /> Visit <ExternalLink size={11} />
                             </a>
                         )}
@@ -770,24 +800,29 @@ const SubscriptionDetail = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* ── Error banner ───────────────────────────────────────────── */}
+            {/* ── Error banner ─────────────────────────────────────────────── */}
             {error && (
                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 mb-4">
                     <AlertCircle size={16} />
                     <span className="text-sm font-medium">{error}</span>
                 </div>
             )}
+            {/* ── Details grid ─────────────────────────────────────────────── */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
 
-            {/* ── Quick Stats Row ─────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-                <Chip icon={IndianRupee} label="Amount" value={fmtCurrency(subscription.value, subscription.currency)} brandColor={brandColor} delay={0.1} />
-                <Chip icon={RefreshCw} label="Billing" value={`Every ${subscription.frequency || 1} ${subscription.cycle}`} brandColor={brandColor} delay={0.15} />
-                <Chip icon={Shield} label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} brandColor={brandColor} delay={0.2} />
-                <Chip icon={Clock} label="Next Due" value={fmt(subscription.next_payment_date)} brandColor={brandColor} delay={0.25} />
-                <Chip icon={Calendar} label="Expires" value={fmt(subscription.contract_expiry)} brandColor={brandColor} delay={0.3} />
-                <Chip icon={CreditCard} label="Payment" value={cap(subscription.payment_method) || 'Not set'} brandColor={brandColor} delay={0.35} />
-            </div>
+                <Chip icon={DollarSign} label="Actual Amount" value={fmtCurrency(subscription.actual_amount, subscription.currency)} />
+                <Chip icon={DollarSign} label="Amount Paid" value={subscription.amount_paid ? fmtCurrency(subscription.amount_paid, subscription.currency) : '—'} />
+                <Chip icon={RefreshCw} label="Billing" value={`Every ${subscription.frequency || 1} ${subscription.cycle}`} />
+                <Chip icon={Shield} label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} />
+                <Chip icon={Clock} label="Next Due" value={fmt(subscription.next_payment_date)} />
+                <Chip icon={Clock} label="Expires" value={fmt(subscription.contract_expiry)} />
+                <Chip icon={CreditCard} label="Payment" value={cap(subscription.payment_method) || 'Not set'} />
+            </motion.div>
+
+
+            {/* ── Folder + Tags ─────────────────────────────────────────────── */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
 
             {/* ── Folder + Tags ───────────────────────────────────────────── */}
             <motion.div
