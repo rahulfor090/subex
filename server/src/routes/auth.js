@@ -300,6 +300,13 @@ router.get('/me', authenticate, async (req, res) => {
         email: user.email,
         phone: user.phone_number,
         profilePicture: user.profile_picture || null,
+        date_of_birth: user.date_of_birth || null,
+        address_line1: user.address_line1 || null,
+        address_line2: user.address_line2 || null,
+        city: user.city || null,
+        state: user.state || null,
+        country: user.country || null,
+        zip_code: user.zip_code || null,
         passwordUpdatedAt: userAuth?.password_updated_at || null
       }
     });
