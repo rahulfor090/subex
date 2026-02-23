@@ -143,21 +143,42 @@ router.delete('/avatar', authenticate, async (req, res) => {
   }
 });
 
-// PUT /api/users/profile — Update name / phone
+// PUT /api/users/profile — Update profile information
 router.put('/profile', authenticate, async (req, res) => {
   try {
-    const { name, phone } = req.body;
+    const { 
+      name, 
+      phone, 
+      date_of_birth, 
+      address_line1, 
+      address_line2, 
+      city, 
+      state, 
+      country, 
+      zip_code 
+    } = req.body;
 
     const user = await db.User.findByPk(req.user.user_id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const updates = {};
+    
+    // Update name (split into first/last)
     if (name && name.trim()) {
       const parts = name.trim().split(' ');
       updates.first_name = parts[0];
       updates.last_name = parts.slice(1).join(' ') || parts[0];
     }
+    
+    // Update other fields
     if (phone !== undefined) updates.phone_number = phone || null;
+    if (date_of_birth !== undefined) updates.date_of_birth = date_of_birth || null;
+    if (address_line1 !== undefined) updates.address_line1 = address_line1 || null;
+    if (address_line2 !== undefined) updates.address_line2 = address_line2 || null;
+    if (city !== undefined) updates.city = city || null;
+    if (state !== undefined) updates.state = state || null;
+    if (country !== undefined) updates.country = country || null;
+    if (zip_code !== undefined) updates.zip_code = zip_code || null;
 
     await user.update(updates);
 
@@ -165,7 +186,17 @@ router.put('/profile', authenticate, async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      data: { name: fullName, phone: user.phone_number }
+      data: { 
+        name: fullName, 
+        phone: user.phone_number,
+        date_of_birth: user.date_of_birth,
+        address_line1: user.address_line1,
+        address_line2: user.address_line2,
+        city: user.city,
+        state: user.state,
+        country: user.country,
+        zip_code: user.zip_code
+      }
     });
   } catch (error) {
     console.error('Profile update error:', error);
