@@ -221,7 +221,7 @@ const SubscriptionList = () => {
                                                     {formatDate(subscription.next_payment_date)}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {subscription.currency} {subscription.value}
+                                                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: subscription.currency || 'INR', maximumFractionDigits: 0 }).format(subscription.value)}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <div className="flex flex-wrap gap-1">

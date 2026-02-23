@@ -13,11 +13,12 @@ const footerLinks = {
     { label: 'Changelog', href: '#' }
   ],
   Company: [
-    { label: 'About', href: '#' },
+    { label: 'About', href: '/about' },
     { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
+    { label: 'Careers', href: '/careers' },
+    { label: 'Team', href: '/team' },
     { label: 'Press Kit', href: '#' },
-    { label: 'Contact', href: '#' }
+    { label: 'Contact', href: '/contact' }
   ],
   Resources: [
     { label: 'Documentation', href: '#' },

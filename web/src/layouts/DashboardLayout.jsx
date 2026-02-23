@@ -3,11 +3,12 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, CreditCard, BarChart2, Settings,
     Bell, Menu, X, ChevronLeft, LogOut, User,
-    Wallet, Shield, Receipt, Sparkles
+    Wallet, Shield, Receipt
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ModeToggle } from '../components/ModeToggle';
 import UserProfile from '../components/UserProfile';
+import Logo from '../components/Logo';
 
 const NAV = [
     { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
@@ -72,18 +73,15 @@ const DashboardLayout = () => {
             <div className={`flex items-center gap-3 px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 ${collapsed && !mobile ? 'justify-center px-2' : ''}`}>
                 <button
                     onClick={() => navigate('/')}
-                    className={`flex items-center gap-3 min-w-0 group ${collapsed && !mobile ? 'justify-center' : 'flex-1'}`}
+                    className={`flex items-center gap-2 min-w-0 group ${collapsed && !mobile ? 'justify-center' : 'flex-1'}`}
                     title="Go to home"
                 >
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:shadow-emerald-400/40 group-hover:scale-105 transition-all duration-200">
-                        <Sparkles size={16} className="text-white" />
+                    <div className="flex flex-col min-w-0">
+                        <Logo showText={!collapsed || mobile} />
+                        {(!collapsed || mobile) && (
+                            <span className="text-[10px] font-medium text-zinc-400 ml-10 -mt-0.5">You May Forget. SubEx Won't.</span>
+                        )}
                     </div>
-                    {(!collapsed || mobile) && (
-                        <div className="text-left">
-                            <span className="text-base font-black tracking-tight text-zinc-900 dark:text-white group-hover:text-emerald-500 transition-colors">SubEx</span>
-                            <span className="text-[10px] font-medium text-zinc-400 block -mt-0.5">Subscription Manager</span>
-                        </div>
-                    )}
                 </button>
                 {!mobile && (
                     <button onClick={() => setCollapsed(c => !c)}
@@ -148,7 +146,7 @@ const DashboardLayout = () => {
                         onClick={() => setMobileOpen(false)} />
                     <div className="fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 lg:hidden">
                         <div className="flex items-center justify-between px-4 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                            <span className="font-black text-zinc-900 dark:text-white">SubEx</span>
+                            <Logo />
                             <button onClick={() => setMobileOpen(false)}
                                 className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                                 <X size={18} />
