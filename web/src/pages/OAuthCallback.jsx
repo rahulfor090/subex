@@ -40,7 +40,7 @@ const OAuthCallback = () => {
                     if (!data.data.hasPassword) {
                         navigate('/create-password');
                     } else {
-                        navigate('/');
+                        navigate('/dashboard');
                     }
                 } else {
                     setStatus('Authentication failed. Redirecting...');

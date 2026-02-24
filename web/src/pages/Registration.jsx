@@ -152,9 +152,9 @@ const Registration = () => {
                     password: formData.password,
                 }),
             });
-            const data = await res.json();
+            const data = await response.json();
 
-            if (res.ok) {
+            if (response.ok) {
                 setSubmitStatus('success');
                 setSubmitMessage('Account created! Welcome to SubEx 🎉');
                 robotRef.current?.react('success');
@@ -165,7 +165,7 @@ const Registration = () => {
                             'Authorization': `Bearer ${data.accessToken}`
                         }
                     });
-                    const ud = await ur.json();
+                    const ud = await userResponse.json();
                     if (ud.success) signup(data.accessToken, ud.data);
                 }
                 setFormData({ first_name: '', last_name: '', email: '', phone_number: '', password: '', confirm_password: '' });
@@ -498,7 +498,7 @@ const Registration = () => {
                                         <button type="button" onClick={() => navigate('/terms')}
                                             className="underline hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors">Terms</button>
                                         {' '}and{' '}
-                                        <button type="button" onClick={() => navigate('/privacy')}
+                                        <button type="button" onClick={() => navigate('/privacy-policy')}
                                             className="underline hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors">Privacy Policy</button>
                                     </p>
                                 </form>

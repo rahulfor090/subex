@@ -114,7 +114,7 @@ const CreatePassword = () => {
                 setSubmitMessage('Password created successfully! Taking you to your dashboard...');
                 // Update user context so hasPassword is reflected
                 if (updateUser) updateUser({ hasPassword: true });
-                setTimeout(() => navigate('/'), 1500);
+                setTimeout(() => navigate('/dashboard'), 1500);
             } else {
                 setSubmitStatus('error');
                 setSubmitMessage(data.message || 'Failed to set password. Please try again.');
@@ -249,7 +249,7 @@ const CreatePassword = () => {
                         {/* Skip option */}
                         <button
                             type="button"
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/dashboard')}
                             className="w-full text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-emerald-500 transition-colors"
                         >
                             Skip for now

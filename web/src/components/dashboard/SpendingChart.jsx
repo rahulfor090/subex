@@ -57,8 +57,8 @@ const SpendingChart = ({ subscriptions }) => {
     }
 
     return (
-        <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full" style={{ height: '300px', minHeight: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%" debounce={0}>
                 <AreaChart
                     data={data}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

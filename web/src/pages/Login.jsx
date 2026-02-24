@@ -1,10 +1,10 @@
-  import React, { useState, useEffect, useRef } from 'react';
-  import { motion, AnimatePresence } from 'framer-motion';
-  import { ArrowLeft, CheckCircle2, AlertCircle, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-  import Logo from '../components/Logo';
-  import { apiFetch, apiJSON, API_BASE_URL } from '../lib/api';
-  import { Button } from '../components/ui/button';
-  import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, CheckCircle2, AlertCircle, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import Logo from '../components/Logo';
+import { apiFetch, apiJSON, API_BASE_URL } from '../lib/api';
+import { Button } from '../components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AuthRobot from '../components/AuthRobot';
 import { useNavDirection } from '../contexts/NavigationContext';
@@ -20,7 +20,7 @@ const Login = () => {
     const handleSwitchToRegister = () => {
         if (isPushing) return;
         setIsPushing(true);
-        robotRef.current?.push(1, () => navigateTo('/registration', 1));
+        robotRef.current?.push(1, () => navigate('/registration'));
         // Reset after full animation finishes
         setTimeout(() => setIsPushing(false), 950);
     };
@@ -71,34 +71,42 @@ const Login = () => {
         setSubmitStatus(null);
 
         try {
-            // Prepare request body matching API documentation
-            const requestBody = {
-                emailOrPhone: formData.identifier,
-                password: formData.password
-            };
-
+            console.log('Attempting login with:', formData.identifier);
+            
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ emailOrPhone: formData.identifier, password: formData.password }),
             });
-            const data = await res.json();
+            
+            console.log('Login response status:', response.status);
+            
+            const data = await response.json();
+            console.log('Login response data:', data);
 
-            if (res.ok) {
+            if (response.ok) {
                 setSubmitStatus('success');
                 setSubmitMessage('Login successful! Welcome back.');
                 robotRef.current?.react('success');
                 if (data.accessToken) {
-                    const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
-                        headers: {
-                            'Authorization': `Bearer ${data.accessToken}`
-                        }
-                    });
-                    const ud = await ur.json();
-                    if (ud.success) login(data.accessToken, ud.data);
+                    try {
+                        const userResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${data.accessToken}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        console.log('User details response status:', userResponse.status);
+                        const ud = await userResponse.json();
+                        console.log('User details data:', ud);
+                        if (ud.success) login(data.accessToken, ud.data);
+                    } catch (fetchError) {
+                        console.error('Error fetching user details:', fetchError);
+                    }
                 }
-                setTimeout(() => navigate('/'), 1200);
-            } else if (res.status === 423) {
+                setTimeout(() => navigate('/dashboard'), 1200);
+            } else if (response.status === 423) {
                 robotRef.current?.react('error');
                 setSubmitStatus('error');
                 setSubmitMessage(data.message);
@@ -110,7 +118,8 @@ const Login = () => {
                 setSubmitMessage(data.message || 'Login failed. Please try again.');
                 setTimeout(() => robotRef.current?.react('idle'), 2600);
             }
-        } catch {
+        } catch (error) {
+            console.error('Login error:', error);
             robotRef.current?.react('error');
             setSubmitStatus('error');
             setSubmitMessage('Unable to connect to server. Please try again later.');
@@ -138,7 +147,7 @@ const Login = () => {
                 <div className="flex items-center justify-between py-5 max-w-6xl mx-auto w-full">
                     <motion.button
                         initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
-                        onClick={() => navigateTo('/', -1)}
+                        onClick={() => navigate('/')}
                         className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors group"
                     >
                         <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
@@ -150,7 +159,7 @@ const Login = () => {
 
                     <motion.button
                         type="button"
-                        onClick={handleSwitchToRegister}
+                        onClick={() => navigate('/registration')}
                         disabled={isPushing}
                         whileHover={isPushing ? {} : { scale: 1.04 }}
                         whileTap={isPushing ? {} : { scale: 0.97 }}
@@ -177,51 +186,6 @@ const Login = () => {
                                 className="text-sm font-medium text-center text-zinc-500 dark:text-zinc-400 max-w-[190px]"
                                 animate={{ opacity: [0.5, 1, 0.5] }}
                                 transition={{ duration: 3.2, repeat: Infinity }}
-                                >
-                        {/* Divider */}
-                        <div className="relative flex items-center">
-                            <div className="flex-grow border-t border-zinc-200 dark:border-zinc-700" />
-                            <span className="mx-3 text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">or</span>
-                            <div className="flex-grow border-t border-zinc-200 dark:border-zinc-700" />
-                        </div>
-
-                        {/* Google OAuth Button */}
-                        <button
-                            type="button"
-                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
-                            className="w-full h-12 flex items-center justify-center gap-3 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 hover:border-zinc-400 dark:hover:border-zinc-500 rounded-lg font-semibold text-zinc-700 dark:text-zinc-200 transition-all hover:shadow-md"
-                        >
-                            {/* Google Logo SVG */}
-                            <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                                <path fill="none" d="M0 0h48v48H0z" />
-                            </svg>
-                            Continue with Google
-                        </button>
-
-                        {/* Twitter / X OAuth Button */}
-                        <button
-                            type="button"
-                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/twitter`}
-                            className="w-full h-12 flex items-center justify-center gap-3 bg-black dark:bg-zinc-900 border border-zinc-700 hover:border-zinc-500 rounded-lg font-semibold text-white transition-all hover:shadow-md hover:bg-zinc-900"
-                        >
-                            {/* X (Twitter) Logo SVG */}
-                            <svg width="18" height="18" viewBox="0 0 1200 1227" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.828Z" fill="white" />
-                            </svg>
-                            Continue with X (Twitter)
-                        </button>
-
-                        {/* Register Link */}
-                        <p className="text-sm text-center text-zinc-500">
-                            Don't have an account?{' '}
-                            <button
-                                type="button"
-                                onClick={() => navigate('/registration')}
-                                className="text-emerald-500 hover:text-emerald-600 font-semibold transition-colors"
                             >
                                 {showPassword
                                     ? "I won't peek! 🙈"
@@ -230,6 +194,7 @@ const Login = () => {
                                         : "Hi! I'm SubEx Bot 🤖"}
                             </motion.p>
                         </motion.div>
+
 
                         {/* ── Form column ── */}
                         <motion.div
@@ -303,6 +268,7 @@ const Login = () => {
                                             <input
                                                 id="password" name="password"
                                                 type={showPassword ? 'text' : 'password'}
+                                                autoComplete="current-password"
                                                 value={formData.password} onChange={handleChange}
                                                 onFocus={() => setPasswordFocused(true)}
                                                 onBlur={() => setPasswordFocused(false)}
@@ -389,13 +355,61 @@ const Login = () => {
                                                 : 'Sign In'}
                                     </motion.button>
 
+                                    {/* Divider */}
+                                    <div className="relative py-2">
+                                        <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-zinc-300 dark:via-zinc-700 to-transparent" />
+                                        <div className="relative flex justify-center">
+                                            <span className="px-3 text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900">
+                                                or continue with
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* OAuth buttons */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <motion.button
+                                            type="button"
+                                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="flex items-center justify-center gap-2 h-11 rounded-xl
+                                                bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700
+                                                hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600
+                                                transition-all font-medium text-sm text-zinc-700 dark:text-white"
+                                        >
+                                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                                <path fill="#4285F4" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                                <path fill="#FBBC05" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                            </svg>
+                                            Google
+                                        </motion.button>
+
+                                        <motion.button
+                                            type="button"
+                                            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/twitter`}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="flex items-center justify-center gap-2 h-11 rounded-xl
+                                                bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700
+                                                hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600
+                                                transition-all font-medium text-sm text-zinc-700 dark:text-white"
+                                        >
+                                            <svg className="w-5 h-5" fill="#000000" viewBox="0 0 24 24">
+                                                <path d="M23.953 4.57a10 10 0 002.856-3.515 10 10 0 01-2.856.974 4.992 4.992 0 00-8.694 4.552 14.153 14.153 0 01-10.287-5.186 4.992 4.992 0 001.546 6.657 4.981 4.981 0 01-2.265-.567v.062a4.992 4.992 0 003.997 4.895 4.994 4.994 0 01-2.254.085 4.993 4.993 0 004.663 3.468A10.006 10.006 0 010 19.54a14.144 14.144 0 007.666 2.247c9.199 0 14.207-7.594 14.207-14.178 0-.216-.004-.432-.013-.647a10.119 10.119 0 002.486-2.565z"/>
+                                            </svg>
+                                            <span className="dark:hidden">Twitter</span>
+                                            <span className="hidden dark:inline">X</span>
+                                        </motion.button>
+                                    </div>
+
                                     <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
                                         Don't have an account?{' '}
                                         <button
                                             type="button"
-                                            onClick={handleSwitchToRegister}
-                                            disabled={isPushing}
-                                            className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-colors group disabled:opacity-60"
+                                            onClick={() => navigate('/registration')}
+                                            className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-colors group"
                                         >
                                             Register here
                                             <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
