@@ -6,7 +6,7 @@ import {
     ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2,
     ExternalLink, CreditCard, RefreshCw, Tag, Folder,
     Globe, FileText, IndianRupee, Clock, Shield, StickyNote,
-    Zap, Star, TrendingUp, Calendar, Bell
+    Zap, Star, TrendingUp, Calendar, Bell, DollarSign
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
