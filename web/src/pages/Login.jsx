@@ -20,7 +20,7 @@ const Login = () => {
     const handleSwitchToRegister = () => {
         if (isPushing) return;
         setIsPushing(true);
-        robotRef.current?.push(1, () => navigate('/registration'));
+        robotRef.current?.push(1, () => navigateTo('/registration', 1));
         // Reset after full animation finishes
         setTimeout(() => setIsPushing(false), 950);
     };
@@ -72,15 +72,15 @@ const Login = () => {
 
         try {
             console.log('Attempting login with:', formData.identifier);
-            
+
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ emailOrPhone: formData.identifier, password: formData.password }),
             });
-            
+
             console.log('Login response status:', response.status);
-            
+
             const data = await response.json();
             console.log('Login response data:', data);
 
@@ -147,7 +147,7 @@ const Login = () => {
                 <div className="flex items-center justify-between py-5 max-w-6xl mx-auto w-full">
                     <motion.button
                         initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
-                        onClick={() => navigate('/')}
+                        onClick={() => navigateTo('/', -1)}
                         className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors group"
                     >
                         <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
@@ -159,7 +159,7 @@ const Login = () => {
 
                     <motion.button
                         type="button"
-                        onClick={() => navigate('/registration')}
+                        onClick={() => navigateTo('/registration', 1)}
                         disabled={isPushing}
                         whileHover={isPushing ? {} : { scale: 1.04 }}
                         whileTap={isPushing ? {} : { scale: 0.97 }}
@@ -259,7 +259,7 @@ const Login = () => {
                                                 <Lock size={14} className="text-emerald-500" />
                                                 Password
                                             </label>
-                                            <button type="button" onClick={() => navigate('/forgot-password')}
+                                            <button type="button" onClick={() => navigateTo('/forgot-password', 1)}
                                                 className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium">
                                                 Forgot password?
                                             </button>
@@ -378,10 +378,10 @@ const Login = () => {
                                                 transition-all font-medium text-sm text-zinc-700 dark:text-white"
                                         >
                                             <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                                <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                                <path fill="#4285F4" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                                <path fill="#FBBC05" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                                <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                <path fill="#4285F4" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                <path fill="#FBBC05" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                             </svg>
                                             Google
                                         </motion.button>
@@ -397,7 +397,7 @@ const Login = () => {
                                                 transition-all font-medium text-sm text-zinc-700 dark:text-white"
                                         >
                                             <svg className="w-5 h-5" fill="#000000" viewBox="0 0 24 24">
-                                                <path d="M23.953 4.57a10 10 0 002.856-3.515 10 10 0 01-2.856.974 4.992 4.992 0 00-8.694 4.552 14.153 14.153 0 01-10.287-5.186 4.992 4.992 0 001.546 6.657 4.981 4.981 0 01-2.265-.567v.062a4.992 4.992 0 003.997 4.895 4.994 4.994 0 01-2.254.085 4.993 4.993 0 004.663 3.468A10.006 10.006 0 010 19.54a14.144 14.144 0 007.666 2.247c9.199 0 14.207-7.594 14.207-14.178 0-.216-.004-.432-.013-.647a10.119 10.119 0 002.486-2.565z"/>
+                                                <path d="M23.953 4.57a10 10 0 002.856-3.515 10 10 0 01-2.856.974 4.992 4.992 0 00-8.694 4.552 14.153 14.153 0 01-10.287-5.186 4.992 4.992 0 001.546 6.657 4.981 4.981 0 01-2.265-.567v.062a4.992 4.992 0 003.997 4.895 4.994 4.994 0 01-2.254.085 4.993 4.993 0 004.663 3.468A10.006 10.006 0 010 19.54a14.144 14.144 0 007.666 2.247c9.199 0 14.207-7.594 14.207-14.178 0-.216-.004-.432-.013-.647a10.119 10.119 0 002.486-2.565z" />
                                             </svg>
                                             <span className="dark:hidden">Twitter</span>
                                             <span className="hidden dark:inline">X</span>
@@ -408,7 +408,7 @@ const Login = () => {
                                         Don't have an account?{' '}
                                         <button
                                             type="button"
-                                            onClick={() => navigate('/registration')}
+                                            onClick={() => navigateTo('/registration', 1)}
                                             className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-colors group"
                                         >
                                             Register here
