@@ -116,6 +116,20 @@ router.post('/signup', async (req, res) => {
       });
     }
 
+    // Check if phone number is provided and already exists
+    if (phone) {
+      const existingPhone = await db.User.findOne({
+        where: { phone_number: phone }
+      });
+
+      if (existingPhone) {
+        return res.status(409).json({
+          success: false,
+          message: 'An account with this phone number already exists'
+        });
+      }
+    }
+
     // Hash the password
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);

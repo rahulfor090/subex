@@ -6,7 +6,7 @@ import {
     ArrowLeft, ArrowRight, CheckCircle2, AlertCircle,
     Save, Plus, X, Building2, IndianRupee, CalendarDays,
     Tag, Loader2, Check, Globe, CreditCard, Folder,
-    Sparkles, ChevronDown
+    Sparkles, ChevronDown, DollarSign
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -242,7 +242,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
             if (!formData.currency.trim()) e.currency = 'Currency is required';
         }
         if (s === 3 && mode === 'add') {
-            if (formData.next_payment_date !== formData.contract_expiry) {
+            if (formData.next_payment_date && formData.contract_expiry && formData.next_payment_date !== formData.contract_expiry) {
                 e.next_payment_date = 'Must match Contract Expiry';
                 e.contract_expiry = 'Must match Next Payment Date';
             }
@@ -251,8 +251,26 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         return Object.keys(e).length === 0;
     };
 
-    const goNext = () => { if (!validateStep(step)) return; setDirection(1); setStep(s => s + 1); };
+    const goNext = () => { if (!canProceed) return; setDirection(1); setStep(s => s + 1); };
     const goBack = () => { setDirection(-1); setStep(s => s - 1); };
+
+    // Memoize validation to avoid recalculating on every render
+    const canProceed = React.useMemo(() => {
+        const e = {};
+        if (step === 1 && !formData.company_id) e.company_id = 'Please select or create a company';
+        if (step === 2) {
+            if (!formData.actual_amount || parseFloat(formData.actual_amount) <= 0) e.actual_amount = 'Enter a valid amount';
+            if (!formData.currency.trim()) e.currency = 'Currency is required';
+        }
+        if (step === 3 && mode === 'add') {
+            if (formData.next_payment_date && formData.contract_expiry && formData.next_payment_date !== formData.contract_expiry) {
+                e.next_payment_date = 'Must match Contract Expiry';
+                e.contract_expiry = 'Must match Next Payment Date';
+            }
+        }
+        setErrors(e);
+        return Object.keys(e).length === 0;
+    }, [step, formData, mode]);
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
@@ -369,6 +387,30 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                 <div className={`h-1 w-full bg-gradient-to-r ${currentStep.color}`} />
 
                 <div className="p-8">
+                    {/* Error Alert */}
+                    <AnimatePresence>
+                        {Object.keys(errors).length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3"
+                            >
+                                <AlertCircle className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" size={18} />
+                                <div className="flex-1">
+                                    <p className="font-semibold text-red-700 dark:text-red-300 text-sm mb-1">
+                                        Fix these errors to continue:
+                                    </p>
+                                    <ul className="text-red-600 dark:text-red-400 text-xs space-y-0.5">
+                                        {Object.entries(errors).map(([key, msg]) => (
+                                            <li key={key}>• {msg}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <AnimatePresence mode="wait" custom={direction}>
                         <motion.div
                             key={step}
@@ -476,7 +518,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                             </label>
                                             <div className="relative">
                                                 <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                                                <input type="number" step="0.01" min="0" name="value" value={formData.value}
+                                                <input type="number" step="0.01" min="0" name="amount_paid" value={formData.amount_paid}
                                                     onChange={handleChange} placeholder="0.00"
                                                     className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-zinc-900 dark:text-white text-sm backdrop-blur`} />
                                             </div>
@@ -735,8 +777,9 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                 </div>
 
                 {step < STEPS.length ? (
-                    <button type="button" onClick={goNext}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 transition-all active:scale-100">
+                    <button type="button" onClick={goNext} disabled={!canProceed}
+                        title={!canProceed ? 'Fill in required fields to continue' : 'Go to next step'}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 transition-all active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                         Next <ArrowRight size={15} />
                     </button>
                 ) : (

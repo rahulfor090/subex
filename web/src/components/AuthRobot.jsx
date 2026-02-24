@@ -302,7 +302,7 @@ const AuthRobot = forwardRef(({ size = 220 }, ref) => {
 
                     {/* Antenna */}
                     <line x1="100" y1="20" x2="100" y2="6" stroke={c.ant} strokeWidth="3.5" strokeLinecap="round" />
-                    <motion.circle cx="100" cy="5" r="6" fill={c.ant} filter="url(#glow)"
+                    <motion.circle cx={100} cy={5} r="6" fill={c.ant} filter="url(#glow)"
                         animate={{ scale: [1, 1.5, 1], opacity: [1, 0.55, 1] }}
                         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }} />
 
@@ -315,7 +315,7 @@ const AuthRobot = forwardRef(({ size = 220 }, ref) => {
                     <rect x="44" y="32" width="112" height="80" rx="16" fill="none" stroke="rgba(52,211,153,0.35)" strokeWidth="1.5" />
 
                     {/* Scan line */}
-                    <motion.rect x="44" y="32" width="112" height="5" rx="2.5"
+                    <motion.rect x={44} y={32} width={112} height={5} rx={2.5}
                         fill="rgba(16,185,129,0.18)"
                         animate={{ y: [32, 107] }}
                         transition={{ duration: 2.6, repeat: Infinity, ease: 'linear' }} />
@@ -327,17 +327,17 @@ const AuthRobot = forwardRef(({ size = 220 }, ref) => {
                     {/* Pupils */}
                     {!blinking && !covering && (
                         <>
-                            <motion.circle r="12" fill={c.pupil} filter="url(#glow)"
-                                animate={{ cx: 73 + eyeOffset.x, cy: 67 + eyeOffset.y }}
+                            <motion.circle cx={73} cy={67} r="12" fill={c.pupil} filter="url(#glow)"
+                                animate={{ cx: 73 + (eyeOffset.x || 0), cy: 67 + (eyeOffset.y || 0) }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 22 }} />
-                            <motion.circle r="4.5" fill="white" opacity="0.7"
-                                animate={{ cx: 73 + eyeOffset.x + 3, cy: 67 + eyeOffset.y - 3 }}
+                            <motion.circle cx={76} cy={64} r="4.5" fill="white" opacity="0.7"
+                                animate={{ cx: 76 + (eyeOffset.x || 0), cy: 64 + (eyeOffset.y || 0) }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 22 }} />
-                            <motion.circle r="12" fill={c.pupil} filter="url(#glow)"
-                                animate={{ cx: 127 + eyeOffset.x, cy: 67 + eyeOffset.y }}
+                            <motion.circle cx={127} cy={67} r="12" fill={c.pupil} filter="url(#glow)"
+                                animate={{ cx: 127 + (eyeOffset.x || 0), cy: 67 + (eyeOffset.y || 0) }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 22 }} />
-                            <motion.circle r="4.5" fill="white" opacity="0.7"
-                                animate={{ cx: 127 + eyeOffset.x + 3, cy: 67 + eyeOffset.y - 3 }}
+                            <motion.circle cx={130} cy={64} r="4.5" fill="white" opacity="0.7"
+                                animate={{ cx: 130 + (eyeOffset.x || 0), cy: 64 + (eyeOffset.y || 0) }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 22 }} />
                         </>
                     )}
@@ -362,8 +362,7 @@ const AuthRobot = forwardRef(({ size = 220 }, ref) => {
 
                     {/* Mouth */}
                     <motion.path d={mouth} fill="none"
-                        stroke={c.mouth} strokeWidth="3.5" strokeLinecap="round"
-                        animate={{ d: mouth }} transition={{ duration: 0.28 }} />
+                        stroke={c.mouth} strokeWidth="3.5" strokeLinecap="round" />
 
                     {/* Ear-bolts */}
                     <circle cx="34" cy="66" r="10" fill={c.headD} />
@@ -384,18 +383,18 @@ const AuthRobot = forwardRef(({ size = 220 }, ref) => {
                     {/* Chest panel */}
                     <rect x="60" y="163" width="80" height="55" rx="13" fill={c.screen} opacity="0.75" />
                     {[
-                        { cx: 78, color: '#10b981', d: 0 },
-                        { cx: 100, color: '#06b6d4', d: 0.45 },
-                        { cx: 122, color: '#a78bfa', d: 0.9 },
-                    ].map(({ cx, color, d }) => (
-                        <motion.circle key={cx} cx={cx} cy="177" r="6" fill={color}
+                        { cx: 78, cy: 177, color: '#10b981', d: 0 },
+                        { cx: 100, cy: 177, color: '#06b6d4', d: 0.45 },
+                        { cx: 122, cy: 177, color: '#a78bfa', d: 0.9 },
+                    ].map(({ cx, cy, color, d }) => (
+                        <motion.circle key={cx} cx={cx} cy={cy} r="6" fill={color}
                             animate={{ opacity: [1, 0.28, 1] }}
                             transition={{ duration: 1.3, repeat: Infinity, delay: d }} />
                     ))}
 
                     {/* Progress bar */}
                     <rect x="68" y="193" width="64" height="8" rx="4" fill="rgba(255,255,255,0.08)" />
-                    <motion.rect x="68" y="193" height="8" rx="4"
+                    <motion.rect x="68" y="193" width="8" height="8" rx="4"
                         fill="url(#rg-em)"
                         animate={{ width: [8, 64, 8] }}
                         transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }} />

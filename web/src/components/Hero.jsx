@@ -2,6 +2,7 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Play, CheckCircle2, TrendingUp, ShieldCheck, Zap, Lock, CreditCard, Music, Briefcase, Cloud } from 'lucide-react';
 import { Button } from './ui/button';
+import { useNavigate } from 'react-router-dom';
 // --- Slider Data ---
 // --- Slider Data ---
 const slides = [
@@ -79,6 +80,8 @@ const Hero = () => {
   // Parallax effects
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -178,11 +181,21 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="flex flex-col sm:flex-row items-center gap-4 relative z-20 mb-12"
         >
-          <Button className="h-14 px-8 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-semibold shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all hover:scale-105 active:scale-95 border-none">
+          <Button
+            onClick={() => navigate('/register')}
+            className="h-14 px-8 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-semibold shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all hover:scale-105 active:scale-95 border-none"
+          >
             Get Started Free
           </Button>
-          <Button variant="outline" className="h-14 px-8 rounded-full border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-lg font-medium backdrop-blur-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-2 bg-transparent">
-            <Play size={18} fill="currentColor" /> Watch the Film
+          <Button
+            variant="outline"
+            onClick={() => {
+              const target = document.querySelector('#features');
+              if (target) target.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="h-14 px-8 rounded-full border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-lg font-medium backdrop-blur-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-2 bg-transparent"
+          >
+            <Play size={18} fill="currentColor" /> Browse Features
           </Button>
         </motion.div>
 
