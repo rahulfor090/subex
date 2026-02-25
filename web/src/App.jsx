@@ -24,6 +24,7 @@ import Settings from "./pages/Settings";
 import SubscriptionList from "./pages/subscriptions/SubscriptionList";
 import SubscriptionDetail from "./pages/subscriptions/SubscriptionDetail";
 import SubscriptionForm from "./pages/subscriptions/SubscriptionForm";
+import AddIncomeSource from "./pages/revenue/AddIncomeSource";
 import DashboardLayout from "./layouts/DashboardLayout";
 import { ThemeProvider } from "./lib/ThemeProvider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -107,6 +108,7 @@ function App() {
                   <Route path="/dashboard/lifetime-deals" element={<LifeTimeDeals />} />
                   <Route path="/dashboard/complementary" element={<Placeholder title="Complementary Deals" />} />
                   <Route path="/dashboard/revenue" element={<Revenue />} />
+                  <Route path="/dashboard/revenue/add" element={<AddIncomeSource />} />
                   <Route path="/dashboard/reports" element={<Placeholder title="Reports" />} />
                   <Route path="/dashboard/cash-flow" element={<Placeholder title="Cash Flow" />} />
                   <Route path="/dashboard/calendar" element={<Placeholder title="Calendar" />} />
