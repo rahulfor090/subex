@@ -235,9 +235,9 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         }));
     };
 
-    const validateStep = (s) => {
+    const validateCurrentStep = (s) => {
         const e = {};
-        if (s === 1 && !formData.company_id) e.company_id = 'Please select or create a company';
+        if (s === 1 && !formData.company_id) e.company_id = 'Please select a company to continue';
         if (s === 2) {
             if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
             if (!formData.currency.trim()) e.currency = 'Currency is required';
@@ -252,13 +252,17 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         return Object.keys(e).length === 0;
     };
 
-    const goNext = () => { if (!canProceed) return; setDirection(1); setStep(s => s + 1); };
+    const goNext = () => {
+        if (validateCurrentStep(step)) {
+            setDirection(1);
+            setStep(s => s + 1);
+        }
+    };
     const goBack = () => { setDirection(-1); setStep(s => s - 1); };
 
     // Memoize validation to avoid recalculating on every render
     const canProceed = React.useMemo(() => {
-        const e = {};
-        if (step === 1 && !formData.company_id) e.company_id = 'Please select or create a company';
+        if (step === 1 && !formData.company_id) return false;
         if (step === 2) {
             if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
             if (!formData.currency.trim()) e.currency = 'Currency is required';
@@ -269,9 +273,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                 e.grace_period = 'Must match Next Payment Date';
             }
         }
-        setErrors(e);
-        return Object.keys(e).length === 0;
-    }, [step, formData, mode]);
+        return true;
+    }, [step, formData]);
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
@@ -792,9 +795,12 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                 </div>
 
                 {step < STEPS.length ? (
-                    <button type="button" onClick={goNext} disabled={!canProceed}
-                        title={!canProceed ? 'Fill in required fields to continue' : 'Go to next step'}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 transition-all active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                    <button type="button" onClick={goNext}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95
+                            ${canProceed
+                                ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105'
+                                : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed hover:bg-zinc-300 dark:hover:bg-zinc-700'
+                            }`}>
                         Next <ArrowRight size={15} />
                     </button>
                 ) : (

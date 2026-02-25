@@ -142,6 +142,12 @@ if (db.Subscription && db.Transaction) {
   db.Transaction.belongsTo(db.Subscription, { foreignKey: 'subscription_id', as: 'subscription' });
 }
 
+// User <-> Revenue
+if (db.User && db.Revenue) {
+  db.User.hasMany(db.Revenue, { foreignKey: 'user_id', as: 'revenues' });
+  db.Revenue.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
+}
+
 // User <-> UserAuth
 if (db.User && db.UserAuth) {
   db.User.hasOne(db.UserAuth, { foreignKey: 'user_id', as: 'auth' });
