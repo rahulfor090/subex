@@ -242,10 +242,9 @@ const SubscriptionForm = ({ mode = 'add' }) => {
             if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
             if (!formData.currency.trim()) e.currency = 'Currency is required';
         }
-        if (s === 3 && mode === 'add') {
-            if (formData.next_payment_date && formData.grace_period && formData.next_payment_date !== formData.grace_period) {
-                e.next_payment_date = 'Must match Grace Period';
-                e.grace_period = 'Must match Next Payment Date';
+        if (s === 3) {
+            if (formData.grace_period && formData.next_payment_date && formData.grace_period < formData.next_payment_date) {
+                e.grace_period = 'Grace period must be on or after the next payment date';
             }
         }
         setErrors(e);
@@ -264,14 +263,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const canProceed = React.useMemo(() => {
         if (step === 1 && !formData.company_id) return false;
         if (step === 2) {
-            if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
-            if (!formData.currency.trim()) e.currency = 'Currency is required';
-        }
-        if (step === 3 && mode === 'add') {
-            if (formData.next_payment_date && formData.grace_period && formData.next_payment_date !== formData.grace_period) {
-                e.next_payment_date = 'Must match Grace Period';
-                e.grace_period = 'Must match Next Payment Date';
-            }
+            if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) return false;
+            if (!formData.currency.trim()) return false;
         }
         return true;
     }, [step, formData]);
@@ -605,7 +598,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                         <Input label="Next Payment Date" type="date" name="next_payment_date"
                                             value={formData.next_payment_date} onChange={handleChange} error={errors.next_payment_date} />
                                         <Input label="Grace Period" type="date" name="grace_period"
-                                            value={formData.grace_period} onChange={handleChange} error={errors.grace_period} />
+                                            value={formData.grace_period} onChange={handleChange} error={errors.grace_period}
+                                            min={formData.next_payment_date || undefined} />
                                     </div>
 
                                     {/* Payment method pills */}
