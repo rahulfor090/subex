@@ -13,6 +13,7 @@ const alertRoutes = require('./routes/alerts');
 const adminRoutes = require('./routes/admin');
 const { errorHandler } = require('./middleware/errorHandler');
 const cronRoutes = require('./routes/cron');
+const revenueRoutes = require('./routes/revenue');
 const app = express();
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
@@ -23,18 +24,18 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile or curl)
     if (!origin) return callback(null, true);
-    
+
     // Allow localhost on any port in development
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
-    
+
     // In production, only allow the configured FRONTEND_URL
     const allowedOrigin = process.env.FRONTEND_URL;
     if (origin === allowedOrigin) {
       return callback(null, true);
     }
-    
+
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true
@@ -122,6 +123,8 @@ try {
   console.log('✅ Admin routes registered');
   app.use('/api/cron', cronRoutes);
   console.log('✅ Cron routes registered');
+  app.use('/api/revenue', revenueRoutes);
+  console.log('✅ Revenue routes registered');
   console.log('✅ All routes registered successfully');
 } catch (error) {
   console.error('❌ Error registering routes:', error);
