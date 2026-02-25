@@ -6,7 +6,7 @@ import {
     ArrowLeft, ArrowRight, CheckCircle2, AlertCircle,
     Save, Plus, X, Building2, IndianRupee, CalendarDays,
     Tag, Loader2, Check, Globe, CreditCard, Folder,
-    Sparkles, ChevronDown, DollarSign
+    Sparkles, ChevronDown, DollarSign, Search
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -128,6 +128,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const [newFolderName, setNewFolderName] = useState('');
     const [newTagName, setNewTagName] = useState('');
 
+    const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
@@ -429,31 +430,45 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                         <p className="text-sm text-zinc-500 mt-1">Select from your saved companies or add a new one.</p>
                                     </div>
 
+                                    {/* Search Bar */}
+                                    <div className="relative">
+                                        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search companies..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                                        />
+                                    </div>
+
                                     {/* Company grid */}
                                     {companies.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1 pb-1">
-                                            {companies.map(c => {
-                                                const sel = formData.company_id == c.id;
-                                                return (
-                                                    <button key={c.id} type="button"
-                                                        onClick={() => setFormData(p => ({ ...p, company_id: c.id }))}
-                                                        className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 text-center group ${sel
-                                                            ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-cyan-50 dark:from-emerald-900/30 dark:to-cyan-900/30 shadow-lg shadow-emerald-500/10'
-                                                            : 'border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md'
-                                                            }`}
-                                                    >
-                                                        {sel && (
-                                                            <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                                                                <Check size={10} className="text-white" />
-                                                            </div>
-                                                        )}
-                                                        <CompanyLogo name={c.name} size="md" />
-                                                        <span className={`text-xs font-semibold truncate w-full ${sel ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-700 dark:text-zinc-300'}`}>
-                                                            {c.name}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1 pb-1 custom-scrollbar">
+                                            {companies
+                                                .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                                .map(c => {
+                                                    const sel = formData.company_id == c.id;
+                                                    return (
+                                                        <button key={c.id} type="button"
+                                                            onClick={() => setFormData(p => ({ ...p, company_id: c.id }))}
+                                                            className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 text-center group ${sel
+                                                                ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-cyan-50 dark:from-emerald-900/30 dark:to-cyan-900/30 shadow-lg shadow-emerald-500/10'
+                                                                : 'border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md'
+                                                                }`}
+                                                        >
+                                                            {sel && (
+                                                                <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                                                                    <Check size={10} className="text-white" />
+                                                                </div>
+                                                            )}
+                                                            <CompanyLogo name={c.name} size="md" />
+                                                            <span className={`text-xs font-semibold truncate w-full ${sel ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                                                                {c.name}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
                                         </div>
                                     ) : (
                                         <div className="text-center py-8 text-zinc-400">

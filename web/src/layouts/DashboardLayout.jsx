@@ -11,11 +11,17 @@ import UserProfile from '../components/UserProfile';
 import Logo from '../components/Logo';
 
 const NAV = [
-    { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
-    { to: '/dashboard/subscriptions', label: 'Subscriptions', icon: CreditCard },
-    { to: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
-    { to: '/dashboard/alerts', label: 'Alerts', icon: Bell },
-    { to: '/dashboard/transactions', label: 'Transactions', icon: Receipt },
+    { to: '/dashboard/subscriptions', label: 'Subscription', icon: CreditCard },
+    { to: '/dashboard/lifetime-deals', label: 'Life Time Deal', icon: Wallet },
+    { to: '/dashboard/complementary', label: 'Complementary Deal', icon: Receipt },
+    { to: '/dashboard/revenue', label: 'Revenue', icon: BarChart2 },
+];
+
+const REPORTS_NAV = [
+    { to: '/dashboard/reports', label: 'Report', icon: BarChart2 },
+    { to: '/dashboard/cash-flow', label: 'Cash Flow', icon: Wallet },
+    { to: '/dashboard/calendar', label: 'Calendar', icon: LayoutDashboard },
+    { to: '/dashboard/cardworld', label: 'Cardworld', icon: Shield },
 ];
 
 const BOTTOM_NAV = [
@@ -56,6 +62,8 @@ const DashboardLayout = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    const [accountOpen, setAccountOpen] = useState(false);
+
     const handleLogout = async () => {
         await logout();
         navigate('/');
@@ -92,42 +100,54 @@ const DashboardLayout = () => {
             </div>
 
             {/* Main nav */}
-            <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1">
+            <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1 custom-scrollbar">
                 {!collapsed && (
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-3 mb-2">Main</p>
                 )}
                 {NAV.map(n => <NavItem key={n.to} {...n} collapsed={collapsed && !mobile} />)}
 
-                <div className="my-3 border-t border-zinc-200 dark:border-zinc-800 mx-2" />
+                <div className="my-5" />
 
                 {!collapsed && (
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-3 mb-2">Account</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-3 mb-2">Reports</p>
                 )}
-                {BOTTOM_NAV.map(n => <NavItem key={n.to} {...n} collapsed={collapsed && !mobile} />)}
+                {REPORTS_NAV.map(n => <NavItem key={n.to} {...n} collapsed={collapsed && !mobile} />)}
+
+                <div className="my-5" />
+
+                {/* Account Toggle */}
+                <button
+                    onClick={() => setAccountOpen(!accountOpen)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                               text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-white
+                               ${collapsed && !mobile ? 'justify-center' : ''}`}
+                >
+                    <User size={18} className="flex-shrink-0" />
+                    {!collapsed && <span className="flex-1 text-left">Account</span>}
+                    {!collapsed && (
+                        <ChevronLeft size={14} className={`transition-transform duration-300 ${accountOpen ? '-rotate-90' : ''}`} />
+                    )}
+                </button>
+
+                {/* Collapsible Account Menu */}
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${accountOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="mt-1 space-y-1 pb-2">
+                        {BOTTOM_NAV.map(n => (
+                            <div key={n.to} className={collapsed && !mobile ? '' : 'pl-4'}>
+                                <NavItem {...n} collapsed={collapsed && !mobile} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </nav>
 
-            {/* User strip */}
-            <div className={`border-t border-zinc-200 dark:border-zinc-800 p-3 ${collapsed && !mobile ? 'flex justify-center' : ''}`}>
-                {(!collapsed || mobile) ? (
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                            {getInitials()}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{user?.name}</p>
-                            <p className="text-xs text-zinc-400 truncate">{user?.email}</p>
-                        </div>
-                        <button onClick={handleLogout} title="Logout"
-                            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex-shrink-0">
-                            <LogOut size={15} />
-                        </button>
-                    </div>
-                ) : (
-                    <button onClick={handleLogout} title="Logout"
-                        className="p-2 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                        <LogOut size={16} />
-                    </button>
-                )}
+            {/* Logout Only */}
+            <div className={`border-t border-zinc-200 dark:border-zinc-800 p-3 flex justify-center`}>
+                <button onClick={handleLogout} title="Logout"
+                    className={`p-2 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2 ${collapsed && !mobile ? '' : 'w-full'}`}>
+                    <LogOut size={16} />
+                    {!collapsed && <span className="text-sm font-medium">Logout</span>}
+                </button>
             </div>
         </div>
     );
