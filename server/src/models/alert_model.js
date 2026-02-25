@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     alert_on: {
-      type: DataTypes.ENUM('payment_date', 'contract_expiry'),
+      type: DataTypes.ENUM('payment_date', 'grace_period'),
       allowNull: false,
       defaultValue: 'payment_date',
       comment: 'Which date to alert on'

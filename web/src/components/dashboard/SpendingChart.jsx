@@ -30,7 +30,7 @@ const SpendingChart = ({ subscriptions }) => {
             const total = subscriptions.reduce((acc, sub) => {
                 if (!sub.recurring) return acc;
                 // Simple calculation (assuming monthly for now for projection)
-                let montlyCost = parseFloat(sub.actual_amount || 0);
+                let montlyCost = parseFloat(sub.listed_price || 0);
                 if (sub.cycle === 'yearly') montlyCost /= 12;
                 if (sub.cycle === 'weekly') montlyCost *= 4;
                 return acc + montlyCost;

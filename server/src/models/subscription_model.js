@@ -51,13 +51,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'monthly'
     },
 
-    actual_amount: {
+    listed_price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
       comment: 'Cost/price of the subscription'
     },
 
-    amount_paid: {
+    purchase_price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true,
       comment: 'Amount actually paid for the subscription'
@@ -74,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
 
-    contract_expiry: {
+    grace_period: {
       type: DataTypes.DATEONLY,
       allowNull: true
     },

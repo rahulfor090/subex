@@ -6,7 +6,7 @@ import {
     ArrowLeft, Edit, Trash2, AlertCircle, Loader2, CheckCircle2,
     ExternalLink, CreditCard, RefreshCw, Tag, Folder,
     Globe, FileText, IndianRupee, Clock, Shield, StickyNote,
-    Zap, Star, TrendingUp, Calendar, Bell, DollarSign
+    Zap, Star, TrendingUp, Calendar, Bell, DollarSign, Plus, X, Check
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -496,7 +496,32 @@ const SubscriptionDetail = () => {
     const [deleteStatus, setDeleteStatus] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    // ── Folder popover state ───────────────────────────────────────────────
+    const [folders, setFolders] = useState([]);
+    const [showFolderPopover, setShowFolderPopover] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
+    const [folderSaving, setFolderSaving] = useState(false);
+
+    // ── Tag popover state ──────────────────────────────────────────────────
+    const [allTags, setAllTags] = useState([]);
+    const [showTagPopover, setShowTagPopover] = useState(false);
+    const [newTagName, setNewTagName] = useState('');
+    const [tagSaving, setTagSaving] = useState(false);
+
     useEffect(() => { fetchSubscription(); }, [id]);
+    useEffect(() => { fetchFolders(); fetchTags(); }, []);
+
+    // Close popovers on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (!e.target.closest('[data-popover-root]')) {
+                setShowFolderPopover(false);
+                setShowTagPopover(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
 
     const fetchSubscription = async () => {
         try {
@@ -524,6 +549,81 @@ const SubscriptionDetail = () => {
                 setTimeout(() => navigate('/dashboard/subscriptions'), 1500);
             } else { setDeleteStatus('error'); setError(data.message || 'Delete failed'); }
         } catch { setDeleteStatus('error'); setError('Unable to connect to server.'); }
+    };
+
+    const fetchFolders = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/folders`, { headers: { Authorization: `Bearer ${token}` } });
+            const d = await res.json();
+            if (d.success) setFolders(d.data);
+        } catch { }
+    };
+
+    const fetchTags = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tags`, { headers: { Authorization: `Bearer ${token}` } });
+            const d = await res.json();
+            if (d.success) setAllTags(d.data);
+        } catch { }
+    };
+
+    const patchSubscription = async (body) => {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/subscriptions/${id}`, {
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const d = await res.json();
+        if (res.ok && d.success) setSubscription(d.data);
+    };
+
+    const assignFolder = async (folderId) => {
+        await patchSubscription({ folder_id: folderId });
+        setShowFolderPopover(false);
+    };
+
+    const createAndAssignFolder = async () => {
+        if (!newFolderName.trim()) return;
+        setFolderSaving(true);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/folders`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newFolderName })
+            });
+            const d = await res.json();
+            if (d.success) {
+                await fetchFolders();
+                await assignFolder(d.data.id);
+                setNewFolderName('');
+            }
+        } catch { } finally { setFolderSaving(false); }
+    };
+
+    const toggleTag = async (tagId) => {
+        const currentIds = subscription.tags?.map(t => t.id) || [];
+        const newIds = currentIds.includes(tagId)
+            ? currentIds.filter(i => i !== tagId)
+            : [...currentIds, tagId];
+        await patchSubscription({ tag_ids: newIds });
+    };
+
+    const createAndAddTag = async () => {
+        if (!newTagName.trim()) return;
+        setTagSaving(true);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tags`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newTagName })
+            });
+            const d = await res.json();
+            if (d.success) {
+                await fetchTags();
+                await toggleTag(d.data.id);
+                setNewTagName('');
+            }
+        } catch { } finally { setTagSaving(false); }
     };
 
     const fmt = (ds) => {
@@ -618,22 +718,26 @@ const SubscriptionDetail = () => {
                 <div className="relative z-10 p-7 sm:p-10">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
 
-                        {/* Logo */}
-                        <motion.div
-                            initial={{ scale: 0.7, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 200, damping: 18, delay: 0.15 }}
-                            className="flex-shrink-0"
-                        >
-                            <div
-                                className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl"
-                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15), backdropFilter: 'blur(12px)', border: `2px solid ${hexToRgba(isLight ? '#000' : '#fff', 0.2)}` }}
+                        {/* Days badge - LEFT */}
+                        {days !== null && (
+                            <motion.div
+                                initial={{ scale: 0.6, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: 'spring', stiffness: 180, delay: 0.3 }}
+                                className="flex-shrink-0 text-center px-5 py-4 rounded-2xl backdrop-blur"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', overdue ? 0.3 : 0.15), border: `1.5px solid ${hexToRgba(isLight ? '#000' : '#fff', 0.2)}` }}
                             >
-                                <CompanyLogo name={companyName} size="xl" rounded="rounded-xl" />
-                            </div>
-                        </motion.div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5" style={{ color: brandText }}>
+                                    {days < 0 ? 'Overdue' : days === 0 ? 'Due Today' : 'Due in'}
+                                </p>
+                                <p className="text-5xl font-black leading-none" style={{ color: overdue ? '#fca5a5' : brandText }}>
+                                    {Math.abs(days)}
+                                </p>
+                                <p className="text-[10px] font-medium opacity-60" style={{ color: brandText }}>days</p>
+                            </motion.div>
+                        )}
 
-                        {/* Text info */}
+                        {/* Text info - MIDDLE */}
                         <div className="flex-1 min-w-0">
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2 mb-2">
@@ -673,61 +777,38 @@ const SubscriptionDetail = () => {
                             )}
 
                             {/* Price */}
-                            <div className="flex items-baseline gap-2 mt-3">
-                                <span className="text-3xl font-black" style={{ color: brandText }}>
-                                    {fmtCurrency(subscription.value, subscription.currency)}
-                                </span>
-                                <span className="text-sm font-semibold opacity-60" style={{ color: brandText }}>
-                                    / {subscription.cycle}
-                                </span>
+                            <div className="flex flex-col mt-3 gap-1">
+                                <p className="text-3xl font-black" style={{ color: brandText }}>
+                                    {fmtCurrency(subscription.listed_price, subscription.currency)}
+                                    <span className="text-sm font-semibold opacity-60 ml-2">/ {subscription.cycle}</span>
+                                </p>
+                                {subscription.purchase_price && (
+                                    <p className="text-md font-medium" style={{ color: brandText }}>
+                                        Paid: {fmtCurrency(subscription.purchase_price, subscription.currency)}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Payment progress bar */}
                             <PaymentBar days={days} brandColor={brandText === '#fff' ? '#fff' : brandColor} />
                         </div>
 
-                        {/* Days badge */}
-                        {days !== null && (
-                            <motion.div
-                                initial={{ scale: 0.6, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ type: 'spring', stiffness: 180, delay: 0.3 }}
-                                className="flex-shrink-0 text-center px-5 py-4 rounded-2xl backdrop-blur"
-                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', overdue ? 0.3 : 0.15), border: `1.5px solid ${hexToRgba(isLight ? '#000' : '#fff', 0.2)}` }}
+                        {/* Logo - RIGHT */}
+                        <motion.div
+                            initial={{ scale: 0.7, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 18, delay: 0.15 }}
+                            className="flex-shrink-0 sm:ml-auto"
+                        >
+                            <div
+                                className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl"
+                                style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15), backdropFilter: 'blur(12px)', border: `2px solid ${hexToRgba(isLight ? '#000' : '#fff', 0.2)}` }}
                             >
-                                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5" style={{ color: brandText }}>
-                                    {days < 0 ? 'Overdue' : days === 0 ? 'Due Today' : 'Due in'}
-                                </p>
-                                <p className="text-5xl font-black leading-none" style={{ color: overdue ? '#fca5a5' : brandText }}>
-                                    {Math.abs(days)}
-                                </p>
-                                <p className="text-[10px] font-medium opacity-60" style={{ color: brandText }}>days</p>
-                            </motion.div>
-                        )}
-                        <p className="text-3xl font-black" style={{ color: brandText }}>
-                            {fmtCurrency(subscription.actual_amount, subscription.currency)}
-                            <span className="text-sm font-semibold opacity-60 ml-2">/ {subscription.cycle}</span>
-                        </p>
-                        {subscription.amount_paid && (
-                            <p className="text-md font-medium" style={{ color: brandText }}>
-                                Paid: {fmtCurrency(subscription.amount_paid, subscription.currency)}
-                            </p>
-                        )}
-                    </div>
+                                <CompanyLogo name={companyName} size="xl" rounded="rounded-xl" />
+                            </div>
+                        </motion.div>
 
-                    {/* Days badge */}
-                    {days !== null && (
-                        <div className="flex-shrink-0 text-center px-5 py-4 rounded-2xl"
-                            style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15) }}>
-                            <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5" style={{ color: brandText }}>
-                                {days < 0 ? 'Overdue' : days === 0 ? 'Due' : 'Due in'}
-                            </p>
-                            <p className="text-4xl font-black leading-none" style={{ color: brandText }}>
-                                {Math.abs(days)}
-                            </p>
-                            <p className="text-[10px] font-medium opacity-60" style={{ color: brandText }}>days</p>
-                        </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Action bar */}
@@ -746,10 +827,10 @@ const SubscriptionDetail = () => {
                     </button>
 
                     <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
-                        {subscription.actual_amount && subscription.amount_paid && parseFloat(subscription.actual_amount) > parseFloat(subscription.amount_paid) && (
+                        {subscription.listed_price && subscription.purchase_price && parseFloat(subscription.listed_price) > parseFloat(subscription.purchase_price) && (
                             <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm"
                                 style={{ background: hexToRgba(isLight ? '#000' : '#fff', 0.15), color: brandText, border: `1.5px solid ${hexToRgba(brandText, 0.2)}` }}>
-                                You saved {fmtCurrency(subscription.actual_amount - subscription.amount_paid, subscription.currency)} this much money
+                                You saved {fmtCurrency(subscription.listed_price - subscription.purchase_price, subscription.currency)}
                             </div>
                         )}
                         {subscription.url_link && (
@@ -811,12 +892,12 @@ const SubscriptionDetail = () => {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
 
-                <Chip icon={DollarSign} label="Actual Amount" value={fmtCurrency(subscription.actual_amount, subscription.currency)} />
-                <Chip icon={DollarSign} label="Amount Paid" value={subscription.amount_paid ? fmtCurrency(subscription.amount_paid, subscription.currency) : '—'} />
+                <Chip icon={DollarSign} label="Listed Price" value={fmtCurrency(subscription.listed_price, subscription.currency)} />
+                <Chip icon={DollarSign} label="Purchase Price" value={subscription.purchase_price ? fmtCurrency(subscription.purchase_price, subscription.currency) : '—'} />
                 <Chip icon={RefreshCw} label="Billing" value={`Every ${subscription.frequency || 1} ${subscription.cycle}`} />
                 <Chip icon={Shield} label="Recurring" value={subscription.recurring ? 'Yes' : 'No'} />
                 <Chip icon={Clock} label="Next Due" value={fmt(subscription.next_payment_date)} />
-                <Chip icon={Clock} label="Expires" value={fmt(subscription.contract_expiry)} />
+                <Chip icon={Clock} label="Grace Period" value={fmt(subscription.grace_period)} />
                 <Chip icon={CreditCard} label="Payment" value={cap(subscription.payment_method) || 'Not set'} />
             </motion.div>
 
@@ -824,22 +905,98 @@ const SubscriptionDetail = () => {
             {/* ── Folder + Tags ───────────────────────────────────────────── */}
             <motion.div
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 relative z-20"
             >
-                <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur border border-zinc-200/80 dark:border-zinc-700/50 shadow-sm">
-                    <div className="flex items-center gap-1.5 mb-3">
-                        <Folder size={12} style={{ color: brandColor }} />
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Folder</span>
+                {/* Folder card */}
+                <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur border border-zinc-200/80 dark:border-zinc-700/50 shadow-sm relative" data-popover-root>
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1.5">
+                            <Folder size={12} style={{ color: brandColor }} />
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Folder</span>
+                        </div>
+                        <button
+                            onClick={() => { setShowFolderPopover(v => !v); setShowTagPopover(false); }}
+                            className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:opacity-80"
+                            style={{ background: hexToRgba(brandColor, 0.15), color: brandColor }}
+                        >
+                            <Plus size={12} />
+                        </button>
                     </div>
                     <p className="text-sm font-bold text-zinc-900 dark:text-white">
                         {subscription.folder?.name || <span className="text-zinc-400 font-normal italic">No folder</span>}
                     </p>
+
+                    {/* Folder Popover */}
+                    <AnimatePresence>
+                        {showFolderPopover && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute left-0 top-full mt-2 z-50 w-80 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-2xl shadow-zinc-900/20"
+                            >
+                                <div className="p-3 border-b border-zinc-100 dark:border-zinc-800">
+                                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Assign Folder</p>
+                                </div>
+                                <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+                                    <button
+                                        onClick={() => assignFolder(null)}
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+                                    >
+                                        <X size={13} className="opacity-50" /> No folder
+                                    </button>
+                                    {folders.map(f => (
+                                        <button key={f.id}
+                                            onClick={() => assignFolder(f.id)}
+                                            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+                                        >
+                                            <span className="flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
+                                                <Folder size={13} style={{ color: brandColor }} />{f.name}
+                                            </span>
+                                            {subscription.folder?.id === f.id && <Check size={13} style={{ color: brandColor }} />}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="p-2 border-t border-zinc-100 dark:border-zinc-800">
+                                    <div className="flex gap-1.5">
+                                        <input
+                                            type="text" value={newFolderName}
+                                            onChange={e => setNewFolderName(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && createAndAssignFolder()}
+                                            placeholder="New folder name…"
+                                            className="flex-1 px-3 py-1.5 rounded-lg text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 text-zinc-900 dark:text-white placeholder-zinc-400"
+                                            style={{ '--tw-ring-color': hexToRgba(brandColor, 0.5) }}
+                                        />
+                                        <button
+                                            onClick={createAndAssignFolder}
+                                            disabled={folderSaving || !newFolderName.trim()}
+                                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-40 transition-colors"
+                                            style={{ background: brandColor }}
+                                        >
+                                            {folderSaving ? <Loader2 size={12} className="animate-spin" /> : 'Add'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur border border-zinc-200/80 dark:border-zinc-700/50 shadow-sm">
-                    <div className="flex items-center gap-1.5 mb-3">
-                        <Tag size={12} style={{ color: brandColor }} />
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Tags</span>
+                {/* Tags card */}
+                <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur border border-zinc-200/80 dark:border-zinc-700/50 shadow-sm relative" data-popover-root>
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1.5">
+                            <Tag size={12} style={{ color: brandColor }} />
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Tags</span>
+                        </div>
+                        <button
+                            onClick={() => { setShowTagPopover(v => !v); setShowFolderPopover(false); }}
+                            className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:opacity-80"
+                            style={{ background: hexToRgba(brandColor, 0.15), color: brandColor }}
+                        >
+                            <Plus size={12} />
+                        </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {subscription.tags?.length > 0 ? subscription.tags.map(tag => (
@@ -850,6 +1007,61 @@ const SubscriptionDetail = () => {
                             </span>
                         )) : <span className="text-zinc-400 text-sm italic">No tags</span>}
                     </div>
+
+                    {/* Tag Popover */}
+                    <AnimatePresence>
+                        {showTagPopover && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-2xl shadow-zinc-900/20"
+                            >
+                                <div className="p-3 border-b border-zinc-100 dark:border-zinc-800">
+                                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Manage Tags</p>
+                                </div>
+                                <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+                                    {allTags.length === 0 && (
+                                        <p className="text-xs text-zinc-400 italic px-3 py-2">No tags yet. Create one below.</p>
+                                    )}
+                                    {allTags.map(tag => {
+                                        const active = subscription.tags?.some(t => t.id === tag.id);
+                                        return (
+                                            <button key={tag.id}
+                                                onClick={() => toggleTag(tag.id)}
+                                                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+                                            >
+                                                <span className="text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                                    <Tag size={13} style={{ color: brandColor }} />{tag.name}
+                                                </span>
+                                                {active && <Check size={13} style={{ color: brandColor }} />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="p-2 border-t border-zinc-100 dark:border-zinc-800">
+                                    <div className="flex gap-1.5">
+                                        <input
+                                            type="text" value={newTagName}
+                                            onChange={e => setNewTagName(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && createAndAddTag()}
+                                            placeholder="New tag name…"
+                                            className="flex-1 px-3 py-1.5 rounded-lg text-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 text-zinc-900 dark:text-white placeholder-zinc-400"
+                                        />
+                                        <button
+                                            onClick={createAndAddTag}
+                                            disabled={tagSaving || !newTagName.trim()}
+                                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-40 transition-colors"
+                                            style={{ background: brandColor }}
+                                        >
+                                            {tagSaving ? <Loader2 size={12} className="animate-spin" /> : 'Add'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </motion.div>
 

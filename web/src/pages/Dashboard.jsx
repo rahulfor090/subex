@@ -39,8 +39,8 @@ const StatCard = ({ label, value, sub, icon: Icon, accent = false, delay = 0 }) 
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.4 }}
         className={`rounded-xl border p-5 ${accent
-                ? 'bg-emerald-600 border-emerald-600 text-white'
-                : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white'
+            ? 'bg-emerald-600 border-emerald-600 text-white'
+            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white'
             }`}
     >
         <div className="flex items-center justify-between mb-3">
@@ -69,15 +69,15 @@ const RenewalRow = ({ sub }) => {
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{sub.company?.name || 'Unknown'}</p>
                 <p className="text-xs text-zinc-400 truncate">
-                    {sub.cycle} · {sub.currency} {sub.actual_amount}
+                    {sub.cycle} · {sub.currency} {sub.listed_price}
                 </p>
                 <p className="text-xs text-zinc-400 truncate">{fmt(sub.value)} · {sub.cycle}</p>
             </div>
             {days !== null && (
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${overdue ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' :
-                        urgent ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' :
-                            soon ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
-                                'text-zinc-400'
+                    urgent ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' :
+                        soon ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
+                            'text-zinc-400'
                     }`}>
                     {overdue ? `${Math.abs(days)}d ago` : days === 0 ? 'Today' : `${days}d`}
                 </span>
@@ -99,7 +99,7 @@ const ActivityRow = ({ sub, onClick }) => (
         </td>
         <td className="px-5 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 capitalize">{sub.cycle}</td>
         <td className="px-5 py-3.5 text-sm font-semibold text-zinc-900 dark:text-white">
-            {fmt(sub.amount_paid || sub.actual_amount, sub.currency)}
+            {fmt(sub.purchase_price || sub.listed_price, sub.currency)}
         </td>
         <td className="px-5 py-3.5">
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sub.type === 'subscription' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
@@ -132,7 +132,7 @@ const Dashboard = () => {
 
     // ── Derived stats ──────────────────────────────────────────────────────
     const monthly = subs.reduce((acc, s) => {
-        const v = parseFloat(s.actual_amount) || 0;
+        const v = parseFloat(s.listed_price) || 0;
         if (s.cycle === 'monthly') return acc + v;
         if (s.cycle === 'yearly') return acc + v / 12;
         if (s.cycle === 'weekly') return acc + v * 4.33;
@@ -360,10 +360,10 @@ const Dashboard = () => {
                                             </td>
                                             <td className="px-4 py-3.5">
                                                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${s.type === 'subscription'
-                                                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                                                        : s.type === 'trial'
-                                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
+                                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                                                    : s.type === 'trial'
+                                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
                                                     }`}>
                                                     {s.type}
                                                 </span>
