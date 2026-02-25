@@ -121,11 +121,11 @@ router.post('/', async (req, res) => {
       recurring,
       frequency,
       cycle,
-      actual_amount,
-      amount_paid,
+      listed_price,
+      purchase_price,
       currency,
       next_payment_date,
-      contract_expiry,
+      grace_period,
       url_link,
       payment_method,
       folder_id,
@@ -134,10 +134,10 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!company_id || !actual_amount || !currency || !cycle) {
+    if (!company_id || !listed_price || !currency || !cycle) {
       return res.status(400).json({
         success: false,
-        message: 'Company, actual amount, currency, and cycle are required'
+        message: 'Company, listed price, currency, and cycle are required'
       });
     }
 
@@ -150,11 +150,11 @@ router.post('/', async (req, res) => {
       recurring: recurring !== undefined ? recurring : true,
       frequency: frequency || 1,
       cycle,
-      actual_amount,
-      amount_paid: amount_paid || null,
+      listed_price,
+      purchase_price: purchase_price || null,
       currency,
       next_payment_date: next_payment_date || null,
-      contract_expiry: contract_expiry || null,
+      grace_period: grace_period || null,
       url_link: url_link || null,
       payment_method: payment_method || null,
       folder_id: folder_id || null,
@@ -273,11 +273,11 @@ router.patch('/:id', async (req, res) => {
       recurring,
       frequency,
       cycle,
-      actual_amount,
-      amount_paid,
+      listed_price,
+      purchase_price,
       currency,
       next_payment_date,
-      contract_expiry,
+      grace_period,
       url_link,
       payment_method,
       folder_id,
@@ -305,11 +305,11 @@ router.patch('/:id', async (req, res) => {
       recurring: recurring !== undefined ? recurring : subscription.recurring,
       frequency: frequency !== undefined ? frequency : subscription.frequency,
       cycle: cycle !== undefined ? cycle : subscription.cycle,
-      actual_amount: actual_amount !== undefined ? actual_amount : subscription.actual_amount,
-      amount_paid: amount_paid !== undefined ? (amount_paid === '' ? null : amount_paid) : subscription.amount_paid,
+      listed_price: listed_price !== undefined ? listed_price : subscription.listed_price,
+      purchase_price: purchase_price !== undefined ? (purchase_price === '' ? null : purchase_price) : subscription.purchase_price,
       currency: currency !== undefined ? currency : subscription.currency,
       next_payment_date: next_payment_date !== undefined ? sanitizeDate(next_payment_date) : subscription.next_payment_date,
-      contract_expiry: contract_expiry !== undefined ? sanitizeDate(contract_expiry) : subscription.contract_expiry,
+      grace_period: grace_period !== undefined ? sanitizeDate(grace_period) : subscription.grace_period,
       url_link: url_link !== undefined ? (url_link || null) : subscription.url_link,
       payment_method: payment_method !== undefined ? payment_method : subscription.payment_method,
       folder_id: folder_id !== undefined ? (folder_id === '' ? null : folder_id) : subscription.folder_id,

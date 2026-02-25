@@ -111,8 +111,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
     const [formData, setFormData] = useState({
         company_id: '', description: '', type: 'subscription',
         recurring: true, frequency: 1, cycle: 'monthly',
-        actual_amount: '', amount_paid: '', currency: 'INR', next_payment_date: '',
-        contract_expiry: '', url_link: '', payment_method: '',
+        listed_price: '', purchase_price: '', currency: 'INR', next_payment_date: '',
+        grace_period: '', url_link: '', payment_method: '',
         folder_id: '', tag_ids: [], notes: ''
     });
 
@@ -183,8 +183,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                     company_id: d.data.company_id || '', description: d.data.description || '',
                     type: d.data.type || 'subscription', recurring: d.data.recurring ?? true,
                     frequency: d.data.frequency || 1, cycle: d.data.cycle || 'monthly',
-                    actual_amount: d.data.actual_amount || '', amount_paid: d.data.amount_paid || '', currency: d.data.currency || 'INR',
-                    next_payment_date: d.data.next_payment_date || '', contract_expiry: d.data.contract_expiry || '',
+                    listed_price: d.data.listed_price || '', purchase_price: d.data.purchase_price || '', currency: d.data.currency || 'INR',
+                    next_payment_date: d.data.next_payment_date || '', grace_period: d.data.grace_period || '',
                     url_link: d.data.url_link || '', payment_method: d.data.payment_method || '',
                     folder_id: d.data.folder_id || '',
                     tag_ids: d.data.tags ? d.data.tags.map(t => t.id) : [],
@@ -239,13 +239,13 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         const e = {};
         if (s === 1 && !formData.company_id) e.company_id = 'Please select or create a company';
         if (s === 2) {
-            if (!formData.actual_amount || parseFloat(formData.actual_amount) <= 0) e.actual_amount = 'Enter a valid amount';
+            if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
             if (!formData.currency.trim()) e.currency = 'Currency is required';
         }
         if (s === 3 && mode === 'add') {
-            if (formData.next_payment_date && formData.contract_expiry && formData.next_payment_date !== formData.contract_expiry) {
-                e.next_payment_date = 'Must match Contract Expiry';
-                e.contract_expiry = 'Must match Next Payment Date';
+            if (formData.next_payment_date && formData.grace_period && formData.next_payment_date !== formData.grace_period) {
+                e.next_payment_date = 'Must match Grace Period';
+                e.grace_period = 'Must match Next Payment Date';
             }
         }
         setErrors(e);
@@ -260,13 +260,13 @@ const SubscriptionForm = ({ mode = 'add' }) => {
         const e = {};
         if (step === 1 && !formData.company_id) e.company_id = 'Please select or create a company';
         if (step === 2) {
-            if (!formData.actual_amount || parseFloat(formData.actual_amount) <= 0) e.actual_amount = 'Enter a valid amount';
+            if (!formData.listed_price || parseFloat(formData.listed_price) <= 0) e.listed_price = 'Enter a valid amount';
             if (!formData.currency.trim()) e.currency = 'Currency is required';
         }
         if (step === 3 && mode === 'add') {
-            if (formData.next_payment_date && formData.contract_expiry && formData.next_payment_date !== formData.contract_expiry) {
-                e.next_payment_date = 'Must match Contract Expiry';
-                e.contract_expiry = 'Must match Next Payment Date';
+            if (formData.next_payment_date && formData.grace_period && formData.next_payment_date !== formData.grace_period) {
+                e.next_payment_date = 'Must match Grace Period';
+                e.grace_period = 'Must match Next Payment Date';
             }
         }
         setErrors(e);
@@ -517,23 +517,23 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                     <div className="flex gap-3">
                                         <div className="flex-1">
                                             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
-                                                Actual Amount <span className="text-red-400">*</span>
+                                                Listed Price <span className="text-red-400">*</span>
                                             </label>
                                             <div className="relative">
                                                 <DollarSign size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                                                <input type="number" step="0.01" min="0" name="actual_amount" value={formData.actual_amount}
+                                                <input type="number" step="0.01" min="0" name="listed_price" value={formData.listed_price}
                                                     onChange={handleChange} placeholder="0.00"
-                                                    className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 border ${errors.actual_amount ? 'border-red-400 ring-2 ring-red-400/20' : 'border-zinc-200 dark:border-zinc-700'} focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-zinc-900 dark:text-white text-sm backdrop-blur`} />
+                                                    className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 border ${errors.listed_price ? 'border-red-400 ring-2 ring-red-400/20' : 'border-zinc-200 dark:border-zinc-700'} focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-zinc-900 dark:text-white text-sm backdrop-blur`} />
                                             </div>
-                                            {errors.actual_amount && <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1"><AlertCircle size={11} />{errors.actual_amount}</p>}
+                                            {errors.listed_price && <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1"><AlertCircle size={11} />{errors.listed_price}</p>}
                                         </div>
                                         <div className="flex-1">
                                             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
-                                                Amount Paid
+                                                Purchase Price
                                             </label>
                                             <div className="relative">
                                                 <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                                                <input type="number" step="0.01" min="0" name="amount_paid" value={formData.amount_paid}
+                                                <input type="number" step="0.01" min="0" name="purchase_price" value={formData.purchase_price}
                                                     onChange={handleChange} placeholder="0.00"
                                                     className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-zinc-900 dark:text-white text-sm backdrop-blur`} />
                                             </div>
@@ -601,8 +601,8 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <Input label="Next Payment Date" type="date" name="next_payment_date"
                                             value={formData.next_payment_date} onChange={handleChange} error={errors.next_payment_date} />
-                                        <Input label="Contract Expiry" type="date" name="contract_expiry"
-                                            value={formData.contract_expiry} onChange={handleChange} error={errors.contract_expiry} />
+                                        <Input label="Grace Period" type="date" name="grace_period"
+                                            value={formData.grace_period} onChange={handleChange} error={errors.grace_period} />
                                     </div>
 
                                     {/* Payment method pills */}
@@ -726,7 +726,7 @@ const SubscriptionForm = ({ mode = 'add' }) => {
                                                 {formData.description && <p className="text-zinc-400 text-sm">{formData.description}</p>}
                                             </div>
                                             <div className="ml-auto text-right">
-                                                <p className="text-2xl font-black text-white">{formData.actual_amount || '—'}</p>
+                                                <p className="text-2xl font-black text-white">{formData.listed_price || '—'}</p>
                                                 <p className="text-zinc-400 text-sm">{formData.currency} / {formData.cycle}</p>
                                             </div>
                                         </div>

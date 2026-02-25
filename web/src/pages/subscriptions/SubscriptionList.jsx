@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../lib/api';
 import { motion } from 'framer-motion';
-import { Plus, AlertCircle, Loader2, Trash2, Bell, Globe } from 'lucide-react';
+import { Plus, AlertCircle, Loader2, Bell, Globe, Pencil } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -183,86 +183,94 @@ const SubscriptionList = () => {
                                 <table className="w-full">
                                     <thead className="bg-zinc-100 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Company
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Next Payment
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Value
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Tags
-                                            </th>
-                                            <th className="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">
-                                                Actions
-                                            </th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Company</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Listed Price</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Purchase Price</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Savings</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Renewal Date</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Grace Period</th>
+                                            <th className="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                                        {subscriptions.map((subscription, index) => (
-                                            <motion.tr
-                                                key={subscription.subscription_id}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: index * 0.05 }}
-                                                onClick={() => navigate(`/dashboard/subscriptions/${subscription.subscription_id}`)}
-                                                className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
-                                            >
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <CompanyLogo name={subscription.company?.name || ''} size="sm" rounded="rounded-xl" />
-                                                        <span className="text-sm font-semibold text-zinc-900 dark:text-white">
-                                                            {subscription.company?.name || 'Unknown'}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {formatDate(subscription.next_payment_date)}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                                    {subscription.currency} {subscription.amount_paid || subscription.actual_amount}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm">
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {subscription.tags && subscription.tags.length > 0 ? (
-                                                            subscription.tags.map(tag => (
-                                                                <span
-                                                                    key={tag.id}
-                                                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                                                                >
-                                                                    {tag.name}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-zinc-500 text-xs">No tags</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm" onClick={e => e.stopPropagation()}>
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={e => deleteSubscription(e, subscription.subscription_id)}
-                                                            disabled={deletingId === subscription.subscription_id}
-                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            {deletingId === subscription.subscription_id
-                                                                ? <Loader2 size={13} className="animate-spin" />
-                                                                : <Trash2 size={13} />}
-                                                            Delete
-                                                        </button>
-                                                        <button
-                                                            onClick={e => { e.stopPropagation(); setAlertSubscription(subscription); }}
-                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
-                                                        >
-                                                            <Bell size={13} />
-                                                            Alert
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </motion.tr>
-                                        ))}
+                                        {subscriptions.map((subscription, index) => {
+                                            const listed = parseFloat(subscription.listed_price) || 0;
+                                            const purchased = parseFloat(subscription.purchase_price) || 0;
+                                            const savings = listed > 0 && purchased > 0 && listed > purchased ? listed - purchased : null;
+                                            return (
+                                                <motion.tr
+                                                    key={subscription.subscription_id}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: index * 0.05 }}
+                                                    onClick={() => navigate(`/dashboard/subscriptions/${subscription.subscription_id}`)}
+                                                    className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors"
+                                                >
+                                                    {/* Company */}
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <CompanyLogo name={subscription.company?.name || ''} size="sm" rounded="rounded-xl" />
+                                                            <span className="text-sm font-semibold text-zinc-900 dark:text-white">
+                                                                {subscription.company?.name || 'Unknown'}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+
+                                                    {/* Listed Price */}
+                                                    <td className="px-6 py-4 text-sm text-zinc-700 dark:text-zinc-300 font-medium">
+                                                        {subscription.listed_price
+                                                            ? `${subscription.currency} ${subscription.listed_price}`
+                                                            : <span className="text-zinc-400">—</span>}
+                                                    </td>
+
+                                                    {/* Purchase Price */}
+                                                    <td className="px-6 py-4 text-sm text-zinc-700 dark:text-zinc-300 font-medium">
+                                                        {subscription.purchase_price
+                                                            ? `${subscription.currency} ${subscription.purchase_price}`
+                                                            : <span className="text-zinc-400">—</span>}
+                                                    </td>
+
+                                                    {/* Savings */}
+                                                    <td className="px-6 py-4 text-sm">
+                                                        {savings !== null
+                                                            ? <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                                💰 {subscription.currency} {savings.toFixed(2)}
+                                                            </span>
+                                                            : <span className="text-zinc-400">—</span>}
+                                                    </td>
+
+                                                    {/* Renewal Date */}
+                                                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                        {formatDate(subscription.next_payment_date)}
+                                                    </td>
+
+                                                    {/* Grace Period */}
+                                                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                        {subscription.grace_period ? formatDate(subscription.grace_period) : <span className="text-zinc-400">—</span>}
+                                                    </td>
+
+                                                    {/* Actions */}
+                                                    <td className="px-6 py-4 text-sm" onClick={e => e.stopPropagation()}>
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={e => { e.stopPropagation(); navigate(`/dashboard/subscriptions/edit/${subscription.subscription_id}`); }}
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+                                                            >
+                                                                <Pencil size={13} />
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={e => { e.stopPropagation(); setAlertSubscription(subscription); }}
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+                                                            >
+                                                                <Bell size={13} />
+                                                                Alerts
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </motion.tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>

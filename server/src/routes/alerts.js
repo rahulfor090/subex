@@ -85,8 +85,8 @@ router.post('/', async (req, res) => {
     let targetDateStr = null;
     if (alertOn === 'payment_date') {
       targetDateStr = subscription.next_payment_date; // YYYY-MM-DD string
-    } else if (alertOn === 'contract_expiry') {
-      targetDateStr = subscription.contract_expiry;
+    } else if (alertOn === 'grace_period') {
+      targetDateStr = subscription.grace_period;
     }
 
     if (targetDateStr) {

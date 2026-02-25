@@ -11,7 +11,7 @@ const UNIT_OPTIONS = [
 ];
 const ALERT_ON_OPTIONS = [
     { value: 'payment_date', label: 'Payment/Expiry Date' },
-    { value: 'contract_expiry', label: 'Contract Expiry' },
+    { value: 'grace_period', label: 'Grace Period' },
 ];
 
 const defaultForm = { quantity: 1, unit: 'day', alertOn: 'payment_date', contact: '' };
